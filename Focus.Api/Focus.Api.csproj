@@ -15,4 +15,9 @@
     <ProjectReference Include="..\Focus.Infrastructure\Focus.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>
