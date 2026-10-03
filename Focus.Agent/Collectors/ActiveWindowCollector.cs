@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Focus.Agent.Models;
 
 namespace Focus.Agent.Collectors
 {
@@ -12,12 +13,6 @@ namespace Focus.Agent.Collectors
         [DllImport("user32.dll")]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
-        public class ActiveWindowInfo
-        {
-            public int ProcessId { get; set; }
-            public string ProcessName { get; set; } = "";
-            public string WindowTitle { get; set; } = "";
-        }
         public ActiveWindowInfo? Collect()
         {
             IntPtr activeWindowHandle = GetForegroundWindow();
