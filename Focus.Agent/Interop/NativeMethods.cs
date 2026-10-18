@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
+
 
 namespace Focus.Agent.Interop
 {
@@ -103,5 +105,22 @@ namespace Focus.Agent.Interop
 
         [DllImport("kernel32.dll")]
         internal static extern uint GetCurrentThreadId();
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        internal static extern uint GetWindowThreadProcessId(
+            IntPtr hWnd,
+            out uint processId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        internal static extern int GetWindowTextLength(
+            IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        internal static extern int GetWindowText(
+            IntPtr hWnd,
+            StringBuilder text,
+            int maxCount);
     }
 }

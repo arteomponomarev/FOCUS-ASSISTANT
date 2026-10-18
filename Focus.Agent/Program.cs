@@ -1,65 +1,108 @@
 ﻿using Focus.Agent.Collectors;
 using Focus.Agent.Hooks;
+using Focus.Agent.Services;
+using Focus.Agent.Storage;
 
 var activeWindowCollector = new ActiveWindowCollector();
 var idleTimeCollector = new IdleTimeCollector();
+var windowSwitchTracker = new WindowSwitchTracker();
 
 using var globalInputHook = new GlobalInputHook();
 using var inputActivityCollector =
     new InputActivityCollector(globalInputHook);
 
-using var cancellationTokenSource = new CancellationTokenSource();
+var telemetryService = new TelemetryService(
+    activeWindowCollector,
+    idleTimeCollector,
+    inputActivityCollector,
+    windowSwitchTracker);
+
+var telemetryStore = new JsonTelemetryStore();
+
+using var cancellationTokenSource =
+    new CancellationTokenSource();
 
 Console.CancelKeyPress += (_, eventArgs) =>
 {
+    // Не даём процессу завершиться мгновенно.
     eventArgs.Cancel = true;
+
     cancellationTokenSource.Cancel();
 };
 
-globalInputHook.Start();
+var interval = TimeSpan.FromSeconds(15);
+var samplingInterval = TimeSpan.FromSeconds(1);
 
-Console.WriteLine("Focus Agent started.");
-Console.WriteLine("Press Ctrl+C to stop.");
+// Для тестирования оставляем 5 секунд.
+// Позже вынесем в конфигурацию и увеличим.
+var idleThreshold = TimeSpan.FromSeconds(5);
+
+Console.WriteLine("Focus Agent starting...");
+Console.WriteLine();
 
 try
 {
+    globalInputHook.Start();
+
+    Console.WriteLine("Focus Agent started.");
+    Console.WriteLine(
+        $"Telemetry directory: {telemetryStore.DirectoryPath}");
+    Console.WriteLine(
+        $"Aggregation interval: {interval.TotalSeconds:F0} sec");
+    Console.WriteLine(
+        $"Sampling interval: {samplingInterval.TotalSeconds:F0} sec");
+    Console.WriteLine(
+        $"Idle threshold: {idleThreshold.TotalSeconds:F0} sec");
+    Console.WriteLine();
+
+    Console.WriteLine("Press Ctrl+C to stop.");
+    Console.WriteLine();
+
     while (!cancellationTokenSource.IsCancellationRequested)
     {
-        await Task.Delay(
-            TimeSpan.FromSeconds(5),
+        var snapshot =
+            await telemetryService.CollectIntervalAsync(
+                interval,
+                samplingInterval,
+                idleThreshold,
+                cancellationTokenSource.Token);
+
+        await telemetryStore.SaveAsync(
+            snapshot,
             cancellationTokenSource.Token);
 
-        var activeWindow = activeWindowCollector.Collect();
-        var idleTime = idleTimeCollector.Collect();
-        var inputActivity = inputActivityCollector.SnapshotAndReset();
+        string processName =
+            snapshot.DominantProcessName ?? "Unknown";
 
-        Console.Clear();
+        string localTime =
+            snapshot.EndedAt
+                .ToLocalTime()
+                .ToString("HH:mm:ss");
 
-        Console.WriteLine("=== Focus Agent Telemetry ===");
-        Console.WriteLine();
-
-        if (activeWindow != null)
-        {
-            Console.WriteLine($"Process:  {activeWindow.ProcessName}");
-            Console.WriteLine($"Window:   {activeWindow.WindowTitle}");
-        }
-        else
-        {
-            Console.WriteLine("Process:  unavailable");
-            Console.WriteLine("Window:   unavailable");
-        }
-
-        Console.WriteLine($"Idle:     {idleTime.TotalSeconds:F1} sec");
-        Console.WriteLine($"Keyboard: {inputActivity.KeyboardEvents}");
-        Console.WriteLine($"Mouse:    {inputActivity.MouseEvents}");
-
-        Console.WriteLine();
-        Console.WriteLine("Press Ctrl+C to stop.");
+        Console.WriteLine(
+            $"[{localTime}] " +
+            $"{processName} | " +
+            $"Idle: {snapshot.IdleDurationSeconds:F1}s " +
+            $"({snapshot.IdleRatio:P0}) | " +
+            $"Keyboard: {snapshot.KeyboardEvents} | " +
+            $"Mouse: {snapshot.MouseEvents} | " +
+            $"Switches: {snapshot.WindowSwitches}");
     }
 }
-catch (TaskCanceledException)
+catch (OperationCanceledException)
 {
-    // Normal shutdown after Ctrl+C.
+    // Нормальное завершение через Ctrl+C.
 }
+catch (Exception exception)
+{
+    Console.Error.WriteLine();
+    Console.Error.WriteLine(
+        $"Focus Agent error: {exception.Message}");
+}
+finally
+{
+    globalInputHook.Stop();
 
-globalInputHook.Stop();
+    Console.WriteLine();
+    Console.WriteLine("Focus Agent stopped.");
+}

@@ -1,37 +1,37 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Text;
+using Focus.Agent.Interop;
 using Focus.Agent.Models;
 
 namespace Focus.Agent.Collectors
 {
-    internal class ActiveWindowCollector
+    internal sealed class ActiveWindowCollector
     {
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
         public ActiveWindowInfo? Collect()
         {
-            IntPtr activeWindowHandle = GetForegroundWindow();
-            if (activeWindowHandle == IntPtr.Zero)
+            IntPtr windowHandle =
+                NativeMethods.GetForegroundWindow();
+
+            if (windowHandle == IntPtr.Zero)
             {
-                Console.WriteLine("No active window detected.");
                 return null;
             }
-            GetWindowThreadProcessId(activeWindowHandle, out uint processId);
+
+            NativeMethods.GetWindowThreadProcessId(
+                windowHandle,
+                out uint processId);
+
             try
             {
-                using Process activeProcess =
+                using Process process =
                     Process.GetProcessById((int)processId);
 
                 return new ActiveWindowInfo
                 {
                     ProcessId = (int)processId,
-                    ProcessName = activeProcess.ProcessName,
-                    WindowTitle = activeProcess.MainWindowTitle
+                    ProcessName = process.ProcessName,
+                    WindowTitle = GetWindowTitle(windowHandle),
+                    WindowHandle = windowHandle
                 };
             }
             catch
@@ -39,7 +39,26 @@ namespace Focus.Agent.Collectors
                 return null;
             }
         }
-        
 
+        private static string GetWindowTitle(
+            IntPtr windowHandle)
+        {
+            int length =
+                NativeMethods.GetWindowTextLength(windowHandle);
+
+            if (length <= 0)
+            {
+                return string.Empty;
+            }
+
+            var buffer = new StringBuilder(length + 1);
+
+            NativeMethods.GetWindowText(
+                windowHandle,
+                buffer,
+                buffer.Capacity);
+
+            return buffer.ToString();
+        }
     }
 }
