@@ -22,6 +22,44 @@ namespace Focus.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Focus.Domain.Entities.ActivityAggregate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActiveProcessName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FocusSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("IdleSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KeyboardEventCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MouseClickCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("WindowSwitchCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FocusSessionId", "StartedAt");
+
+                    b.ToTable("ActivityAggregates", (string)null);
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.FocusSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -44,6 +82,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.Property<int?>("SelfReportedConcentration")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SelfReportedProductivity")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -60,6 +101,40 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FocusSessions", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.FocusStateRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FocusSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("RuleVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FocusSessionId", "StartedAt");
+
+                    b.ToTable("FocusStateRecords", (string)null);
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.SessionGoal", b =>
@@ -113,6 +188,17 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.ActivityAggregate", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.FocusSession", "FocusSession")
+                        .WithMany()
+                        .HasForeignKey("FocusSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FocusSession");
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.FocusSession", b =>
                 {
                     b.HasOne("Focus.Domain.Entities.User", "User")
@@ -122,6 +208,17 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.FocusStateRecord", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.FocusSession", "FocusSession")
+                        .WithMany()
+                        .HasForeignKey("FocusSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FocusSession");
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.SessionGoal", b =>

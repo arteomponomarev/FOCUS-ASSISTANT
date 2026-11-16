@@ -19,6 +19,12 @@ public sealed class FocusDbContext : DbContext
     public DbSet<SessionGoal> SessionGoals =>
         Set<SessionGoal>();
 
+    public DbSet<ActivityAggregate> ActivityAggregates =>
+        Set<ActivityAggregate>();
+
+    public DbSet<FocusStateRecord> FocusStateRecords =>
+    Set<FocusStateRecord>();
+
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
     {

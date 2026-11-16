@@ -1,4 +1,5 @@
-﻿using Focus.Domain.Enums;
+﻿
+using Focus.Domain.Enums;
 
 namespace Focus.Domain.Entities;
 
@@ -42,6 +43,8 @@ public sealed class FocusSession
 
     public int? SelfReportedConcentration { get; private set; }
 
+    public int? SelfReportedProductivity { get; private set; }
+
     public string? Reflection { get; private set; }
 
     public User User { get; private set; } = null!;
@@ -63,7 +66,8 @@ public sealed class FocusSession
 
     public void Complete(
         int selfReportedConcentration,
-        string? reflection = null)
+        string? reflection = null,
+        int? selfReportedProductivity = null)
     {
         if (Status != SessionStatus.Active)
         {
@@ -78,14 +82,23 @@ public sealed class FocusSession
                 "Concentration rating must be between 1 and 5.");
         }
 
-        EndedAt = DateTimeOffset.UtcNow;
-        SelfReportedConcentration =
-            selfReportedConcentration;
+        if (selfReportedProductivity.HasValue &&
+            (selfReportedProductivity.Value < 1 ||
+             selfReportedProductivity.Value > 5))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(selfReportedProductivity),
+                "Productivity rating must be between 1 and 5.");
+        }
 
-        Reflection =
-            string.IsNullOrWhiteSpace(reflection)
-                ? null
-                : reflection.Trim();
+        EndedAt = DateTimeOffset.UtcNow;
+
+        SelfReportedConcentration = selfReportedConcentration;
+        SelfReportedProductivity = selfReportedProductivity;
+
+        Reflection = string.IsNullOrWhiteSpace(reflection)
+            ? null
+            : reflection.Trim();
 
         Status = SessionStatus.Completed;
     }
