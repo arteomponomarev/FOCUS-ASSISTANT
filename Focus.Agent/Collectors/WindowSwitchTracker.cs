@@ -8,6 +8,12 @@ namespace Focus.Agent.Collectors
         private nint _lastWindowHandle;
         private int _switchCount;
 
+        public void Reset()
+        {
+            _lastWindowHandle = nint.Zero;
+            _switchCount = 0;
+        }
+
         public void Observe(ActiveWindowInfo? activeWindow)
         {
             if (activeWindow == null ||

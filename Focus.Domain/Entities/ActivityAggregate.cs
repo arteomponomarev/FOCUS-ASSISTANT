@@ -3,6 +3,8 @@ namespace Focus.Domain.Entities;
 
 public sealed class ActivityAggregate
 {
+    public static readonly TimeSpan MaximumUploadAge = TimeSpan.FromHours(24);
+
     private ActivityAggregate()
     {
     }

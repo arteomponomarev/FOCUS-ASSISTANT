@@ -1,5 +1,11 @@
 # Authentication and authorization
 
+The Windows Agent creates a separate sign-in session through the existing login,
+refresh and logout operations. It reads the account identifier from `/api/v1/auth/me`
+and uses an explicit, owned session UUID supplied by the operator. Credentials are
+kept in Agent process memory. The Agent accepts HTTPS and local loopback HTTP origins
+and uses a masked interactive password prompt. [Windows pairing guide](../agent/windows-setup.md)
+
 Register with `email`, `password`, and `displayName`. Email is canonicalized to lower
 case. Use a password of 12–128 characters. Registration returns the profile and 201.
 Existing historical users without credentials require migration through an authorized

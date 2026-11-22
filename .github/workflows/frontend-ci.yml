@@ -1,0 +1,93 @@
+name: Frontend CI
+
+on:
+  push:
+    paths:
+      - 'Focus.Web/**'
+      - 'Focus.Api/**'
+      - 'Focus.Application/**'
+      - 'Focus.Domain/**'
+      - 'Focus.Infrastructure/**'
+      - 'Focus.Engine/**'
+      - 'docs/api/openapi.json'
+      - '.github/workflows/frontend-ci.yml'
+      - 'global.json'
+  pull_request:
+    paths:
+      - 'Focus.Web/**'
+      - 'Focus.Api/**'
+      - 'Focus.Application/**'
+      - 'Focus.Domain/**'
+      - 'Focus.Infrastructure/**'
+      - 'Focus.Engine/**'
+      - 'docs/api/openapi.json'
+      - '.github/workflows/frontend-ci.yml'
+      - 'global.json'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: focus_test_web
+          POSTGRES_USER: focus_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U focus_test -d focus_test_web"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FOCUS_WEB_TEST_DATABASE: Host=127.0.0.1;Database=focus_test_web;Username=focus_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Focus.Web/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Install locked npm dependencies
+        run: npm ci
+        working-directory: Focus.Web
+      - name: Validate types, contract, lint and formatting
+        run: |
+          npm run api:check
+          npm run typecheck
+          npm run lint
+          npm run format:check
+        working-directory: Focus.Web
+      - name: Test and build the SPA
+        run: |
+          npm test
+          npm run build
+        working-directory: Focus.Web
+      - name: Build the real API
+        run: |
+          dotnet restore Focus.Api/Focus.Api.csproj --locked-mode
+          dotnet build Focus.Api/Focus.Api.csproj -c Release --no-restore
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: Focus.Web
+      - name: Run browser tests against PostgreSQL
+        run: |
+          npm run test:e2e
+          npm run test:e2e:qa
+          npm run test:e2e:agent
+          npm run test:e2e:zoom
+        working-directory: Focus.Web
+      - name: Upload browser failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-browser-failures
+          path: Focus.Web/test-results/
+          if-no-files-found: ignore

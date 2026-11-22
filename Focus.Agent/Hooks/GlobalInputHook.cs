@@ -210,9 +210,7 @@ namespace Focus.Agent.Hooks
             return message == NativeMethods.WmLButtonDown ||
                    message == NativeMethods.WmRButtonDown ||
                    message == NativeMethods.WmMButtonDown ||
-                   message == NativeMethods.WmXButtonDown ||
-                   message == NativeMethods.WmMouseWheel ||
-                   message == NativeMethods.WmMouseHWheel;
+                   message == NativeMethods.WmXButtonDown;
         }
 
         private void RemoveHooks()

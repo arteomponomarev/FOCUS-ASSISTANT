@@ -1,5 +1,12 @@
 # Integration tutorial
 
+For actual Windows collection, see the [Windows Agent guide](../agent/windows-setup.md).
+The Agent checks account privacy and the owned session timeline before recording.
+It sends pending items through the existing activity batch operation. Each item UUID
+survives retry and restart. The API generates each estimate in the same transaction
+and accepts new records only within 24 hours of their interval end. A late partial
+aggregate must still fall inside the recorded session and consent boundaries.
+
 Start the development API as described in [Getting started](getting-started.md).
 Use a disposable environment to run the included PowerShell script. Set
 `FOCUS_DEMO_PASSWORD` to a synthetic passphrase of at least 12 characters. It will be

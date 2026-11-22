@@ -1,0 +1,313 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  padding: 1.35rem 0.9rem;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+  min-height: 2.75rem;
+  color: var(--text);
+  font-size: 1.06rem;
+  letter-spacing: -0.035em;
+  font-weight: 790;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.brand img {
+  flex: none;
+}
+.brand-tail {
+  font-weight: 640;
+}
+.sidebar .brand {
+  padding-inline: 0.4rem;
+}
+.main-navigation {
+  display: grid;
+  gap: 0.35rem;
+}
+.main-navigation a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.9rem;
+  padding-inline: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 680;
+  font-size: 0.9375rem;
+  border-radius: 0.7rem;
+}
+.main-navigation a:hover,
+.main-navigation a[aria-current='page'] {
+  background: var(--surface-alt);
+  color: var(--primary);
+}
+.sidebar-foot {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.75rem;
+  padding-inline: 0.35rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: none;
+  background: var(--surface-alt);
+  color: var(--primary);
+  font-weight: 760;
+  border-radius: 50%;
+}
+.profile-name {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace {
+  min-width: 0;
+}
+.topbar {
+  height: 4.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding-inline: var(--space);
+  background: var(--surface);
+}
+.top-section {
+  font-weight: 690;
+  color: var(--muted);
+}
+.mobile-brand {
+  display: none;
+}
+.page {
+  max-width: 95rem;
+  padding: var(--space);
+  margin-inline: auto;
+  min-width: 0;
+}
+.page:focus {
+  outline: 0;
+}
+.skip {
+  position: fixed;
+  transform: translateY(-200%);
+  z-index: 10;
+  top: 0.4rem;
+  left: 0.4rem;
+  background: var(--surface);
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+}
+.skip:focus {
+  transform: translateY(0);
+}
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: var(--space);
+}
+.page-title p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+.standalone {
+  max-width: 48rem;
+  padding: 2rem 1rem;
+  margin: auto;
+}
+.auth-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+  background: var(--surface);
+}
+.auth-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space);
+}
+.auth-main {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 1rem var(--space) 2.2rem;
+  min-width: 0;
+}
+.auth-card {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 25rem;
+}
+.auth-card .form-stack {
+  padding-block: 0.35rem;
+}
+.auth-card .form-stack > .button {
+  justify-self: stretch;
+}
+.auth-card a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.auth-visual {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  align-content: end;
+  border-radius: 1.4rem;
+  margin: 0.75rem;
+  background: #241743;
+  color: #f8f3ff;
+  padding: clamp(1.4rem, 4vw, 4rem);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.auth-visual h2 {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.1rem);
+  max-width: 11ch;
+  letter-spacing: -0.063em;
+}
+.auth-visual p {
+  color: #e7d7ff;
+  margin-top: 0.85rem;
+  max-width: 38ch;
+}
+.rings {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 83% 35%, #e9fd9a 0 4px, transparent 5px),
+    repeating-radial-gradient(
+      circle at 79% 32%,
+      transparent 0 28px,
+      #b08cfa53 29px 30px,
+      transparent 31px 55px
+    ),
+    radial-gradient(ellipse at 80% 43%, #5730a5, transparent 70%);
+  mask-image: linear-gradient(#000 0 47%, #0000 96%);
+}
+@media (max-width: 63.99rem) {
+  .app-shell {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+  .sidebar {
+    padding-inline: 0.65rem;
+    align-items: center;
+  }
+  .sidebar .brand span,
+  .profile-name {
+    display: none;
+  }
+  .main-navigation {
+    width: 100%;
+  }
+  .main-navigation a {
+    display: grid;
+    justify-items: center;
+    gap: 0.15rem;
+    min-height: 3.55rem;
+    padding: 0.3rem 0.15rem;
+    font-size: 0.875rem;
+  }
+  .sidebar-foot {
+    width: 100%;
+    display: grid;
+    justify-content: center;
+  }
+}
+@media (max-width: 42rem) {
+  .app-shell {
+    display: block;
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  }
+  .sidebar {
+    height: auto;
+    display: block;
+    z-index: 4;
+    inset: auto 0 0;
+    position: fixed;
+    border: 0;
+    border-top: 1px solid var(--border);
+    padding: 0.25rem 0.25rem calc(0.25rem + env(safe-area-inset-bottom));
+  }
+  .sidebar > .brand,
+  .sidebar-foot,
+  .top-section {
+    display: none;
+  }
+  .main-navigation {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.15rem;
+  }
+  .main-navigation a {
+    min-height: 3.4rem;
+    font-size: 0.875rem;
+    padding: 0.2rem 0;
+  }
+  .main-navigation svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .mobile-brand {
+    display: block;
+  }
+  .mobile-brand .brand img {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+  .topbar {
+    height: 3.65rem;
+  }
+  .auth-shell {
+    display: flex;
+    flex-direction: column;
+  }
+  .auth-visual {
+    display: none;
+  }
+  .auth-card {
+    max-width: 24rem;
+  }
+}
+@media (max-height: 26rem) and (orientation: landscape) {
+  .sidebar {
+    overflow-y: auto;
+  }
+}

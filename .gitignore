@@ -13,6 +13,13 @@
 *.key
 *.pgdump
 *.dump
+*.dump.sql
+*.sql.gz
+pg_dump*.sql
+
+# Local Windows Agent telemetry and encrypted outboxes
+*.jsonl
+agent-v1/
 
 # User-specific files
 *.rsuser

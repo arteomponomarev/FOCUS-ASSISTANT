@@ -9,7 +9,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Focus.Engine\Focus.Engine.csproj" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.4" />
     <InternalsVisibleTo Include="Focus.Backend.Tests" />
+    <InternalsVisibleTo Include="Focus.Api.IntegrationTests" />
   </ItemGroup>
 
   <ItemGroup>

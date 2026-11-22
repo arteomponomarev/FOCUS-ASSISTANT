@@ -1,5 +1,4 @@
 using Focus.Application.Common;
-using Focus.Application.Research;
 using Focus.Domain.Entities;
 using Focus.Domain.Enums;
 

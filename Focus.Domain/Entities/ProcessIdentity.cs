@@ -1,4 +1,4 @@
-namespace Focus.Application.Research;
+namespace Focus.Domain.Entities;
 
 public static class ProcessIdentity
 {

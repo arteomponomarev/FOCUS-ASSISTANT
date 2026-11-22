@@ -54,6 +54,9 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
             if (session.Status is SessionStatus.Planned or SessionStatus.Cancelled)
                 throw UseCaseException.Conflict("Telemetry requires a started, non-cancelled session.");
 
+            if (latest - input.EndedAt > ActivityAggregate.MaximumUploadAge)
+                throw new UseCaseException(Failure.Unprocessable, "The telemetry upload window has expired.");
+
             if (session.StartedAt is not { } start || input.StartedAt < start || input.StartedAt < consent ||
                 input.EndedAt > (session.EndedAt ?? latest))
                 throw new UseCaseException(Failure.Unprocessable, "The telemetry window is outside the session or consent interval.");

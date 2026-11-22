@@ -33,6 +33,7 @@ The system does not claim to measure human attention directly.
 |---|---|
 | Desktop Agent | C# / .NET 10 |
 | Backend API | ASP.NET Core |
+| Web client | React, TypeScript, Vite |
 | Domain and Application Logic | C# |
 | Database | PostgreSQL 17 |
 | Object-Relational Mapping | Entity Framework Core 10 |
@@ -44,7 +45,6 @@ The system does not claim to measure human attention directly.
 Planned additional components:
 
 - Unity desktop avatar
-- React web dashboard
 - Python-based statistical analysis
 - Optional computer vision using MediaPipe and OpenCV
 
@@ -52,7 +52,7 @@ These additional components are not required to reproduce the current PostgreSQL
 
 ## 3. Solution Structure
 
-The solution contains six C# product projects and two automated test projects.
+The solution contains six C# product projects and two automated test projects. The React client resides in `Focus.Web/`.
 
 ```text
 FOCUS ASSISTANT/
@@ -345,8 +345,43 @@ The current API project registers ASP.NET Core controllers and database infrastr
 Database migrations are applied separately using the EF Core command shown above.
 
 Use the [v1 integration tutorial](docs/api/integration-tutorial.md) to exercise the
-implemented backend workflow. The local Agent uploader, React dashboard, and Unity
-application are separate deliverables.
+implemented backend workflow.
+
+### Running the web client
+
+Use Node.js 22.13+ and npm. Follow the [API Getting Started guide](docs/api/getting-started.md)
+to configure PostgreSQL, migrate your development database, and start the API at
+`http://127.0.0.1:8080`. In a second terminal from the repository root:
+
+```powershell
+cd Focus.Web
+npm ci
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`, register an account, and sign in. Vite proxies
+`/api` to the local API. Set `FOCUS_API_ORIGIN` in `Focus.Web/.env.local`
+if the API uses another local address.
+
+### Recording Windows activity for a web session
+
+Enable telemetry in **Settings → Privacy**, create a planned session, and copy its
+UUID from **Connect Windows Agent**. Run from the repository root in Windows PowerShell:
+
+```powershell
+$session = Read-Host 'Session UUID'
+dotnet run --project Focus.Agent -c Release -- --api http://127.0.0.1:8080 --session $session --collect
+```
+
+Confirm the run with `START` and use the same account as the web client. The Agent
+uploads to the existing API and PostgreSQL database. See the [Windows Agent guide](docs/agent/windows-setup.md)
+for the short-session walkthrough, encrypted queue, retries and consent behavior.
+
+See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md), and
+[production hosting configuration](docs/frontend/api-integration.md).
+
+Use the [manual review checklist](docs/frontend/manual-review-checklist.md) for a short
+Windows walkthrough with a disposable PostgreSQL database and synthetic account.
 
 ## 7. Research Data
 
@@ -456,12 +491,9 @@ Backend v1 supports authentication, owned sessions and goals, consent-gated tele
 versioned heuristic estimates, analytics, and user preferences. The isolated PostgreSQL
 workflow and coverage results are recorded in the implementation evidence.
 
-Integration work outside the backend:
+Further integration work:
 
-- Windows Agent upload adapter for the backend ingestion contract
-- Local offline synchronization
 - Unity desktop avatar
-- Web dashboard
 - Computer vision
 - Statistical validation and research experiments
 

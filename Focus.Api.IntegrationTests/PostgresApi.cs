@@ -21,8 +21,14 @@ public sealed class PostgresFactAttribute : FactAttribute
 
 internal sealed class PostgresApi : WebApplicationFactory<Program>
 {
-    private readonly string _connection = TestConnection();
+    private readonly string _connection;
     public MutableClock Clock { get; } = new();
+
+    public PostgresApi() : this(TestConnection()) { }
+
+    private PostgresApi(string connection) => _connection = connection;
+
+    public PostgresApi Reopen() => new(_connection);
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

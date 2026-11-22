@@ -55,10 +55,12 @@ validated as psychological measurements.
 Uploading requires explicit per-account consent. Withdrawing it immediately
 blocks future ingestion and retains previously accepted observations until deletion.
 The backend accepts no raw input, window title, clipboard, browser content, screenshot
-or webcam fields. Restrict the Agent to privacy-minimized uploads. Its legacy local
-JSONL is separate from the API contract. New Agent builds omit window titles at
-collection and serialization time. Files written by older builds can still contain
-titles and require an explicit local retention or deletion decision.
+or webcam fields. The Agent installs its collectors after confirming the selected
+session is active and account consent is enabled. It pauses when fresh authorization
+is unavailable. The local synchronized queue uses Windows DPAPI and contains
+aggregate fields only. Legacy JSONL is never read by the uploader. Files written
+by older builds can still contain titles and require a local retention decision.
+[Windows Agent privacy and retention](../agent/windows-setup.md#privacy)
 
 The privacy export is pageable. Read account preferences from the export entry point,
 then follow work profile and session paths. Under each session, retrieve goal details,

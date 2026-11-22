@@ -1,193 +1,64 @@
-﻿using Focus.Agent.Collectors;
+using Focus.Agent.Collectors;
 using Focus.Agent.Models;
+using Focus.Agent.Sync;
+using Focus.Domain.Entities;
 
-namespace Focus.Agent.Services
+namespace Focus.Agent.Services;
+
+internal sealed class TelemetryService(
+    ActiveWindowCollector windows,
+    IdleTimeCollector idle,
+    InputActivityCollector input,
+    WindowSwitchTracker switches,
+    TimeProvider clock) : ISignalSource
 {
-    internal sealed class TelemetryService
+    private static readonly TimeSpan IdleThreshold = TimeSpan.FromSeconds(5);
+    private DateTimeOffset? _previousAt;
+    private ActiveWindowInfo? _previousWindow;
+    private bool _wasIdle;
+
+    public void Start()
     {
-        private readonly ActiveWindowCollector _activeWindowCollector;
-        private readonly IdleTimeCollector _idleTimeCollector;
-        private readonly InputActivityCollector _inputActivityCollector;
-        private readonly WindowSwitchTracker _windowSwitchTracker;
+        if (_previousAt is not null)
+            return;
 
-        public TelemetryService(
-            ActiveWindowCollector activeWindowCollector,
-            IdleTimeCollector idleTimeCollector,
-            InputActivityCollector inputActivityCollector,
-            WindowSwitchTracker windowSwitchTracker)
-        {
-            _activeWindowCollector = activeWindowCollector;
-            _idleTimeCollector = idleTimeCollector;
-            _inputActivityCollector = inputActivityCollector;
-            _windowSwitchTracker = windowSwitchTracker;
-        }
+        switches.Reset();
+        _previousWindow = windows.Collect();
+        switches.Observe(_previousWindow);
+        _wasIdle = idle.Collect() >= IdleThreshold;
+        input.Start();
+        input.SnapshotAndReset();
+        _previousAt = clock.GetUtcNow();
+    }
 
-        public async Task<TelemetrySnapshot> CollectIntervalAsync(
-            TimeSpan interval,
-            TimeSpan samplingInterval,
-            TimeSpan idleThreshold,
-            CancellationToken cancellationToken = default)
-        {
-            DateTimeOffset startedAt = DateTimeOffset.UtcNow;
-            DateTimeOffset finishAt = startedAt.Add(interval);
+    public SignalSample? Sample()
+    {
+        if (_previousAt is not { } start)
+            return null;
 
-            var usage = new Dictionary<int, UsageAccumulator>();
+        var window = windows.Collect();
+        switches.Observe(window);
+        var nextIdle = idle.Collect() >= IdleThreshold;
+        var counts = input.SnapshotAndReset();
+        var switchCount = switches.SnapshotAndReset();
+        var end = clock.GetUtcNow();
+        var process = ProcessIdentity.TryNormalize(_previousWindow?.ProcessName, out var normalized)
+            ? normalized : null;
+        var sample = new SignalSample(start, end, process,
+            counts.KeyboardEvents, counts.MouseEvents, switchCount,
+            _wasIdle ? (end - start).TotalSeconds : 0);
+        _previousAt = end;
+        _previousWindow = window;
+        _wasIdle = nextIdle;
+        return sample;
+    }
 
-            double idleDurationSeconds = 0;
-
-            ActiveWindowInfo? currentWindow =
-                _activeWindowCollector.Collect();
-
-            _windowSwitchTracker.Observe(currentWindow);
-
-            bool isIdle =
-                _idleTimeCollector.Collect() >= idleThreshold;
-
-            DateTimeOffset previousSampleAt = startedAt;
-
-            while (DateTimeOffset.UtcNow < finishAt)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                TimeSpan remaining =
-                    finishAt - DateTimeOffset.UtcNow;
-
-                TimeSpan delay =
-                    remaining < samplingInterval
-                        ? remaining
-                        : samplingInterval;
-
-                if (delay > TimeSpan.Zero)
-                {
-                    await Task.Delay(
-                        delay,
-                        cancellationToken);
-                }
-
-                DateTimeOffset now = DateTimeOffset.UtcNow;
-
-                double elapsedSeconds =
-                    (now - previousSampleAt).TotalSeconds;
-
-                AddApplicationUsage(
-                    usage,
-                    currentWindow,
-                    elapsedSeconds);
-
-                if (isIdle)
-                {
-                    idleDurationSeconds += elapsedSeconds;
-                }
-
-                currentWindow =
-                    _activeWindowCollector.Collect();
-
-                _windowSwitchTracker.Observe(currentWindow);
-
-                isIdle =
-                    _idleTimeCollector.Collect() >= idleThreshold;
-
-                previousSampleAt = now;
-            }
-
-            DateTimeOffset endedAt = DateTimeOffset.UtcNow;
-
-            double intervalDurationSeconds =
-                (endedAt - startedAt).TotalSeconds;
-
-            InputActivitySnapshot inputActivity =
-                _inputActivityCollector.SnapshotAndReset();
-
-            int windowSwitches =
-                _windowSwitchTracker.SnapshotAndReset();
-
-            List<ApplicationUsageInfo> applicationUsage =
-                usage.Values
-                    .OrderByDescending(x => x.DurationSeconds)
-                    .Select(x => new ApplicationUsageInfo
-                    {
-                        ProcessId = x.ProcessId,
-                        ProcessName = x.ProcessName,
-                        DurationSeconds = x.DurationSeconds
-                    })
-                    .ToList();
-
-            ApplicationUsageInfo? dominantApplication =
-                applicationUsage.FirstOrDefault();
-
-            return new TelemetrySnapshot
-            {
-                StartedAt = startedAt,
-                EndedAt = endedAt,
-
-                IntervalDurationSeconds =
-                    intervalDurationSeconds,
-
-                DominantProcessId =
-                    dominantApplication?.ProcessId,
-
-                DominantProcessName =
-                    dominantApplication?.ProcessName,
-
-                IdleDurationSeconds =
-                    idleDurationSeconds,
-
-                IdleRatio =
-                    intervalDurationSeconds > 0
-                        ? idleDurationSeconds /
-                          intervalDurationSeconds
-                        : 0,
-
-                KeyboardEvents =
-                    inputActivity.KeyboardEvents,
-
-                MouseEvents =
-                    inputActivity.MouseEvents,
-
-                WindowSwitches =
-                    windowSwitches,
-
-                ApplicationUsage =
-                    applicationUsage
-            };
-        }
-
-        private static void AddApplicationUsage(
-            Dictionary<int, UsageAccumulator> usage,
-            ActiveWindowInfo? window,
-            double durationSeconds)
-        {
-            if (window == null || durationSeconds <= 0)
-            {
-                return;
-            }
-
-            if (!usage.TryGetValue(
-                    window.ProcessId,
-                    out UsageAccumulator? accumulator))
-            {
-                accumulator = new UsageAccumulator
-                {
-                    ProcessId = window.ProcessId,
-                    ProcessName = window.ProcessName
-                };
-
-                usage.Add(
-                    window.ProcessId,
-                    accumulator);
-            }
-
-            accumulator.DurationSeconds +=
-                durationSeconds;
-        }
-
-        private sealed class UsageAccumulator
-        {
-            public int ProcessId { get; init; }
-
-            public string ProcessName { get; init; } = "";
-
-            public double DurationSeconds { get; set; }
-        }
+    public void Stop()
+    {
+        _previousAt = null;
+        _previousWindow = null;
+        input.Stop();
+        input.SnapshotAndReset();
+        switches.Reset();
     }
 }

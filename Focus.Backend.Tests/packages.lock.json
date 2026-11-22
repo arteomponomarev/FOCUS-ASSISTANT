@@ -59,6 +59,11 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "System.Security.Cryptography.ProtectedData": {
+        "type": "Transitive",
+        "resolved": "9.0.4",
+        "contentHash": "o94k2RKuAce3GeDMlUvIXlhVa1kWpJw95E6C9LwW0KlG0nj5+SgCiIxJ2Eroqb9sLtG1mEMbFttZIBZ13EJPvQ=="
+      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -102,7 +107,8 @@
       "focus.agent": {
         "type": "Project",
         "dependencies": {
-          "Focus.Engine": "[1.0.0, )"
+          "Focus.Engine": "[1.0.0, )",
+          "System.Security.Cryptography.ProtectedData": "[9.0.4, )"
         }
       },
       "focus.application": {

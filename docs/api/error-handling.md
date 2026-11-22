@@ -12,7 +12,7 @@ expose `X-Request-Id`. Invalid request responses redact submitted values.
 | 409 | Invalid lifecycle state, duplicate registration, telemetry ID/content collision or overlapping interval | Re-read state. Reuse a telemetry ID only for the same item. |
 | 413 | Request body exceeds server limit | Use smaller telemetry batches. |
 | 415 | Unsupported request content type | Send the request as JSON. |
-| 422 | Aggregate crosses a session, consent, or pause boundary | Split or discard incompatible intervals. |
+| 422 | Aggregate crosses a session, consent, or pause boundary, or its upload window expired | Discard incompatible or expired intervals. |
 | 429 | Authentication limit reached | Back off according to `Retry-After` when present. |
 | 500 | Unexpected failure | Record the trace ID. Retry only idempotent operations automatically. |
 | 503 | Readiness probe failed | Wait for a healthy server. |

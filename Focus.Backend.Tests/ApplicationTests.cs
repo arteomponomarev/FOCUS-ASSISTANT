@@ -157,6 +157,23 @@ public sealed class ApplicationTests
     }
 
     [Fact]
+    public async Task RejectsNewTelemetryAfterTheLateUploadWindowExpires()
+    {
+        var old = Epoch.AddDays(-2);
+        var store = new SessionStore();
+        var session = new FocusSession(Owner, TimeSpan.FromMinutes(1), old);
+        await store.AddAsync(session, default);
+        session.Start(old);
+        session.Complete(4, null, 3, old.AddMinutes(1));
+        var research = new ResearchStore { Consent = old };
+        var service = new TelemetryService(store, research, new FocusClassifier(), TestClock);
+        var item = new AggregateInput(Guid.NewGuid(), old, old.AddSeconds(15), "editor", 1, 0, 0, 0);
+        await FailureAsync(Failure.Unprocessable, () => service.AcceptAsync(Owner, session.Id, [item], default));
+        Assert.Empty(research.Activities);
+        Assert.Empty(research.Estimates);
+    }
+
+    [Fact]
     public async Task ReportsSplitDstDaysAndClipOverlappingLegacyEstimates()
     {
         var store = new SessionStore();
