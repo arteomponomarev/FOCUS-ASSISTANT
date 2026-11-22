@@ -4,5 +4,6 @@ public enum GoalStatus
 {
     Pending = 0,
     Completed = 1,
-    NotCompleted = 2
+    NotCompleted = 2,
+    PartiallyCompleted = 3
 }

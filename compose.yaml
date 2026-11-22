@@ -1,0 +1,52 @@
+name: focus-assistant
+x-api: &api
+  build: .
+  image: focus-assistant-api:local
+  environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    ConnectionStrings__PostgreSQL: "Host=postgres;Database=focus_assistant;Username=focus;Password=${FOCUS_POSTGRES_PASSWORD:?Set FOCUS_POSTGRES_PASSWORD}"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: focus_assistant
+      POSTGRES_USER: focus
+      POSTGRES_PASSWORD: "${FOCUS_POSTGRES_PASSWORD:?Set FOCUS_POSTGRES_PASSWORD}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U focus -d focus_assistant"]
+      interval: 5s
+      timeout: 4s
+      retries: 15
+
+  migrate:
+    <<: *api
+    command: ["--migrate"]
+    healthcheck:
+      disable: true
+
+  api:
+    <<: *api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__PostgreSQL: "Host=postgres;Database=focus_assistant;Username=focus;Password=${FOCUS_POSTGRES_PASSWORD:?Set FOCUS_POSTGRES_PASSWORD}"
+      Authentication__KeyDirectory: /var/focus/keys
+      Http__AllowedOrigins__0: "${FOCUS_WEB_ORIGIN:-http://localhost:5173}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${FOCUS_API_PORT:-8080}:8080"
+    volumes:
+      - application-keys:/var/focus/keys
+
+volumes:
+  postgres-data:
+  application-keys:

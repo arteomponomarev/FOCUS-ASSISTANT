@@ -14,6 +14,11 @@ internal sealed class FocusStateRecordConfiguration
         builder.ToTable("FocusStateRecords");
 
         builder.HasKey(x => x.Id);
+        builder.HasIndex(x => x.ActivityAggregateId).IsUnique();
+        builder.HasOne<ActivityAggregate>().WithOne()
+            .HasForeignKey<FocusStateRecord>(x => new { x.FocusSessionId, x.ActivityAggregateId })
+            .HasPrincipalKey<ActivityAggregate>(x => new { x.FocusSessionId, x.Id })
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(x => x.StartedAt)
             .IsRequired();

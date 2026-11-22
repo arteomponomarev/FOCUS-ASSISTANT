@@ -1,0 +1,80 @@
+name: Backend CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: focus_test
+          POSTGRES_PASSWORD: github-actions-fixture
+          POSTGRES_DB: focus_test_backend
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U focus_test -d focus_test_backend"
+          --health-interval 5s --health-timeout 4s --health-retries 15
+    env:
+      FOCUS_TEST_DATABASE: Host=127.0.0.1;Database=focus_test_backend;Username=focus_test;Password=github-actions-fixture
+      FOCUS_REQUIRE_POSTGRES: '1'
+      DOTNET_NOLOGO: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: dotnet restore "FOCUS ASSISTANT.slnx" --locked-mode -p:WarningsAsErrors="NU1901%3BNU1902%3BNU1903%3BNU1904"
+      - run: dotnet build "FOCUS ASSISTANT.slnx" -c Release --no-restore -warnaserror
+      - run: >-
+          dotnet test Focus.Backend.Tests -c Release --no-build
+          --collect "XPlat Code Coverage" --settings docs/testing/business-logic.runsettings
+          --logger trx --results-directory artifacts/ci-coverage
+      - run: python scripts/check-coverage.py artifacts/ci-coverage --minimum 80
+      - run: dotnet test Focus.Api.IntegrationTests -c Release --no-build --logger "trx;LogFileName=integration.trx"
+      - run: |
+          python -m pip install openapi-spec-validator==0.7.2
+          python -m openapi_spec_validator docs/api/openapi.json
+      - run: dotnet format "FOCUS ASSISTANT.slnx" --no-restore --verify-no-changes
+      - run: docker build -t focus-assistant-api:local .
+      - name: Verify isolated Compose stack
+        env:
+          FOCUS_POSTGRES_PASSWORD: focusFixtureCi52
+          FOCUS_API_PORT: '18080'
+        run: |
+          docker compose -p focus-ci config --quiet
+          docker compose -p focus-ci up --no-build --wait --wait-timeout 90 api
+          curl --fail --silent --show-error http://127.0.0.1:18080/health/live
+          curl --fail --silent --show-error http://127.0.0.1:18080/health/ready
+      - name: Stop isolated Compose stack
+        if: always()
+        env:
+          FOCUS_POSTGRES_PASSWORD: focusFixtureCi52
+          FOCUS_API_PORT: '18080'
+        run: docker compose -p focus-ci down --volumes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-evidence
+          path: |
+            artifacts/ci-coverage/**/coverage.cobertura.xml
+            artifacts/ci-coverage/*.trx
+            Focus.Api.IntegrationTests/TestResults/*.trx
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.3 git /repo --redact --no-banner

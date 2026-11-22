@@ -13,9 +13,9 @@ namespace Focus.Agent.Storage
 
         private readonly string _directoryPath;
 
-        public JsonTelemetryStore()
+        public JsonTelemetryStore(string? directoryPath = null)
         {
-            _directoryPath = Path.Combine(
+            _directoryPath = directoryPath ?? Path.Combine(
                 Environment.GetFolderPath(
                     Environment.SpecialFolder.LocalApplicationData),
                 "FocusAssistant",

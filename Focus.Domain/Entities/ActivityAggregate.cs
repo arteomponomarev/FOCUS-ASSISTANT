@@ -15,7 +15,8 @@ public sealed class ActivityAggregate
         int keyboardEventCount,
         int mouseClickCount,
         int windowSwitchCount,
-        int idleSeconds)
+        int idleSeconds,
+        Guid? clientEventId = null)
     {
         if (focusSessionId == Guid.Empty)
             throw new ArgumentException(
@@ -36,6 +37,7 @@ public sealed class ActivityAggregate
 
         Id = Guid.NewGuid();
         FocusSessionId = focusSessionId;
+        ClientEventId = clientEventId;
 
         StartedAt = startedAt.ToUniversalTime();
         EndedAt = endedAt.ToUniversalTime();
@@ -54,6 +56,7 @@ public sealed class ActivityAggregate
     public Guid Id { get; private set; }
 
     public Guid FocusSessionId { get; private set; }
+    public Guid? ClientEventId { get; private set; }
 
     public DateTimeOffset StartedAt { get; private set; }
 

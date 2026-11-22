@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using Focus.Agent.Interop;
 using Focus.Agent.Models;
 
@@ -30,7 +29,6 @@ namespace Focus.Agent.Collectors
                 {
                     ProcessId = (int)processId,
                     ProcessName = process.ProcessName,
-                    WindowTitle = GetWindowTitle(windowHandle),
                     WindowHandle = windowHandle
                 };
             }
@@ -40,25 +38,5 @@ namespace Focus.Agent.Collectors
             }
         }
 
-        private static string GetWindowTitle(
-            IntPtr windowHandle)
-        {
-            int length =
-                NativeMethods.GetWindowTextLength(windowHandle);
-
-            if (length <= 0)
-            {
-                return string.Empty;
-            }
-
-            var buffer = new StringBuilder(length + 1);
-
-            NativeMethods.GetWindowText(
-                windowHandle,
-                buffer,
-                buffer.Capacity);
-
-            return buffer.ToString();
-        }
     }
 }

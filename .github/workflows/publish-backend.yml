@@ -1,0 +1,35 @@
+name: Publish reviewed backend image
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the selected commit to the repository GHCR namespace
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    environment: container-registry
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive canonical registry image
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-api:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Build
+        run: docker build -t "${{ steps.image.outputs.name }}" .
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish immutable commit tag
+        run: docker push "${{ steps.image.outputs.name }}"

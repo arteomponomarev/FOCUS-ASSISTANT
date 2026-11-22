@@ -32,6 +32,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid?>("ClientEventId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -54,6 +57,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FocusSessionId", "ClientEventId")
+                        .IsUnique();
 
                     b.HasIndex("FocusSessionId", "StartedAt");
 
@@ -94,11 +100,18 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("WorkProfileId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("StartedAt");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.HasIndex("UserId", "WorkProfileId");
 
                     b.ToTable("FocusSessions", (string)null);
                 });
@@ -109,11 +122,17 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ActivityAggregateId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("FocusSessionId")
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("InputProcessCategory")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
@@ -132,15 +151,37 @@ namespace Focus.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActivityAggregateId")
+                        .IsUnique();
+
+                    b.HasIndex("FocusSessionId", "ActivityAggregateId")
+                        .IsUnique();
+
                     b.HasIndex("FocusSessionId", "StartedAt");
 
                     b.ToTable("FocusStateRecords", (string)null);
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.ProcessRule", b =>
+                {
+                    b.Property<Guid>("WorkProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ProcessName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.HasKey("WorkProfileId", "ProcessName");
+
+                    b.ToTable("ProcessRules", (string)null);
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.SessionGoal", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
@@ -159,6 +200,34 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.HasIndex("FocusSessionId");
 
                     b.ToTable("SessionGoals", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.SessionPause", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FocusSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FocusSessionId")
+                        .IsUnique()
+                        .HasFilter(" \"EndedAt\" IS NULL ");
+
+                    b.HasIndex("FocusSessionId", "StartedAt");
+
+                    b.ToTable("SessionPauses", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SessionPauses_Interval", " \"EndedAt\" IS NULL OR \"EndedAt\" >= \"StartedAt\" ");
+                        });
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.User", b =>
@@ -180,12 +249,124 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
+                    b.Property<DateTimeOffset?>("TelemetryConsentAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.UserPreferences", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AvatarId")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("FocusMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Intensity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IntervalsBeforeLongBreak")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LongBreakMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShortBreakMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Visibility")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserPreferences", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.WorkProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BreakMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("FocusMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Infrastructure.Accounts.AccountCredential", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique();
+
+                    b.ToTable("AccountCredentials", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Infrastructure.Accounts.AccountLogin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FamilyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ExpiresAt");
+
+                    b.HasIndex("UserId", "FamilyId")
+                        .IsUnique();
+
+                    b.ToTable("AccountLogins", (string)null);
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.ActivityAggregate", b =>
@@ -207,6 +388,12 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Focus.Domain.Entities.WorkProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "WorkProfileId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("User");
                 });
 
@@ -218,7 +405,22 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Focus.Domain.Entities.ActivityAggregate", null)
+                        .WithOne()
+                        .HasForeignKey("Focus.Domain.Entities.FocusStateRecord", "FocusSessionId", "ActivityAggregateId")
+                        .HasPrincipalKey("Focus.Domain.Entities.ActivityAggregate", "FocusSessionId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("FocusSession");
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.ProcessRule", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.WorkProfile", null)
+                        .WithMany("Rules")
+                        .HasForeignKey("WorkProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.SessionGoal", b =>
@@ -232,14 +434,68 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.Navigation("FocusSession");
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.SessionPause", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.FocusSession", null)
+                        .WithMany("Pauses")
+                        .HasForeignKey("FocusSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.UserPreferences", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.User", null)
+                        .WithOne()
+                        .HasForeignKey("Focus.Domain.Entities.UserPreferences", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.WorkProfile", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Focus.Infrastructure.Accounts.AccountCredential", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.User", "User")
+                        .WithOne()
+                        .HasForeignKey("Focus.Infrastructure.Accounts.AccountCredential", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Focus.Infrastructure.Accounts.AccountLogin", b =>
+                {
+                    b.HasOne("Focus.Infrastructure.Accounts.AccountCredential", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.FocusSession", b =>
                 {
                     b.Navigation("Goals");
+
+                    b.Navigation("Pauses");
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.User", b =>
                 {
                     b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.WorkProfile", b =>
+                {
+                    b.Navigation("Rules");
                 });
 #pragma warning restore 612, 618
         }

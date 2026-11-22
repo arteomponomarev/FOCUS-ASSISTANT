@@ -108,7 +108,6 @@ namespace Focus.Agent.Services
                     {
                         ProcessId = x.ProcessId,
                         ProcessName = x.ProcessName,
-                        WindowTitle = x.WindowTitle,
                         DurationSeconds = x.DurationSeconds
                     })
                     .ToList();
@@ -129,9 +128,6 @@ namespace Focus.Agent.Services
 
                 DominantProcessName =
                     dominantApplication?.ProcessName,
-
-                DominantWindowTitle =
-                    dominantApplication?.WindowTitle,
 
                 IdleDurationSeconds =
                     idleDurationSeconds,
@@ -181,8 +177,6 @@ namespace Focus.Agent.Services
                     accumulator);
             }
 
-            accumulator.WindowTitle = window.WindowTitle;
-
             accumulator.DurationSeconds +=
                 durationSeconds;
         }
@@ -192,8 +186,6 @@ namespace Focus.Agent.Services
             public int ProcessId { get; init; }
 
             public string ProcessName { get; init; } = "";
-
-            public string WindowTitle { get; set; } = "";
 
             public double DurationSeconds { get; set; }
         }

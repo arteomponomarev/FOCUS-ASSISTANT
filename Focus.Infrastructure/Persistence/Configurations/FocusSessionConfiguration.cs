@@ -34,5 +34,14 @@ internal sealed class FocusSessionConfiguration
             .WithOne(x => x.FocusSession)
             .HasForeignKey(x => x.FocusSessionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.Pauses).WithOne().HasForeignKey(x => x.FocusSessionId);
+        builder.Navigation(x => x.Goals).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(x => x.Pauses).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasIndex(x => new { x.UserId, x.CreatedAt });
+        builder.HasOne<WorkProfile>().WithMany()
+            .HasForeignKey(x => new { x.UserId, x.WorkProfileId })
+            .HasPrincipalKey(x => new { x.UserId, x.Id })
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -12,8 +12,6 @@
 
         public string? DominantProcessName { get; init; }
 
-        public string? DominantWindowTitle { get; init; }
-
         public double IdleDurationSeconds { get; init; }
 
         public double IdleRatio { get; init; }

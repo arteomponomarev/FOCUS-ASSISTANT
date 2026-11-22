@@ -1,6 +1,47 @@
-@Focus.Api_HostAddress = http://localhost:5157
+@Host = http://127.0.0.1:8080
+@Email = researcher@example.invalid
+@Password = {{$dotenv FOCUS_DEMO_PASSWORD}}
+@AccessToken = {{$dotenv FOCUS_DEMO_ACCESS_TOKEN}}
 
-GET {{Focus.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{Host}}/health/ready
 
 ###
+
+GET {{Host}}/openapi/v1.json
+
+###
+
+POST {{Host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}",
+  "displayName": "Researcher"
+}
+
+###
+
+POST {{Host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}"
+}
+
+###
+
+POST {{Host}}/api/v1/sessions
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "plannedDurationSeconds": 1200,
+  "goals": ["Draft the methods section"]
+}
+
+###
+
+GET {{Host}}/api/v1/sessions?page=1&pageSize=25&sort=desc
+Authorization: Bearer {{AccessToken}}

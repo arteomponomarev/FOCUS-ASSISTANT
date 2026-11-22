@@ -1,6 +1,10 @@
 
 # Focus Assistant — Database Data Dictionary
 
+The core dictionary below records the historical two-migration baseline. See the
+[backend v1 addendum](backend-v1.md) for additional fields, tables, constraints,
+and migration compatibility.
+
 ## 1. Overview
 
 Focus Assistant uses PostgreSQL as its main database and Entity Framework Core for data access and schema migrations.

@@ -1,7 +1,9 @@
 <Solution>
   <Project Path="Focus.Agent/Focus.Agent.csproj" />
   <Project Path="Focus.Api/Focus.Api.csproj" />
+  <Project Path="Focus.Api.IntegrationTests/Focus.Api.IntegrationTests.csproj" />
   <Project Path="Focus.Application/Focus.Application.csproj" />
+  <Project Path="Focus.Backend.Tests/Focus.Backend.Tests.csproj" />
   <Project Path="Focus.Domain/Focus.Domain.csproj" />
   <Project Path="Focus.Engine/Focus.Engine.csproj" />
   <Project Path="Focus.Infrastructure/Focus.Infrastructure.csproj" />

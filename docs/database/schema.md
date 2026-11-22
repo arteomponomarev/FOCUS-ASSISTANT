@@ -1,6 +1,10 @@
 
 # Focus Assistant — Database Schema
 
+The core schema below records the historical two-migration baseline. The
+[backend v1 schema addendum](backend-v1.md) describes the additional tables and
+relationships.
+
 ## 1. Database Architecture
 
 Database management system: PostgreSQL 17

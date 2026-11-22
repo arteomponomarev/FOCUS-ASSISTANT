@@ -1,6 +1,12 @@
 
 # Focus Assistant
 
+**Backend v1** is implemented in the existing ASP.NET Core and PostgreSQL projects.
+See the [API guide](docs/api/README.md), [deployment runbook](docs/deployment/backend.md),
+[verification instructions](docs/testing/backend.md), and
+[implementation evidence](docs/implementation/backend-progress.md), and
+[independent release verification](docs/implementation/backend-verification.md).
+
 Focus Assistant is a research-oriented application designed to study the relationship between computer activity, user concentration, and self-reported productivity.
 
 The system collects aggregated Windows activity data, supports goal-oriented work sessions, and provides a foundation for evaluating concentration using explainable rules.
@@ -46,7 +52,7 @@ These additional components are not required to reproduce the current PostgreSQL
 
 ## 3. Solution Structure
 
-The solution contains six C# projects.
+The solution contains six C# product projects and two automated test projects.
 
 ```text
 FOCUS ASSISTANT/
@@ -121,7 +127,9 @@ Focus Assistant uses PostgreSQL as its primary database.
 
 Entity Framework Core is responsible for mapping C# entities to database tables.
 
-The database currently contains five application tables:
+The original schema contains five core application tables. Backend v1 adds
+account credentials, sessions' pause intervals, and preferences as described in the
+[schema addendum](docs/database/backend-v1.md).
 
 | Table | Purpose |
 |---|---|
@@ -244,7 +252,7 @@ PostgreSQL must be running, and the configured user must have sufficient permiss
 
 ### 5.5 Available Migrations
 
-The repository contains two database migrations:
+The historical database baseline starts with two migrations:
 
 1. `InitialCreate`
    - Creates Users
@@ -278,6 +286,7 @@ AddTelemetryAndResearchData
 ```
 
 The second migration's full name includes its generated timestamp.
+The v1 migrations appear after these entries.
 
 ### 5.7 Verify Database Tables
 
@@ -335,7 +344,9 @@ The current API project registers ASP.NET Core controllers and database infrastr
 
 Database migrations are applied separately using the EF Core command shown above.
 
-The API implementation is still under development.
+Use the [v1 integration tutorial](docs/api/integration-tutorial.md) to exercise the
+implemented backend workflow. The local Agent uploader, React dashboard, and Unity
+application are separate deliverables.
 
 ## 7. Research Data
 
@@ -427,7 +438,7 @@ The database uses:
 
 Some business constraints are currently validated in C# rather than by PostgreSQL CHECK constraints.
 
-## 9. Current Development Status
+## 9. Database Baseline and Backend v1 Status
 
 Implemented or verified:
 
@@ -441,11 +452,13 @@ Implemented or verified:
 - Database documentation
 - Local database connection and migration verification
 
-In development or planned:
+Backend v1 supports authentication, owned sessions and goals, consent-gated telemetry,
+versioned heuristic estimates, analytics, and user preferences. The isolated PostgreSQL
+workflow and coverage results are recorded in the implementation evidence.
 
-- Integration of collected telemetry with persistent storage
-- Focus Engine classification rules
-- Complete API functionality
+Integration work outside the backend:
+
+- Windows Agent upload adapter for the backend ingestion contract
 - Local offline synchronization
 - Unity desktop avatar
 - Web dashboard

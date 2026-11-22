@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 
 namespace Focus.Agent.Interop
@@ -113,14 +112,5 @@ namespace Focus.Agent.Interop
             IntPtr hWnd,
             out uint processId);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        internal static extern int GetWindowTextLength(
-            IntPtr hWnd);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        internal static extern int GetWindowText(
-            IntPtr hWnd,
-            StringBuilder text,
-            int maxCount);
     }
 }

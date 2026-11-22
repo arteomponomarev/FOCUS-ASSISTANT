@@ -1,0 +1,52 @@
+name: Deploy reviewed backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Image reference in the repository GHCR namespace pinned by digest
+        required: true
+        type: string
+      deploy:
+        description: Enable the deployment on the configured production runner
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: focus-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: inputs.deploy
+    environment: production
+    runs-on: [self-hosted, linux, focus-production]
+    env:
+      FOCUS_API_IMAGE: ${{ inputs.image }}
+      FOCUS_PUBLIC_HOSTNAME: ${{ vars.FOCUS_PUBLIC_HOSTNAME }}
+      FOCUS_DB_CONNECTION: ${{ secrets.FOCUS_DB_CONNECTION }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate target and pull image
+        shell: bash
+        run: |
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}-api@sha256:"
+          digest="${FOCUS_API_IMAGE#"$prefix"}"
+          [[ "$FOCUS_API_IMAGE" == "$prefix"* && "$digest" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$FOCUS_PUBLIC_HOSTNAME" =~ ^[A-Za-z0-9][A-Za-z0-9.-]+$ ]]
+          docker compose -f compose.production.yaml config --quiet
+          docker compose -f compose.production.yaml pull api proxy
+      - name: Apply reviewed migrations
+        env:
+          FOCUS_DB_MIGRATION_CONNECTION: ${{ secrets.FOCUS_DB_MIGRATION_CONNECTION }}
+        run: docker compose -f compose.production.yaml --profile migration run --rm migrate
+      - name: Start serving and verify readiness
+        run: |
+          docker compose -f compose.production.yaml up --wait api proxy
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 15 "https://$FOCUS_PUBLIC_HOSTNAME/health/ready"

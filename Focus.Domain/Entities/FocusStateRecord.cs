@@ -15,7 +15,9 @@ public sealed class FocusStateRecord
         DateTimeOffset endedAt,
         FocusStateType state,
         string ruleVersion,
-        string? reason = null)
+        string? reason = null,
+        Guid? activityAggregateId = null,
+        ProcessCategory? inputProcessCategory = null)
     {
         if (focusSessionId == Guid.Empty)
             throw new ArgumentException(
@@ -45,6 +47,8 @@ public sealed class FocusStateRecord
 
         Id = Guid.NewGuid();
         FocusSessionId = focusSessionId;
+        ActivityAggregateId = activityAggregateId;
+        InputProcessCategory = inputProcessCategory;
         StartedAt = startedAt.ToUniversalTime();
         EndedAt = endedAt.ToUniversalTime();
         State = state;
@@ -55,6 +59,8 @@ public sealed class FocusStateRecord
     public Guid Id { get; private set; }
 
     public Guid FocusSessionId { get; private set; }
+    public Guid? ActivityAggregateId { get; private set; }
+    public ProcessCategory? InputProcessCategory { get; private set; }
 
     public DateTimeOffset StartedAt { get; private set; }
 

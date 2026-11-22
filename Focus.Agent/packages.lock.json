@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "focus.domain": {
+        "type": "Project"
+      },
+      "focus.engine": {
+        "type": "Project",
+        "dependencies": {
+          "Focus.Domain": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}

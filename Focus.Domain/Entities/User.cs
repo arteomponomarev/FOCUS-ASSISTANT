@@ -21,6 +21,9 @@ public sealed class User
     public string DisplayName { get; private set; } = string.Empty;
 
     public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? TelemetryConsentAt { get; private set; }
+
+    public void Rename(string displayName) => DisplayName = displayName;
 
     public ICollection<FocusSession> Sessions { get; private set; }
         = new List<FocusSession>();

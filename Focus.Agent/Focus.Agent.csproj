@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Focus.Engine\Focus.Engine.csproj" />
+    <InternalsVisibleTo Include="Focus.Backend.Tests" />
   </ItemGroup>
 
   <ItemGroup>

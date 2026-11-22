@@ -1,0 +1,55 @@
+name: focus-production
+services:
+  api:
+    image: "${FOCUS_API_IMAGE:?Set FOCUS_API_IMAGE to a reviewed image digest}"
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      AllowedHosts: "${FOCUS_PUBLIC_HOSTNAME:?Set FOCUS_PUBLIC_HOSTNAME};127.0.0.1"
+      ConnectionStrings__PostgreSQL: "${FOCUS_DB_CONNECTION:?Set the application-role PostgreSQL connection string}"
+      Authentication__KeyDirectory: /var/focus/keys
+      Http__TrustedProxies__0: 172.29.173.10
+      Http__AllowedOrigins__0: "https://${FOCUS_PUBLIC_HOSTNAME:?Set FOCUS_PUBLIC_HOSTNAME}"
+    volumes:
+      - application-keys:/var/focus/keys
+    networks:
+      - backend
+
+  migrate:
+    image: "${FOCUS_API_IMAGE:?Set FOCUS_API_IMAGE to a reviewed image digest}"
+    profiles: [migration]
+    command: ["--migrate"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__PostgreSQL: "${FOCUS_DB_MIGRATION_CONNECTION:-}"
+    healthcheck:
+      disable: true
+    networks:
+      - backend
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      FOCUS_PUBLIC_HOSTNAME: "${FOCUS_PUBLIC_HOSTNAME:?Set FOCUS_PUBLIC_HOSTNAME}"
+    volumes:
+      - ./deployment/Caddyfile:/etc/caddy/Caddyfile:ro
+      - proxy-data:/data
+      - proxy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      backend:
+        ipv4_address: 172.29.173.10
+
+networks:
+  backend:
+    ipam:
+      config:
+        - subnet: 172.29.173.0/24
+
+volumes:
+  application-keys:
+  proxy-data:
+  proxy-config:

@@ -6,8 +6,6 @@
 
         public string ProcessName { get; init; } = "";
 
-        public string WindowTitle { get; init; } = "";
-
         public double DurationSeconds { get; init; }
     }
 }

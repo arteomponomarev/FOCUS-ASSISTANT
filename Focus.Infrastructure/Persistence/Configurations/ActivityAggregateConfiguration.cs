@@ -14,6 +14,8 @@ internal sealed class ActivityAggregateConfiguration
         builder.ToTable("ActivityAggregates");
 
         builder.HasKey(x => x.Id);
+        builder.HasIndex(x => new { x.FocusSessionId, x.ClientEventId }).IsUnique();
+        builder.HasAlternateKey(x => new { x.FocusSessionId, x.Id });
 
         builder.Property(x => x.StartedAt)
             .IsRequired();
