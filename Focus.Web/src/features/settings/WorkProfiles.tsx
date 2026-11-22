@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -7,7 +6,11 @@ import { z } from 'zod'
 import type { Model } from '../../api/client'
 import { Empty, Failure } from '../../ui/feedback'
 import { Button, Dialog, Field, Pagination, Section } from '../../ui/primitives'
-import { profiles } from './data'
+import {
+  useDeleteWorkProfileMutation,
+  useSaveWorkProfileMutation,
+  useWorkProfilesQuery,
+} from './data'
 import { PendingData } from './shared'
 
 const categories = [
@@ -41,15 +44,7 @@ const profileForm = z
   )
 
 type Profile = Model['WorkProfileResponse']
-function Editor({
-  profile,
-  close,
-  changed,
-}: {
-  profile?: Profile
-  close: () => void
-  changed: () => void
-}) {
+function Editor({ profile, close }: { profile?: Profile; close: () => void }) {
   const form = useForm<z.infer<typeof profileForm>>({
     resolver: zodResolver(profileForm),
     defaultValues: profile
@@ -61,26 +56,25 @@ function Editor({
       : { name: '', description: '', focusMinutes: 25, breakMinutes: 5, rules: [] },
   })
   const items = useFieldArray({ name: 'rules', control: form.control })
-  const save = useMutation({
-    mutationFn: (values: z.infer<typeof profileForm>) =>
-      profiles.save({ ...values, description: values.description.trim() || null }, profile?.id),
-    onSuccess: () => {
-      changed()
-      close()
-    },
-  })
+  const [saveProfile, save] = useSaveWorkProfileMutation()
   const errors = form.formState.errors
 
   return (
     <Dialog
       title={profile ? 'Edit work profile' : 'Create work profile'}
       close={close}
-      busy={save.isPending}
+      busy={save.isLoading}
     >
       <form
         className="form-stack"
         noValidate
-        onSubmit={form.handleSubmit((values) => save.mutate(values))}
+        onSubmit={form.handleSubmit(async (values) => {
+          const result = await saveProfile({
+            body: { ...values, description: values.description.trim() || null },
+            id: profile?.id,
+          })
+          if ('data' in result) close()
+        })}
       >
         <Field
           label="Profile name"
@@ -156,7 +150,7 @@ function Editor({
           </div>
         </fieldset>
         {save.isError && <Failure error={save.error} />}
-        <Button type="submit" busy={save.isPending}>
+        <Button type="submit" busy={save.isLoading}>
           Save profile
         </Button>
       </form>
@@ -168,22 +162,16 @@ export function WorkProfiles() {
   const [page, setPage] = useState(1)
   const [edit, setEdit] = useState<Profile | 'new'>()
   const [remove, setRemove] = useState<Profile>()
-  const cache = useQueryClient()
-  const query = useQuery({
-    queryKey: ['profiles', page],
-    queryFn: ({ signal }) => profiles.list(page, signal),
-  })
-  function changed() {
-    void cache.invalidateQueries({ queryKey: ['profiles'] })
-  }
-  const deletion = useMutation({
-    mutationFn: (id: string) => profiles.remove(id),
-    onSuccess: () => {
-      if (query.data?.items.length === 1 && page > 1) setPage(page - 1)
-      changed()
+  const query = useWorkProfilesQuery(page)
+  const [deleteProfile, deletion] = useDeleteWorkProfileMutation()
+  async function confirmRemoval(id: string) {
+    const wasLast = query.currentData?.items.length === 1
+    const result = await deleteProfile(id)
+    if ('data' in result) {
+      if (wasLast && page > 1) setPage(page - 1)
       setRemove(undefined)
-    },
-  })
+    }
+  }
   return (
     <Section
       title="Work profiles"
@@ -243,28 +231,24 @@ export function WorkProfiles() {
         }
       </PendingData>
       {edit && (
-        <Editor
-          profile={edit === 'new' ? undefined : edit}
-          close={() => setEdit(undefined)}
-          changed={changed}
-        />
+        <Editor profile={edit === 'new' ? undefined : edit} close={() => setEdit(undefined)} />
       )}
       {remove && (
-        <Dialog title="Delete profile" close={() => setRemove(undefined)} busy={deletion.isPending}>
+        <Dialog title="Delete profile" close={() => setRemove(undefined)} busy={deletion.isLoading}>
           <div className="form-stack">
             <p>Delete “{remove.name}” and its application rules?</p>
             {deletion.isError && <Failure error={deletion.error} />}
             <div className="actions">
               <Button
                 kind="danger"
-                busy={deletion.isPending}
-                onClick={() => deletion.mutate(remove.id)}
+                busy={deletion.isLoading}
+                onClick={() => void confirmRemoval(remove.id)}
               >
                 Delete profile
               </Button>
               <Button
                 kind="secondary"
-                disabled={deletion.isPending}
+                disabled={deletion.isLoading}
                 onClick={() => setRemove(undefined)}
               >
                 Keep profile

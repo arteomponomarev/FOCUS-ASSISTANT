@@ -5,12 +5,20 @@ export function PendingData<T>({
   query,
   children,
 }: {
-  query: { isPending: boolean; isError: boolean; error: unknown; data?: T; refetch: () => unknown }
+  query: {
+    isLoading: boolean
+    isError: boolean
+    error?: unknown
+    currentData?: T
+    refetch: () => unknown
+  }
   children: (data: T) => ReactNode
 }) {
-  if (query.isPending) return <Skeleton label="Loading settings…" />
+  const data = query.currentData
+  if (query.isLoading || (data === undefined && !query.isError))
+    return <Skeleton label="Loading settings…" />
   if (query.isError) return <Failure error={query.error} retry={() => void query.refetch()} />
-  return query.data === undefined ? null : children(query.data)
+  return data === undefined ? null : children(data)
 }
 
 export function MutationFeedback({ error, saved }: { error: unknown; saved: boolean }) {

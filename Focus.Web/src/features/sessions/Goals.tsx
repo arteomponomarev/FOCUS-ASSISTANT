@@ -1,47 +1,21 @@
-import { useMutation } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Model } from '../../api/client'
 import { Empty, Failure } from '../../ui/feedback'
 import { Button, Dialog, Field, Section } from '../../ui/primitives'
-import { goalLabel, goalOutcomes, sessions } from './data'
+import { goalLabel, goalOutcomes, useChangeGoalMutation } from './data'
 import type { Session } from './data'
 import { goalDescription } from './session-form'
 
 type Edit = { type: 'add' } | { type: 'edit' | 'remove'; goal: Model['GoalResponse'] }
 
-export function Goals({ session, changed }: { session: Session; changed: () => void }) {
+export function Goals({ session }: { session: Session }) {
   const [editor, setEditor] = useState<Edit>()
   const [description, setDescription] = useState('')
   const [validation, setValidation] = useState<string>()
-  const action = useMutation({
-    mutationFn: async (pending: Edit) => {
-      if (pending.type === 'remove') return sessions.deleteGoal(session.id, pending.goal.id)
-      const parsed = goalDescription.safeParse(description)
-      if (!parsed.success) {
-        setValidation(parsed.error.issues[0]?.message ?? 'Enter a valid goal.')
-        return
-      }
-      return pending.type === 'add'
-        ? sessions.addGoal(session.id, parsed.data)
-        : sessions.editGoal(session.id, pending.goal.id, {
-            description: parsed.data,
-            outcome: null,
-          })
-    },
-    onSuccess: (result, pending) => {
-      if (pending.type === 'remove' || result) {
-        setEditor(undefined)
-        changed()
-      }
-    },
-  })
-  const outcome = useMutation({
-    mutationFn: ({ id, value }: { id: string; value: Model['GoalStatus'] }) =>
-      sessions.editGoal(session.id, id, { description: null, outcome: value }),
-    onSuccess: changed,
-  })
+  const [changeGoal, action] = useChangeGoalMutation()
+  const [changeOutcome, outcome] = useChangeGoalMutation()
   const planned = session.status === 'Planned'
   const inProgress = session.status === 'Active' || session.status === 'Paused'
 
@@ -52,9 +26,31 @@ export function Goals({ session, changed }: { session: Session; changed: () => v
     action.reset()
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault()
-    if (editor) action.mutate(editor)
+    if (!editor) return
+    const id = session.id
+    if (editor.type === 'remove') {
+      const result = await changeGoal({ kind: 'remove', id, goalId: editor.goal.id })
+      if ('data' in result) setEditor(undefined)
+      return
+    }
+    const parsed = goalDescription.safeParse(description)
+    if (!parsed.success) {
+      setValidation(parsed.error.issues[0]?.message ?? 'Enter a valid goal.')
+      return
+    }
+    const result = await changeGoal(
+      editor.type === 'add'
+        ? { kind: 'add', id, description: parsed.data }
+        : {
+            kind: 'edit',
+            id,
+            goalId: editor.goal.id,
+            body: { description: parsed.data, outcome: null },
+          },
+    )
+    if ('data' in result) setEditor(undefined)
   }
 
   return (
@@ -113,10 +109,16 @@ export function Goals({ session, changed }: { session: Session; changed: () => v
                     id={'goal-status-' + goal.id}
                     aria-label={'Outcome: ' + goal.description}
                     value={goal.status}
-                    disabled={outcome.isPending}
+                    disabled={outcome.isLoading}
                     onChange={(event) => {
                       const value = goalOutcomes.find((item) => item === event.target.value)
-                      if (value) outcome.mutate({ id: goal.id, value })
+                      if (value)
+                        void changeOutcome({
+                          kind: 'edit',
+                          id: session.id,
+                          goalId: goal.id,
+                          body: { description: null, outcome: value },
+                        })
                     }}
                   >
                     {goal.status === 'Pending' && (
@@ -147,7 +149,7 @@ export function Goals({ session, changed }: { session: Session; changed: () => v
                 : 'Edit goal'
           }
           close={() => setEditor(undefined)}
-          busy={action.isPending}
+          busy={action.isLoading}
         >
           <form className="form-stack" onSubmit={submit}>
             {editor.type === 'remove' ? (
@@ -165,7 +167,7 @@ export function Goals({ session, changed }: { session: Session; changed: () => v
             <div className="actions">
               <Button
                 type="submit"
-                busy={action.isPending}
+                busy={action.isLoading}
                 kind={editor.type === 'remove' ? 'danger' : 'primary'}
               >
                 {editor.type === 'remove' ? 'Delete goal' : 'Save goal'}
@@ -173,7 +175,7 @@ export function Goals({ session, changed }: { session: Session; changed: () => v
               <Button
                 type="button"
                 kind="ghost"
-                disabled={action.isPending}
+                disabled={action.isLoading}
                 onClick={() => setEditor(undefined)}
               >
                 Cancel

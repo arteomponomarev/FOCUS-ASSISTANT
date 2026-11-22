@@ -1,55 +1,49 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, auth, done, read } from '../../api/client'
+import { api, auth, done } from '../../api/client'
 import { ApiError } from '../../api/errors'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { Failure } from '../../ui/feedback'
 import { timestamp } from '../../ui/format'
 import { Button, Dialog, Field, PasswordField, Section } from '../../ui/primitives'
-import { downloadAccount } from './export'
+import { usePrivateAction } from '../auth/usePrivateAction'
+import { exportAccount, exportClosed } from './accountExport'
+import { usePrivacyQuery, useSaveConsentMutation } from './data'
 import { fieldValue, MutationFeedback, PendingData } from './shared'
 
 export function Privacy() {
-  const key = ['settings', 'privacy']
-  const cache = useQueryClient()
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const [showDelete, setShowDelete] = useState(false)
   const [confirmation, setConfirmation] = useState('')
-  const transfer = useRef<AbortController>(null)
-  const query = useQuery({
-    queryKey: key,
-    queryFn: ({ signal }) => read(api.GET('/api/v1/settings/privacy', { signal })),
-  })
-  const consent = useMutation({
-    mutationFn: (telemetryEnabled: boolean) =>
-      read(api.PATCH('/api/v1/settings/privacy', { body: { telemetryEnabled } })),
-    onSuccess: (value) => cache.setQueryData(key, value),
-  })
-  const exportJob = useMutation({
-    mutationFn: async () => {
-      const controller = new AbortController()
-      transfer.current = controller
-      try {
-        await downloadAccount(controller.signal)
-      } finally {
-        transfer.current = null
-      }
-    },
-  })
+  const query = usePrivacyQuery()
+  const [saveConsent, consent] = useSaveConsentMutation()
+  const exportJob = useAppSelector((state) => state.accountExport)
+  const transfer = useRef<ReturnType<ReturnType<typeof exportAccount>>>(null)
+  function startExport() {
+    if (transfer.current) return
+    const task = dispatch(exportAccount())
+    transfer.current = task
+    void task.then(() => {
+      if (transfer.current === task) transfer.current = null
+    })
+  }
   useEffect(
     () => () => {
       transfer.current?.abort()
+      transfer.current = null
+      dispatch(exportClosed())
     },
-    [],
+    [dispatch],
   )
-  const deletion = useMutation({
-    mutationFn: (password: string) =>
+  const deletion = usePrivateAction(
+    (password: string) =>
       done(api.POST('/api/v1/settings/privacy/delete-account', { body: { password } })),
-    onSuccess: () => {
+    () => {
       auth.setSession(null)
       navigate('/login', { replace: true, state: { notice: 'Your account was deleted.' } })
     },
-  })
+  )
 
   return (
     <div className="stack">
@@ -63,9 +57,13 @@ export function Privacy() {
               <label className="toggle-field">
                 <input
                   type="checkbox"
-                  checked={consent.isPending ? consent.variables : data.telemetryEnabled}
-                  disabled={consent.isPending}
-                  onChange={(event) => consent.mutate(event.target.checked)}
+                  checked={
+                    consent.isLoading
+                      ? (consent.originalArgs ?? data.telemetryEnabled)
+                      : data.telemetryEnabled
+                  }
+                  disabled={consent.isLoading}
+                  onChange={(event) => void saveConsent(event.target.checked)}
                 />
                 <span>Allow aggregate telemetry</span>
               </label>
@@ -83,20 +81,17 @@ export function Privacy() {
       >
         <div className="form-stack">
           <div className="actions">
-            <Button kind="secondary" busy={exportJob.isPending} onClick={() => exportJob.mutate()}>
+            <Button kind="secondary" busy={exportJob.status === 'pending'} onClick={startExport}>
               Download account data
             </Button>
-            {exportJob.isPending && (
+            {exportJob.status === 'pending' && (
               <Button kind="ghost" onClick={() => transfer.current?.abort()}>
                 Cancel export
               </Button>
             )}
           </div>
-          {exportJob.isError &&
-            !(exportJob.error instanceof DOMException && exportJob.error.name === 'AbortError') && (
-              <Failure error={exportJob.error} />
-            )}
-          {exportJob.isSuccess && (
+          {exportJob.status === 'failed' && <Failure error={exportJob.error} />}
+          {exportJob.status === 'succeeded' && (
             <p role="status" className="notice">
               Your export was downloaded.
             </p>
@@ -122,14 +117,14 @@ export function Privacy() {
         <Dialog
           title="Delete account permanently"
           close={() => setShowDelete(false)}
-          busy={deletion.isPending}
+          busy={deletion.isLoading}
         >
           <form
             className="form-stack"
             onSubmit={(event) => {
               event.preventDefault()
               if (confirmation === 'DELETE')
-                deletion.mutate(fieldValue(new FormData(event.currentTarget), 'password'))
+                void deletion.submit(fieldValue(new FormData(event.currentTarget), 'password'))
             }}
           >
             <p>
@@ -162,7 +157,7 @@ export function Privacy() {
               kind="danger"
               type="submit"
               disabled={confirmation !== 'DELETE'}
-              busy={deletion.isPending}
+              busy={deletion.isLoading}
             >
               Permanently delete account
             </Button>

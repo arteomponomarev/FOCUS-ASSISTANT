@@ -1,4 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import type { Model } from '../../api/client'
@@ -6,7 +5,12 @@ import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { clockLabel, duration, percent, rating, timestamp } from '../../ui/format'
 import { Button, Dialog, PageTitle, Section } from '../../ui/primitives'
 import { Completion } from './Completion'
-import { detailKey, refreshSessionCollections, sessionTitle, sessions } from './data'
+import {
+  sessionApi,
+  sessionTitle,
+  useCompleteSessionMutation,
+  useTransitionSessionMutation,
+} from './data'
 import { Goals } from './Goals'
 import { SessionActions } from './SessionActions'
 import type { SessionAction } from './SessionActions'
@@ -29,50 +33,35 @@ function useElapsed(active: boolean, revision: number) {
 export default function Detail() {
   const { id = '' } = useParams()
   const valid = /^[a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)
-  const cache = useQueryClient()
   const [modal, setModal] = useState<'complete' | 'cancel'>()
-  const query = useQuery({
-    queryKey: detailKey(id),
-    enabled: valid,
-    queryFn: ({ signal }) => sessions.get(id, signal),
-    refetchInterval: (state) => (state.state.data?.status === 'Active' ? 20_000 : false),
+  const query = sessionApi.endpoints.session.useQueryState(id, { skip: !valid })
+  const session = query.currentData
+  const { refetch } = sessionApi.endpoints.session.useQuerySubscription(id, {
+    skip: !valid,
+    pollingInterval: session?.status === 'Active' ? 20_000 : 0,
   })
-  const session = query.data
-  const elapsed = useElapsed(session?.status === 'Active', query.dataUpdatedAt)
+  const elapsed = useElapsed(session?.status === 'Active', query.fulfilledTimeStamp ?? 0)
+  const [transitionSession, transition] = useTransitionSessionMutation()
+  const [completeSession] = useCompleteSessionMutation()
 
-  function changed() {
-    void cache.invalidateQueries({ queryKey: detailKey(id) })
-    refreshSessionCollections(cache)
-    void cache.invalidateQueries({ queryKey: ['signals', id] })
+  async function runTransition(action: 'start' | 'pause' | 'resume' | 'cancel') {
+    const result = await transitionSession({ id, action })
+    if ('error' in result) void refetch()
+    else setModal(undefined)
   }
-
-  const transition = useMutation({
-    mutationFn: (action: 'start' | 'pause' | 'resume' | 'cancel') =>
-      sessions.transition(id, action),
-    onSuccess: (result) => {
-      cache.setQueryData(detailKey(id), result)
-      setModal(undefined)
-      changed()
-    },
-    onError: () => {
-      void query.refetch()
-    },
-  })
 
   function act(action: SessionAction) {
     transition.reset()
     if (action === 'complete' || action === 'cancel') setModal(action)
-    else transition.mutate(action)
+    else void runTransition(action)
   }
 
   async function complete(body: Model['CompleteSessionRequest']) {
     try {
-      const result = await sessions.complete(id, body)
-      cache.setQueryData(detailKey(id), result)
+      await completeSession({ id, body }).unwrap()
       setModal(undefined)
-      changed()
     } catch (error) {
-      void query.refetch()
+      void refetch()
       throw error
     }
   }
@@ -96,7 +85,7 @@ export default function Detail() {
       <>
         <PageTitle title="Session details" />
         {query.isError ? (
-          <Failure error={query.error} retry={() => void query.refetch()} />
+          <Failure error={query.error} retry={() => void refetch()} />
         ) : (
           <Skeleton label="Loading session…" />
         )}
@@ -117,7 +106,7 @@ export default function Detail() {
         Created {timestamp(session.createdAt)}
       </PageTitle>
       <div className="stack roomy">
-        {query.isError && <Failure error={query.error} retry={() => void query.refetch()} />}
+        {query.isError && <Failure error={query.error} retry={() => void refetch()} />}
         <div className="session-focus">
           <Section title="Focus timer" action={<Badge status={session.status} />}>
             <div className="timer-wrap">
@@ -132,7 +121,7 @@ export default function Detail() {
                 max={session.plannedDurationSeconds}
                 aria-label="Planned time progress"
               />
-              <SessionActions status={session.status} busy={transition.isPending} onAction={act} />
+              <SessionActions status={session.status} busy={transition.isLoading} onAction={act} />
               {transition.isError && !modal && <Failure error={transition.error} />}
             </div>
           </Section>
@@ -171,7 +160,7 @@ export default function Detail() {
             )}
           </Section>
         </div>
-        <Goals session={session} changed={changed} />
+        <Goals session={session} />
         <Signals key={id} id={id} status={session.status} endedAt={session.endedAt} />
       </div>
       {modal === 'complete' && (
@@ -181,7 +170,7 @@ export default function Detail() {
         <Dialog
           title="Cancel session"
           close={() => setModal(undefined)}
-          busy={transition.isPending}
+          busy={transition.isLoading}
         >
           <div className="form-stack">
             <p>End this session with a cancelled status? It will remain in your history.</p>
@@ -190,15 +179,15 @@ export default function Detail() {
               <Button
                 type="button"
                 kind="danger"
-                busy={transition.isPending}
-                onClick={() => transition.mutate('cancel')}
+                busy={transition.isLoading}
+                onClick={() => void runTransition('cancel')}
               >
                 Confirm cancellation
               </Button>
               <Button
                 type="button"
                 kind="secondary"
-                disabled={transition.isPending}
+                disabled={transition.isLoading}
                 onClick={() => setModal(undefined)}
               >
                 Keep session

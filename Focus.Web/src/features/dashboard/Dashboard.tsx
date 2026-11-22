@@ -1,36 +1,27 @@
-import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Clock3, ListChecks, Plus, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useProfile } from '../../app/layout'
+import { useProfileQuery } from '../auth/data'
 import { Distribution, Trend } from '../../ui/charts'
 import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { calendarRange, dayLabel, duration, percent, rating, recentRange } from '../../ui/format'
 import { PageTitle, Section } from '../../ui/primitives'
-import { reports, timeZone } from '../analytics/data'
-import { sessions } from '../sessions/data'
+import { timeZone, useStatisticsQuery, useSummaryQuery } from '../analytics/data'
+import { useSessionListQuery } from '../sessions/data'
 import { SessionList } from '../sessions/SessionList'
 
 export default function Dashboard() {
-  const profile = useProfile()
+  const profile = useProfileQuery()
   const [days, setDays] = useState(7)
   const params = useMemo(() => {
     const dates = recentRange(days)
     return { ...calendarRange(dates.from, dates.through), TimeZone: timeZone }
   }, [days])
-  const overview = useQuery({
-    queryKey: ['analytics', 'summary', params],
-    queryFn: ({ signal }) => reports.summary(params, signal),
-  })
-  const series = useQuery({
-    queryKey: ['analytics', 'statistics', params, 'Day'],
-    queryFn: ({ signal }) => reports.statistics({ ...params, Period: 'Day' }, signal),
-  })
-  const recent = useQuery({
-    queryKey: ['sessions', 'recent'],
-    queryFn: ({ signal }) => sessions.list({ PageSize: 5, Sort: 'desc' }, signal),
-  })
-  const metrics = overview.data?.metrics
+  const overview = useSummaryQuery(params)
+  const series = useStatisticsQuery({ ...params, Period: 'Day' })
+  const recent = useSessionListQuery({ PageSize: 5, Sort: 'desc' })
+  const metrics = overview.currentData?.metrics
+  const loadingOverview = !metrics && !overview.isError
   const cards = metrics && [
     { label: 'Active session time', value: duration(metrics.trackedActiveSeconds), Icon: Clock3 },
     { label: 'Sessions completed', value: String(metrics.completedSessions), Icon: CheckCircle2 },
@@ -97,7 +88,7 @@ export default function Dashboard() {
           </div>
         </section>
         {profile.isError && <Failure error={profile.error} retry={() => void profile.refetch()} />}
-        {overview.isPending ? (
+        {loadingOverview ? (
           <div className="card">
             <Skeleton label="Loading overview…" />
           </div>
@@ -116,7 +107,7 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-        {!overview.isPending && (
+        {!loadingOverview && (
           <>
             <div className="panel-grid">
               <Section
@@ -128,11 +119,11 @@ export default function Dashboard() {
                   </Link>
                 }
               >
-                {series.isPending ? (
-                  <Skeleton />
-                ) : series.isError ? (
+                {series.isError ? (
                   <Failure error={series.error} retry={() => void series.refetch()} />
-                ) : series.data.buckets.every(
+                ) : !series.currentData ? (
+                  <Skeleton />
+                ) : series.currentData.buckets.every(
                     ({ metrics }) => metrics.trackedActiveSeconds === 0,
                   ) ? (
                   <Empty title="No active time yet" />
@@ -140,7 +131,7 @@ export default function Dashboard() {
                   <Trend
                     label="Active session time"
                     unit="Minutes"
-                    points={series.data.buckets.map((bucket) => ({
+                    points={series.currentData.buckets.map((bucket) => ({
                       label: dayLabel(bucket.from),
                       value: bucket.metrics.trackedActiveSeconds / 60,
                     }))}
@@ -151,7 +142,7 @@ export default function Dashboard() {
                 {overview.isError ? (
                   <Failure error={overview.error} retry={() => void overview.refetch()} />
                 ) : (
-                  <Distribution seconds={overview.data.metrics.estimatedStateSeconds} />
+                  metrics && <Distribution seconds={metrics.estimatedStateSeconds} />
                 )}
               </Section>
             </div>
@@ -163,12 +154,12 @@ export default function Dashboard() {
                 </Link>
               }
             >
-              {recent.isPending ? (
-                <Skeleton />
-              ) : recent.isError ? (
+              {recent.isError ? (
                 <Failure error={recent.error} retry={() => void recent.refetch()} />
-              ) : recent.data.items.length > 0 ? (
-                <SessionList items={recent.data.items} />
+              ) : !recent.currentData ? (
+                <Skeleton />
+              ) : recent.currentData.items.length > 0 ? (
+                <SessionList items={recent.currentData.items} />
               ) : (
                 <Empty
                   title="Your first session starts here"

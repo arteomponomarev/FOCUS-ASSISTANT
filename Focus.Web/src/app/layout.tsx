@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
 import { BarChart3, LayoutGrid, Settings, Timer } from 'lucide-react'
-import { Suspense, useLayoutEffect, useSyncExternalStore } from 'react'
+import { Suspense, useLayoutEffect } from 'react'
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { api, auth, profileKey, read } from '../api/client'
+import { useProfileQuery } from '../features/auth/data'
 import { Busy } from '../ui/feedback'
+import { useAppSelector } from './hooks'
 import { ThemeToggle } from './theme'
 
 const links = [
@@ -25,7 +25,7 @@ export function Brand() {
 }
 
 export function useSignedIn() {
-  return useSyncExternalStore(auth.subscribe, auth.snapshot) > 0
+  return useAppSelector((state) => state.auth.signedIn)
 }
 
 export function RequireSession() {
@@ -63,16 +63,9 @@ export function PublicLayout() {
   )
 }
 
-export function useProfile() {
-  return useQuery({
-    queryKey: profileKey,
-    queryFn: ({ signal }) => read(api.GET('/api/v1/auth/me', { signal })),
-  })
-}
-
 export function AppLayout() {
   const location = useLocation()
-  const profile = useProfile()
+  const profile = useProfileQuery()
   useLayoutEffect(() => {
     window.scrollTo(0, 0)
     document.getElementById('main-content')?.focus({ preventScroll: true })

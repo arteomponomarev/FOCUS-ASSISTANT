@@ -1,11 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
 import { useId, useMemo, useState } from 'react'
 import type { Model } from '../../api/client'
 import { Distribution, Trend } from '../../ui/charts'
 import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { calendarRange, dayLabel, duration, recentRange } from '../../ui/format'
 import { Field, PageTitle, Section } from '../../ui/primitives'
-import { reports, timeZone } from './data'
+import { timeZone, useStatisticsQuery, useSummaryQuery } from './data'
 import { SessionResearch } from './SessionResearch'
 
 const periods = ['Day', 'Week', 'Month'] as const satisfies Model['ReportPeriod'][]
@@ -22,20 +21,12 @@ export default function Analytics() {
     !!range?.To &&
     (Date.parse(range.To) - Date.parse(range.From)) / 86_400_000 <= 366
   const params = { ...range, TimeZone: timeZone }
-  const summary = useQuery({
-    queryKey: ['analytics', 'summary', params],
-    enabled: valid,
-    queryFn: ({ signal }) => reports.summary(params, signal),
-  })
-  const chart = useQuery({
-    queryKey: ['analytics', 'statistics', params, period],
-    enabled: valid,
-    queryFn: ({ signal }) => reports.statistics({ ...params, Period: period }, signal),
-  })
-  const buckets = chart.data?.buckets ?? []
+  const summary = useSummaryQuery(params, { skip: !valid })
+  const chart = useStatisticsQuery({ ...params, Period: period }, { skip: !valid })
+  const buckets = chart.currentData?.buckets ?? []
   const points = (select: (value: Model['ReportMetrics']) => number | null) =>
     buckets.map((bucket) => ({ label: dayLabel(bucket.from), value: select(bucket.metrics) }))
-  const total = summary.data?.metrics
+  const total = summary.currentData?.metrics
 
   return (
     <>
@@ -83,14 +74,14 @@ export default function Analytics() {
           Concentration and productivity ratings are self-reported.
         </p>
         {valid &&
-          (chart.isPending || summary.isPending ? (
+          ((!chart.currentData && !chart.isError) || (!total && !summary.isError) ? (
             <div className="card">
               <Skeleton label="Loading report…" />
             </div>
           ) : (
             <>
               {chart.isError && <Failure error={chart.error} retry={() => void chart.refetch()} />}
-              {chart.data &&
+              {chart.currentData &&
                 total?.sessions === 0 &&
                 total.trackedActiveSeconds === 0 &&
                 !Object.values(total.estimatedStateSeconds).some((value) => value > 0) && (
@@ -100,7 +91,7 @@ export default function Analytics() {
                     </Empty>
                   </div>
                 )}
-              {chart.data && (
+              {chart.currentData && (
                 <div className="panel-grid evenly">
                   <Section title="Estimated focused time" subtitle="Duration classified as Focused">
                     <Trend
@@ -162,31 +153,33 @@ export default function Analytics() {
                 {summary.isError ? (
                   <Failure error={summary.error} retry={() => void summary.refetch()} />
                 ) : (
-                  <div className="panel-grid evenly">
-                    <dl className="kv">
-                      <div>
-                        <dt>Active time</dt>
-                        <dd>{duration(summary.data.metrics.trackedActiveSeconds)}</dd>
-                      </div>
-                      <div>
-                        <dt>Keyboard events</dt>
-                        <dd>{summary.data.metrics.keyboardEvents}</dd>
-                      </div>
-                      <div>
-                        <dt>Mouse clicks</dt>
-                        <dd>{summary.data.metrics.mouseClicks}</dd>
-                      </div>
-                      <div>
-                        <dt>Window switches</dt>
-                        <dd>{summary.data.metrics.windowSwitches}</dd>
-                      </div>
-                      <div>
-                        <dt>Idle time</dt>
-                        <dd>{duration(summary.data.metrics.observedIdleSeconds)}</dd>
-                      </div>
-                    </dl>
-                    <Distribution seconds={summary.data.metrics.estimatedStateSeconds} />
-                  </div>
+                  total && (
+                    <div className="panel-grid evenly">
+                      <dl className="kv">
+                        <div>
+                          <dt>Active time</dt>
+                          <dd>{duration(total.trackedActiveSeconds)}</dd>
+                        </div>
+                        <div>
+                          <dt>Keyboard events</dt>
+                          <dd>{total.keyboardEvents}</dd>
+                        </div>
+                        <div>
+                          <dt>Mouse clicks</dt>
+                          <dd>{total.mouseClicks}</dd>
+                        </div>
+                        <div>
+                          <dt>Window switches</dt>
+                          <dd>{total.windowSwitches}</dd>
+                        </div>
+                        <div>
+                          <dt>Idle time</dt>
+                          <dd>{duration(total.observedIdleSeconds)}</dd>
+                        </div>
+                      </dl>
+                      <Distribution seconds={total.estimatedStateSeconds} />
+                    </div>
+                  )
                 )}
               </Section>
               <SessionResearch key={range.From + ':' + range.To} range={range} />

@@ -1,34 +1,30 @@
-import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { duration, percent, rating, timestamp } from '../../ui/format'
 import { Pagination, Section } from '../../ui/primitives'
 import { Badge } from '../sessions/SessionList'
-import { reports } from './data'
+import { useResearchQuery } from './data'
 
 export function SessionResearch({ range }: { range: { From?: string; To?: string } }) {
   const [page, setPage] = useState(1)
   const [expanded, setExpanded] = useState(false)
-  const query = useQuery({
-    queryKey: ['analytics', 'research', range, page],
-    enabled: expanded,
-    queryFn: ({ signal }) => reports.research(range, page, signal),
-  })
+  const query = useResearchQuery({ range, page }, { skip: !expanded })
+  const data = query.currentData
   return (
     <Section title="Session comparison">
       <details onToggle={(event) => setExpanded(event.currentTarget.open)}>
         <summary className="chart-summary">Compare reported ratings, estimates and goals</summary>
         {expanded &&
-          (query.isPending ? (
-            <Skeleton label="Loading session comparison…" />
-          ) : query.isError ? (
+          (query.isError ? (
             <Failure error={query.error} retry={() => void query.refetch()} />
-          ) : query.data.items.length === 0 && page === 1 ? (
+          ) : !data ? (
+            <Skeleton label="Loading session comparison…" />
+          ) : data.items.length === 0 && page === 1 ? (
             <Empty title="No sessions in this date range" />
           ) : (
             <div className="stack">
-              {query.data.items.map((row) => {
+              {data.items.map((row) => {
                 const estimated = Object.values(row.estimatedStateSeconds).some(
                   (value) => value > 0,
                 )
@@ -76,8 +72,8 @@ export function SessionResearch({ range }: { range: { From?: string; To?: string
               })}
               <Pagination
                 page={page}
-                size={query.data.pageSize}
-                total={query.data.totalCount}
+                size={data.pageSize}
+                total={data.totalCount}
                 setPage={setPage}
               />
             </div>

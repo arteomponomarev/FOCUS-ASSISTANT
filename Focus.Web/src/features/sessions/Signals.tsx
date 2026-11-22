@@ -1,13 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, read } from '../../api/client'
 import type { Model } from '../../api/client'
+import { useAppDispatch } from '../../app/hooks'
 import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { duration, timestamp } from '../../ui/format'
 import { Button, Pagination, Section } from '../../ui/primitives'
-import { sessions } from './data'
+import { usePrivacyQuery } from '../settings/data'
+import { useActivityQuery, useEstimatesQuery, useTimelineQuery } from './data'
 import { Badge } from './SessionList'
+import { signalsClosed, signalsViewed } from './signalsSaga'
 
 const tabs = [
   { id: 'timeline', label: 'Timeline' },
@@ -27,42 +28,25 @@ export function Signals({
 }) {
   const [tab, setTab] = useState<Tab>('timeline')
   const [page, setPage] = useState(1)
-  const refetchInterval = () =>
-    status === 'Active' ||
-    status === 'Paused' ||
-    (status === 'Completed' && endedAt && Date.now() - Date.parse(endedAt) < 120_000)
-      ? 2_000
-      : false
-  const privacy = useQuery({
-    queryKey: ['settings', 'privacy'],
-    queryFn: ({ signal }) => read(api.GET('/api/v1/settings/privacy', { signal })),
-    refetchInterval,
-  })
-  const timeline = useQuery({
-    queryKey: ['signals', id, 'timeline', page],
-    enabled: tab === 'timeline',
-    queryFn: ({ signal }) => sessions.timeline(id, page, signal),
-    refetchInterval,
-  })
-  const estimates = useQuery({
-    queryKey: ['signals', id, 'estimates', page],
-    enabled: tab === 'estimates',
-    queryFn: ({ signal }) => sessions.estimates(id, page, signal),
-    refetchInterval,
-  })
-  const activity = useQuery({
-    queryKey: ['signals', id, 'activity', page],
-    enabled: tab === 'activity',
-    queryFn: ({ signal }) => sessions.activity(id, page, signal),
-    refetchInterval,
-  })
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(signalsViewed({ id, status, endedAt }))
+    return () => {
+      dispatch(signalsClosed())
+    }
+  }, [dispatch, id, status, endedAt])
+  const privacy = usePrivacyQuery()
+  const args = { id, page }
+  const timeline = useTimelineQuery(args, { skip: tab !== 'timeline' })
+  const estimates = useEstimatesQuery(args, { skip: tab !== 'estimates' })
+  const activity = useActivityQuery(args, { skip: tab !== 'activity' })
   const selected = tab === 'timeline' ? timeline : tab === 'estimates' ? estimates : activity
   const total =
     tab === 'timeline'
-      ? timeline.data?.events.totalCount
+      ? timeline.currentData?.events.totalCount
       : tab === 'estimates'
-        ? estimates.data?.totalCount
-        : activity.data?.totalCount
+        ? estimates.currentData?.totalCount
+        : activity.currentData?.totalCount
 
   return (
     <Section
@@ -115,36 +99,36 @@ export function Signals({
           </Button>
         ))}
       </div>
-      {selected.isPending ? (
-        <Skeleton label="Loading session signals…" />
-      ) : selected.isError ? (
+      {selected.isError ? (
         <Failure error={selected.error} retry={() => void selected.refetch()} />
+      ) : !selected.currentData ? (
+        <Skeleton label="Loading session signals…" />
       ) : (
         <>
-          {tab === 'timeline' && timeline.data && (
+          {tab === 'timeline' && timeline.currentData && (
             <div className="stack">
               <dl className="kv">
                 <div>
                   <dt>Created</dt>
-                  <dd>{timestamp(timeline.data.createdAt)}</dd>
+                  <dd>{timestamp(timeline.currentData.createdAt)}</dd>
                 </div>
                 <div>
                   <dt>Started</dt>
-                  <dd>{timestamp(timeline.data.startedAt)}</dd>
+                  <dd>{timestamp(timeline.currentData.startedAt)}</dd>
                 </div>
                 <div>
                   <dt>Ended</dt>
-                  <dd>{timestamp(timeline.data.endedAt)}</dd>
+                  <dd>{timestamp(timeline.currentData.endedAt)}</dd>
                 </div>
               </dl>
-              {timeline.data.pauses.map((pause, index) => (
+              {timeline.currentData.pauses.map((pause, index) => (
                 <p className="muted" key={index}>
                   Pause: {timestamp(pause.startedAt)} – {timestamp(pause.endedAt)}
                 </p>
               ))}
-              {timeline.data.events.items.length > 0 && (
+              {timeline.currentData.events.items.length > 0 && (
                 <ol className="timeline">
-                  {timeline.data.events.items.map((event) => (
+                  {timeline.currentData.events.items.map((event) => (
                     <li key={event.id}>
                       <strong>{event.estimatedState ?? 'Observed activity'}</strong>
                       <p className="muted">
@@ -157,9 +141,9 @@ export function Signals({
               )}
             </div>
           )}
-          {tab === 'estimates' && estimates.data && (
+          {tab === 'estimates' && estimates.currentData && (
             <ol className="timeline">
-              {estimates.data.items.map((estimate) => (
+              {estimates.currentData.items.map((estimate) => (
                 <li key={estimate.id}>
                   <div className="row">
                     <Badge status={estimate.estimatedState} />
@@ -171,9 +155,9 @@ export function Signals({
               ))}
             </ol>
           )}
-          {tab === 'activity' && activity.data && (
+          {tab === 'activity' && activity.currentData && (
             <ol className="timeline">
-              {activity.data.items.map((item) => (
+              {activity.currentData.items.map((item) => (
                 <li key={item.id}>
                   <strong>{item.activeProcessName ?? 'Application unavailable'}</strong>
                   <p className="muted">{timestamp(item.startedAt)}</p>

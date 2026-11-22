@@ -32,7 +32,6 @@ export async function done(result: Promise<Result<unknown>>) {
 }
 
 export type Model = components['schemas']
-export const profileKey = ['profile'] as const
 
 export async function login(body: Model['LoginRequest']) {
   const data = await read(api.POST('/api/v1/auth/login', { body }))

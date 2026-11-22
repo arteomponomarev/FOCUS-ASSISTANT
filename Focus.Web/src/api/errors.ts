@@ -22,6 +22,30 @@ export class ApiError extends Error {
   }
 }
 
+export type ApiFailure = {
+  status: number
+  message: string
+  traceId?: string
+  retryAfter?: string
+}
+
+export function isApiFailure(error: unknown): error is ApiFailure {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    typeof error.status === 'number' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  )
+}
+
+export function serializeApiError(error: unknown): ApiFailure {
+  if (!isApiFailure(error)) return { status: 500, message: errorMessage(error) }
+  const { status, message, traceId, retryAfter } = error
+  return { status, message, traceId, retryAfter }
+}
+
 export function normalizeResponse(response: Response, problem?: unknown): ApiError {
   const body = typeof problem === 'object' && problem !== null ? problem : {}
   const detail = 'detail' in body ? body.detail : undefined
@@ -44,5 +68,5 @@ export function normalizeResponse(response: Response, problem?: unknown): ApiErr
 }
 
 export function errorMessage(error: unknown) {
-  return error instanceof ApiError ? error.message : 'Something went wrong. Please try again.'
+  return isApiFailure(error) ? error.message : 'Something went wrong. Please try again.'
 }

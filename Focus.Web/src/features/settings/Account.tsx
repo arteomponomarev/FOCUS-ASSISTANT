@@ -1,40 +1,35 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, auth, done, profileKey, read } from '../../api/client'
+import { api, auth, done } from '../../api/client'
 import { ApiError } from '../../api/errors'
-import { useProfile } from '../../app/layout'
 import { timestamp } from '../../ui/format'
 import { Button, Field, PasswordField, Section } from '../../ui/primitives'
 import { passwordPolicy } from '../auth/forms'
+import { useProfileQuery, useRenameProfileMutation } from '../auth/data'
+import { usePrivateAction } from '../auth/usePrivateAction'
 import { fieldValue, MutationFeedback, PendingData } from './shared'
 
 export function Account() {
   const navigate = useNavigate()
-  const profile = useProfile()
-  const cache = useQueryClient()
+  const profile = useProfileQuery()
   const [passwordError, setPasswordError] = useState('')
-  const rename = useMutation({
-    mutationFn: (displayName: string) =>
-      read(api.PATCH('/api/v1/auth/me', { body: { displayName } })),
-    onSuccess: (value) => cache.setQueryData(profileKey, value),
-  })
-  const change = useMutation({
-    mutationFn: (body: { currentPassword: string; newPassword: string }) =>
+  const [renameProfile, rename] = useRenameProfileMutation()
+  const change = usePrivateAction(
+    (body: { currentPassword: string; newPassword: string }) =>
       done(api.POST('/api/v1/auth/me/change-password', { body })),
-    onSuccess: () => {
+    () => {
       auth.setSession(null)
       navigate('/login', { replace: true, state: { notice: 'Password changed. Sign in again.' } })
     },
-  })
-  const logout = useMutation({
-    mutationFn: () => done(api.POST('/api/v1/auth/logout')),
-    onSuccess: () => {
+  )
+  const logout = usePrivateAction<void>(
+    () => done(api.POST('/api/v1/auth/logout')),
+    () => {
       auth.setSession(null)
       navigate('/login', { replace: true })
     },
-  })
+  )
 
   return (
     <div className="stack">
@@ -46,7 +41,7 @@ export function Account() {
               onSubmit={(event) => {
                 event.preventDefault()
                 const value = fieldValue(new FormData(event.currentTarget), 'displayName').trim()
-                rename.mutate(value)
+                void renameProfile(value)
               }}
             >
               <dl className="kv">
@@ -68,7 +63,7 @@ export function Account() {
                 maxLength={100}
               />
               <MutationFeedback error={rename.error} saved={rename.isSuccess} />
-              <Button type="submit" busy={rename.isPending}>
+              <Button type="submit" busy={rename.isLoading}>
                 Save display name
               </Button>
             </form>
@@ -92,7 +87,7 @@ export function Account() {
               return setPasswordError('Use a password between 12 and 128 characters.')
             if (newPassword !== fieldValue(form, 'confirmation'))
               return setPasswordError('Passwords do not match.')
-            change.mutate({ currentPassword, newPassword })
+            void change.submit({ currentPassword, newPassword })
           }}
         >
           <PasswordField
@@ -128,7 +123,7 @@ export function Account() {
             }
             saved={false}
           />
-          <Button type="submit" busy={change.isPending}>
+          <Button type="submit" busy={change.isLoading}>
             Update password
           </Button>
         </form>
@@ -136,7 +131,7 @@ export function Account() {
       <Section title="Sign out" subtitle="End this login session on the server.">
         <div className="stack">
           <div>
-            <Button kind="secondary" busy={logout.isPending} onClick={() => logout.mutate()}>
+            <Button kind="secondary" busy={logout.isLoading} onClick={() => void logout.submit()}>
               <LogOut size={18} aria-hidden="true" /> Sign out
             </Button>
           </div>

@@ -1,6 +1,6 @@
 import { CircleAlert, Inbox, LoaderCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { ApiError, errorMessage } from '../api/errors'
+import { errorMessage, isApiFailure } from '../api/errors'
 
 export function Busy({ label = 'Loading…' }: { label?: string }) {
   return (
@@ -48,7 +48,7 @@ export function Failure({ error, retry }: { error: unknown; retry?: () => void }
       <CircleAlert size={20} aria-hidden="true" />
       <div>
         <p>{errorMessage(error)}</p>
-        {error instanceof ApiError && error.traceId && <small>Request ID: {error.traceId}</small>}
+        {isApiFailure(error) && error.traceId && <small>Request ID: {error.traceId}</small>}
         {retry && (
           <button className="button secondary" type="button" onClick={retry}>
             Try again

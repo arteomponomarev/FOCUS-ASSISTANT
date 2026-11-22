@@ -69,6 +69,14 @@ test('shows live aggregates and the final partial window after browser completio
   )
   await dialog.getByRole('button', { name: 'Save completion' }).click()
   const completed: { endedAt: string } = await (await finishing).json()
+  await expect(page.getByRole('heading', { name: 'Completed session' })).toBeVisible()
+  const beforeTail = await page.waitForResponse(
+    (reply) =>
+      reply.ok() &&
+      reply.request().method() === 'GET' &&
+      new URL(reply.url()).pathname === route + '/activity',
+  )
+  expect(await beforeTail.json()).toMatchObject({ totalCount: 1 })
   const tail = {
     ...first,
     clientEventId: globalThis.crypto.randomUUID(),

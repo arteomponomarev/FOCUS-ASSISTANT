@@ -17,13 +17,13 @@ The contract is [OpenAPI v1](../api/openapi.json). Run `npm run api:generate` in
 
 ## Browser authentication
 
-Bearer credentials live in JavaScript memory for the current page lifecycle. Expiring credentials use one shared rotating refresh request per tab. A rejected refresh clears credentials and the query cache. A full reload requires sign-in. Only the theme is stored in web storage. Public routes do not require a database connection to display the form. Session operations require the live API.
+Bearer credentials live in JavaScript memory for the current page lifecycle. Expiring credentials use one shared rotating refresh request per tab. A rejected refresh clears credentials, aborts active RTK Query requests and resets the cache. A full reload requires sign-in. Only the theme is stored in web storage. Public routes do not require a database connection to display the form. Session operations require the live API.
 
 ## Agent signals
 
-Session details show the session UUID for explicit Windows Agent pairing. The selected
-signals tab polls every two seconds while active or paused and for the first two
-minutes after completion. Refresh signals is available beyond that window. Account
+Session details show the session UUID for explicit Windows Agent pairing. A Redux saga
+refreshes RTK Query subscriptions every two seconds while the session is active or paused
+and for the first two minutes after completion. Refresh signals is available beyond that window. Account
 consent, recorded zero counts and the absence of records have distinct UI states.
 Agent presence remains unknown to the browser. [Connect the Windows Agent](../agent/windows-setup.md)
 

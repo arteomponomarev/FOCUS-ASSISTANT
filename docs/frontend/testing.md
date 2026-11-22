@@ -12,7 +12,7 @@ npm test
 npm run build
 ```
 
-Vitest and Testing Library exercise form validation, available lifecycle controls, report transformations, error redaction, refresh concurrency and credential invalidation.
+Vitest and Testing Library exercise form validation, available lifecycle controls, report transformations, error redaction, refresh concurrency, Redux cache isolation across account changes and cancellation of the signals refresh saga.
 
 ## Real API browser tests
 
@@ -26,6 +26,7 @@ npx playwright install chromium
 npm run build
 npm run test:e2e
 npm run test:e2e:qa
+npm run test:e2e:agent
 npm run test:e2e:zoom
 ```
 
@@ -33,7 +34,23 @@ Playwright starts ASP.NET Core and the built Vite preview. It verifies registrat
 
 [Frontend CI](../../.github/workflows/frontend-ci.yml) runs these checks with a fresh PostgreSQL service. Its remote run has not been verified for these local changes.
 
-## Verified results
+## Redux migration verification
+
+Local verification on November 23, 2026 used a Release build of the API and a disposable PostgreSQL 17 cluster. Type checking, lint, formatting, OpenAPI type comparison, Vite build and npm audit passed. The build emitted the two existing Rollup annotation warnings from Zod.
+
+| Check | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| Vitest | 28 | 0 | 0 |
+| Playwright workflows and responsive checks | 4 | 0 | 0 |
+| Playwright QA regressions | 3 | 0 | 0 |
+| Playwright agent signals with synthetic aggregates | 1 | 0 | 0 |
+| Playwright native browser zoom | 1 | 0 | 0 |
+| Backend and Agent tests | 37 | 0 | 0 |
+| API integration and contract tests | 10 | 0 | 0 |
+
+The agent browser test waits for the Completed screen and a telemetry response containing one interval before submitting the final partial interval through the real API. The second interval appears without a page reload. The test uses synthetic activity and does not start Windows input collection.
+
+## Baseline before Redux migration
 
 Local verification on November 22, 2026 used Windows, Node 22.20, .NET SDK 10.0.401, PostgreSQL 17, Google Chrome and Playwright Chromium.
 

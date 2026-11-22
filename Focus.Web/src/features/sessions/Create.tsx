@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -7,28 +6,20 @@ import { Link, useNavigate } from 'react-router-dom'
 import type { z } from 'zod'
 import { Failure } from '../../ui/feedback'
 import { Button, Field, PageTitle, Section } from '../../ui/primitives'
-import { profiles } from '../settings/data'
-import { refreshSessionCollections, sessions } from './data'
+import { useWorkProfilePickerInfiniteQuery } from '../settings/data'
+import { useCreateSessionMutation } from './data'
 import { createForm } from './session-form'
 
 export default function Create() {
   const navigate = useNavigate()
-  const cache = useQueryClient()
+  const [createSession] = useCreateSessionMutation()
   const [error, setError] = useState<unknown>()
   const form = useForm<z.infer<typeof createForm>>({
     resolver: zodResolver(createForm),
     defaultValues: { minutes: 25, profile: '', goals: [] },
   })
   const goals = useFieldArray({ control: form.control, name: 'goals' })
-  const options = useInfiniteQuery({
-    queryKey: ['profiles', 'picker'],
-    initialPageParam: 1,
-    queryFn: ({ pageParam, signal }) => profiles.list(pageParam, signal),
-    getNextPageParam: (last, pages) =>
-      last.items.length && pages.length * last.pageSize < last.totalCount
-        ? pages.length + 1
-        : undefined,
-  })
+  const options = useWorkProfilePickerInfiniteQuery()
   const profileOptions = options.data?.pages.flatMap((page) => page.items)
   const { errors, isSubmitting } = form.formState
 
@@ -45,12 +36,11 @@ export default function Create() {
             onSubmit={form.handleSubmit(async (values) => {
               setError(undefined)
               try {
-                const item = await sessions.create({
+                const item = await createSession({
                   plannedDurationSeconds: values.minutes * 60,
                   workProfileId: values.profile || null,
                   goals: values.goals.map((goal) => goal.description),
-                })
-                refreshSessionCollections(cache)
+                }).unwrap()
                 navigate('/sessions/' + item.id)
               } catch (e) {
                 setError(e)
@@ -71,7 +61,7 @@ export default function Create() {
                 <label htmlFor="work-profile">Work profile</label>
                 <select id="work-profile" {...form.register('profile')}>
                   <option value="">
-                    {options.isPending ? 'Loading profiles…' : 'No work profile'}
+                    {options.isLoading ? 'Loading profiles…' : 'No work profile'}
                   </option>
                   {profileOptions?.map((profile) => (
                     <option key={profile.id} value={profile.id}>

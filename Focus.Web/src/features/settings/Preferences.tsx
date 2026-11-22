@@ -1,9 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { z } from 'zod'
-import { api, read } from '../../api/client'
 import type { Model } from '../../api/client'
 import { ApiError } from '../../api/errors'
 import { Button, Field, Section } from '../../ui/primitives'
+import {
+  useAvatarQuery,
+  usePomodoroQuery,
+  useSaveAvatarMutation,
+  useSavePomodoroMutation,
+} from './data'
 import { fieldValue, MutationFeedback, PendingData } from './shared'
 
 const pomodoro = z
@@ -23,27 +28,24 @@ const fields = [
 ] as const
 
 export function Pomodoro() {
-  const key = ['settings', 'pomodoro']
-  const cache = useQueryClient()
-  const query = useQuery({
-    queryKey: key,
-    queryFn: ({ signal }) => read(api.GET('/api/v1/settings/pomodoro', { signal })),
-  })
-  const save = useMutation({
-    mutationFn: async (form: FormData) => {
-      const values = Object.fromEntries(
-        fields.map(({ key }) => [key, Number(fieldValue(form, key))]),
-      )
-      const result = pomodoro.safeParse(values)
-      if (!result.success)
-        throw new ApiError(
+  const query = usePomodoroQuery()
+  const [savePomodoro, save] = useSavePomodoroMutation()
+  const [validation, setValidation] = useState<ApiError>()
+
+  function submit(form: FormData) {
+    const values = Object.fromEntries(fields.map(({ key }) => [key, Number(fieldValue(form, key))]))
+    const result = pomodoro.safeParse(values)
+    if (!result.success) {
+      return setValidation(
+        new ApiError(
           'Check the durations. The long break must be at least as long as the short break.',
           400,
-        )
-      return read(api.PUT('/api/v1/settings/pomodoro', { body: result.data }))
-    },
-    onSuccess: (data) => cache.setQueryData(key, data),
-  })
+        ),
+      )
+    }
+    setValidation(undefined)
+    void savePomodoro(result.data)
+  }
   return (
     <Section title="Pomodoro preferences">
       <PendingData query={query}>
@@ -52,7 +54,7 @@ export function Pomodoro() {
             className="form-stack"
             onSubmit={(event) => {
               event.preventDefault()
-              save.mutate(new FormData(event.currentTarget))
+              submit(new FormData(event.currentTarget))
             }}
           >
             <div className="form-grid">
@@ -70,8 +72,8 @@ export function Pomodoro() {
                 />
               ))}
             </div>
-            <MutationFeedback error={save.error} saved={save.isSuccess} />
-            <Button type="submit" busy={save.isPending}>
+            <MutationFeedback error={validation ?? save.error} saved={save.isSuccess} />
+            <Button type="submit" busy={save.isLoading}>
               Save Pomodoro settings
             </Button>
           </form>
@@ -103,28 +105,23 @@ const avatarForm = z.object({
 })
 
 export function Assistant() {
-  const key = ['settings', 'avatar']
-  const cache = useQueryClient()
-  const query = useQuery({
-    queryKey: key,
-    queryFn: ({ signal }) => read(api.GET('/api/v1/settings/avatar', { signal })),
-  })
-  const save = useMutation({
-    mutationFn: async (form: FormData) => {
-      const result = avatarForm.safeParse(Object.fromEntries(form))
-      if (!result.success)
-        throw new ApiError(
+  const query = useAvatarQuery()
+  const [saveAvatar, save] = useSaveAvatarMutation()
+  const [validation, setValidation] = useState<ApiError>()
+
+  function submit(form: FormData) {
+    const result = avatarForm.safeParse(Object.fromEntries(form))
+    if (!result.success) {
+      return setValidation(
+        new ApiError(
           'Check the preferences and use only letters, digits, hyphens or underscores for the avatar identifier.',
           400,
-        )
-      return read(
-        api.PUT('/api/v1/settings/avatar', {
-          body: { ...result.data, avatarId: result.data.avatarId || null },
-        }),
+        ),
       )
-    },
-    onSuccess: (data) => cache.setQueryData(key, data),
-  })
+    }
+    setValidation(undefined)
+    void saveAvatar({ ...result.data, avatarId: result.data.avatarId || null })
+  }
   return (
     <Section
       title="Assistant preferences"
@@ -136,7 +133,7 @@ export function Assistant() {
             className="form-stack"
             onSubmit={(event) => {
               event.preventDefault()
-              save.mutate(new FormData(event.currentTarget))
+              submit(new FormData(event.currentTarget))
             }}
           >
             <div className="form-grid">
@@ -166,8 +163,8 @@ export function Assistant() {
               maxLength={80}
               hint="Optional. Use letters, digits, hyphens, or underscores."
             />
-            <MutationFeedback error={save.error} saved={save.isSuccess} />
-            <Button type="submit" busy={save.isPending}>
+            <MutationFeedback error={validation ?? save.error} saved={save.isSuccess} />
+            <Button type="submit" busy={save.isLoading}>
               Save assistant settings
             </Button>
           </form>

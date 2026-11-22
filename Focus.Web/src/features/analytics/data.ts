@@ -1,5 +1,6 @@
 import { api, read } from '../../api/client'
 import type { Model } from '../../api/client'
+import { focusApi, queryRequest } from '../../api/state'
 
 export type ReportQuery = { From?: string; To?: string; TimeZone?: string }
 export const stateOrder = [
@@ -24,6 +25,31 @@ export const reports = {
       }),
     ),
 }
+
+const reportsApi = focusApi.injectEndpoints({
+  endpoints: (build) => ({
+    summary: build.query<Awaited<ReturnType<typeof reports.summary>>, ReportQuery>({
+      queryFn: queryRequest(reports.summary),
+      providesTags: ['Analytics'],
+    }),
+    statistics: build.query<
+      Awaited<ReturnType<typeof reports.statistics>>,
+      ReportQuery & { Period: Model['ReportPeriod'] }
+    >({
+      queryFn: queryRequest(reports.statistics),
+      providesTags: ['Analytics'],
+    }),
+    research: build.query<
+      Awaited<ReturnType<typeof reports.research>>,
+      { range: { From?: string; To?: string }; page: number }
+    >({
+      queryFn: queryRequest(({ range, page }, signal) => reports.research(range, page, signal)),
+      providesTags: ['Analytics'],
+    }),
+  }),
+})
+
+export const { useSummaryQuery, useStatisticsQuery, useResearchQuery } = reportsApi
 
 export function estimateDistribution(seconds: Record<string, number>) {
   const total = stateOrder.reduce((sum, state) => sum + (seconds[state] ?? 0), 0)

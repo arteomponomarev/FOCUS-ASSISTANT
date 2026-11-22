@@ -1,10 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { calendarRange } from '../../ui/format'
 import { Button, Field, PageTitle, Pagination, Section } from '../../ui/primitives'
-import { sessionStatuses, sessions } from './data'
+import { sessionStatuses, useSessionListQuery } from './data'
 import { SessionList } from './SessionList'
 
 export default function History() {
@@ -16,11 +15,8 @@ export default function History() {
   const page = Math.max(1, Math.min(100_000, Math.floor(Number(search.get('page')) || 1)))
   const range = calendarRange(start, end)
   const query = { ...range, Status: status, Sort: sort, Page: page, PageSize: 10 } as const
-  const history = useQuery({
-    queryKey: ['sessions', query],
-    enabled: !!range,
-    queryFn: ({ signal }) => sessions.list(query, signal),
-  })
+  const history = useSessionListQuery(query, { skip: !range })
+  const data = history.currentData
 
   function setFilter(key: string, value: string) {
     const updated = new URLSearchParams(search)
@@ -85,14 +81,14 @@ export default function History() {
           <p className="field-error" role="alert">
             Choose a valid date range.
           </p>
-        ) : history.isPending ? (
-          <Skeleton label="Loading sessions…" />
         ) : history.isError ? (
           <Failure error={history.error} retry={() => void history.refetch()} />
+        ) : !data ? (
+          <Skeleton label="Loading sessions…" />
         ) : (
           <>
-            {history.data.items.length > 0 ? (
-              <SessionList items={history.data.items} />
+            {data.items.length > 0 ? (
+              <SessionList items={data.items} />
             ) : (
               <Empty
                 title="No matching sessions"
@@ -108,7 +104,7 @@ export default function History() {
             <Pagination
               page={page}
               size={10}
-              total={history.data.totalCount}
+              total={data.totalCount}
               setPage={(next) => setFilter('page', String(next))}
             />
           </>
