@@ -62,7 +62,11 @@ internal static class Program
             AllowAutoRedirect = false,
             UseCookies = false,
             UseProxy = !origin.IsLoopback
-        }) { BaseAddress = origin, Timeout = TimeSpan.FromSeconds(3) };
+        })
+        {
+            BaseAddress = origin,
+            Timeout = TimeSpan.FromSeconds(3)
+        };
         using var api = new AgentApi(http, TimeProvider.System);
         try
         {

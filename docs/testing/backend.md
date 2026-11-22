@@ -21,6 +21,15 @@ cover HTTP and persistence behavior. The quality gate uses measured line coverag
 When the TRX logger copies an attachment, the gate accepts byte-identical copies
 and rejects conflicting reports.
 
+Backend CI scans full Git history with Gitleaks. The ignore file lists two exact
+historical fingerprints for a disposable Compose database password. The Compose
+smoke test now generates and masks a fresh password per run. The cleanup step uses
+the same temporary value. New matches remain subject to the scanner.
+
+```powershell
+gitleaks git . --redact --no-banner --gitleaks-ignore-path .gitleaksignore
+```
+
 The contract test verifies that runtime OpenAPI matches the versioned document. Regenerate
 and validate after changing the contract.
 

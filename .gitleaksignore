@@ -1,0 +1,4 @@
+# Historical generic-api-key findings for the disposable CI Compose database.
+# These exact fingerprints refer to setup and cleanup in the original workflow.
+44e7eda7cf133e0cb4a293dbfa69532434d86ea7:.github/workflows/backend-ci.yml:generic-api-key:52
+44e7eda7cf133e0cb4a293dbfa69532434d86ea7:.github/workflows/backend-ci.yml:generic-api-key:62
