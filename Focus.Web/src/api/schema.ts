@@ -761,6 +761,8 @@ export interface components {
             status?: null | number;
             detail?: null | string;
             instance?: null | string;
+            /** @description Request correlation identifier, when available. */
+            traceId?: string;
         };
         /** @enum {unknown} */
         ProcessCategory: "Neutral" | "Allowed" | "Distracting" | null;
@@ -1128,6 +1130,14 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["Profile"];
+                    /**
+                     * @example {
+                     *       "id": "956e96cf-c6ce-4838-a3e2-bc758904dc1f",
+                     *       "email": "researcher@example.invalid",
+                     *       "displayName": "Researcher",
+                     *       "createdAt": "2026-11-23T00:21:03.5090993+00:00"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Profile"];
                     "text/json": components["schemas"]["Profile"];
                 };
@@ -1210,6 +1220,14 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["AccessTokenResponse"];
+                    /**
+                     * @example {
+                     *       "tokenType": "Bearer",
+                     *       "accessToken": "<access-token>",
+                     *       "expiresIn": 900,
+                     *       "refreshToken": "<refresh-token>"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AccessTokenResponse"];
                     "text/json": components["schemas"]["AccessTokenResponse"];
                 };
@@ -1229,6 +1247,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "detail": "The credentials are invalid or expired.",
+                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2266,6 +2293,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2329,6 +2364,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Request validation failed",
+                     *       "status": 400,
+                     *       "detail": "Check the required fields, request format, and value limits in the API contract.",
+                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2416,6 +2459,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "detail": "Resource not found.",
+                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2737,6 +2789,36 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "967c4aba-bc0d-4e6b-8662-3b8ae134322c",
+                     *       "workProfileId": null,
+                     *       "status": "Completed",
+                     *       "plannedDurationSeconds": 2400,
+                     *       "createdAt": "2026-11-23T00:21:04.398135+00:00",
+                     *       "startedAt": "2026-11-23T00:21:04.647146+00:00",
+                     *       "endedAt": "2026-11-23T00:21:06.7978787+00:00",
+                     *       "elapsedSeconds": 2.1507327,
+                     *       "pausedSeconds": 0,
+                     *       "activeSeconds": 2.1507327,
+                     *       "selfReportedConcentration": 4,
+                     *       "selfReportedProductivity": 3,
+                     *       "reflection": "One planned interruption.",
+                     *       "goals": [
+                     *         {
+                     *           "id": "8a15722c-a3bb-481f-bdf9-87eedd8f832d",
+                     *           "description": "Draft the research methods",
+                     *           "status": "Completed"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 1,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 100
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
@@ -2774,6 +2856,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "Goal outcomes can only be set during a started session.",
+                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };

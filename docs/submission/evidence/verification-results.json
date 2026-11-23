@@ -1,0 +1,131 @@
+{
+  "verifiedOn": "2026-11-23",
+  "applicationBaseline": "1e7ddd9b6bfa9501bcdce053baef37c8cb4ac4ad",
+  "environment": {
+    "os": "Windows",
+    "dotnetSdk": "10.0.401",
+    "node": "22.20.0",
+    "postgresql": "17.2 (disposable loopback cluster)"
+  },
+  "testResults": {
+    "backend-and-agent": {
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0
+    },
+    "api-and-postgresql": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    "vitest": {
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0
+    },
+    "playwright": {
+      "workflow-settings-responsive": {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      "qa-regressions": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      },
+      "agent-synthetic": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "native-zoom": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "businessLogicCoverage": {
+    "assemblies": [
+      "Focus.Domain",
+      "Focus.Application",
+      "Focus.Engine"
+    ],
+    "coveredLines": 691,
+    "instrumentedLines": 757,
+    "linePercent": 91.28,
+    "branchPercent": 83.97,
+    "lineGatePercent": 80
+  },
+  "openApi": {
+    "version": "3.1.1",
+    "paths": 30,
+    "operations": 41,
+    "validatedRequestExamples": 5,
+    "validatedResponseExamples": 9,
+    "liveCapturedResponseExamplesAdded": 8
+  },
+  "designPdf": {
+    "pages": 6,
+    "embeddedViewportCaptures": 15,
+    "sha256": "70ad6eedb3da2f4abdf075f2b87f4158b25804c5d28aa0151030fc4169127455"
+  },
+  "lighthouseBaseline": {
+    "version": "12.8.2",
+    "profiles": {
+      "mobile": {
+        "/login": {
+          "performance": 96,
+          "performanceMode": "navigation",
+          "accessibility": 100,
+          "accessibilityMode": "navigation"
+        },
+        "/dashboard": {
+          "performance": 100,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        },
+        "/sessions": {
+          "performance": 100,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        },
+        "/analytics": {
+          "performance": 99,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        }
+      },
+      "desktop": {
+        "/login": {
+          "performance": 100,
+          "performanceMode": "navigation",
+          "accessibility": 100,
+          "accessibilityMode": "navigation"
+        },
+        "/dashboard": {
+          "performance": 100,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        },
+        "/sessions": {
+          "performance": 100,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        },
+        "/analytics": {
+          "performance": 100,
+          "performanceMode": "timespan",
+          "accessibility": 100,
+          "accessibilityMode": "snapshot"
+        }
+      }
+    }
+  }
+}

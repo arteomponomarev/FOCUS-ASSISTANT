@@ -2,6 +2,7 @@
 
 ## v1 verification
 
+- Added captured, sanitized success and Problem Details response examples to OpenAPI. Documented the optional `traceId` already returned by the API. Paths, DTOs and runtime behavior are unchanged.
 - Reject duplicate JSON object properties with a validation error.
 - Document HTTP 415 responses for JSON request bodies.
 

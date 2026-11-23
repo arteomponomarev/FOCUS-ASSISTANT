@@ -13,7 +13,9 @@ The database stores user accounts, focus sessions, session goals, aggregated com
 
 The collected data supports research into the relationship between computer activity and users' self-reported concentration and productivity.
 
-The current database contains five application tables.
+The historical baseline contains five application tables. The
+[backend v1 addendum](backend-v1.md) covers the six additional application tables
+and the constraints added by later migrations.
 
 ## 2. Users
 
@@ -140,7 +142,10 @@ RuleVersion makes it possible to identify which algorithm version produced each 
 
 The database uses primary keys, foreign keys, unique indexes, required fields, and maximum string lengths.
 
-Foreign keys to parent records use cascade deletion.
+The baseline relations from users to sessions and from sessions to dependent
+records use cascade deletion. The current schema also has a non-cascading
+work-profile reference from a session. See the
+[backend v1 addendum](backend-v1.md).
 
 The C# domain model also validates selected business rules, including rating ranges and valid session transitions.
 
@@ -148,7 +153,7 @@ These application-level validations are not all enforced through PostgreSQL CHEC
 
 ## 9. Database Migrations
 
-The schema is managed through Entity Framework Core migrations:
+The baseline was introduced by the first two Entity Framework Core migrations:
 
 1. InitialCreate
 2. AddTelemetryAndResearchData

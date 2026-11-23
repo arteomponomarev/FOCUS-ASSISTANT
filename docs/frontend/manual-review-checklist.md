@@ -71,6 +71,8 @@ Open `http://127.0.0.1:5173`. The Vite proxy sends `/api` to the local backend.
 | 2 min | Open **Overview** and **Analytics**. Change the report period and open **Compare reported ratings, estimates and goals**. | The totals and ratings reflect the saved session. A session without Agent data has no estimated states. |
 | 2–4 min | Enable Chrome DevTools device mode with Ctrl+Shift+M while DevTools is open. Try 390×844 and 844×390, switch themes, and navigate from a scrolled page. Open the finish dialog on another active test session. | Navigation remains available. The new route starts at the top. Tab stays inside the dialog, and Escape restores focus. |
 
+Open the [Adaptive UI PDF](../design/focus-assistant-adaptive-ui.pdf) for mobile, tablet and desktop comparisons.
+
 To exercise actual Windows activity, follow the [Agent setup guide](../agent/windows-setup.md)
 using the same account and disposable review database. Pair a planned session,
 start the session, switch apps for about 20 seconds and finish it. Check both

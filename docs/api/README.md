@@ -11,11 +11,40 @@ heuristic focus estimates, reports, work profiles, and account preferences.
 - [Backend architecture](../architecture/backend.md)
 - [Research definitions](../architecture/research-metrics.md)
 - [Versioning](versioning.md)
+- [Changelog](changelog.md)
 
 Protected routes require an opaque bearer access token. All owner-scoped queries derive
 the account identity from that token. A resource owned by somebody else returns 404.
 OpenAPI is served at `/openapi/v1.json` in Development and Contract. Production clients
 use the versioned artifact above.
+
+The OpenAPI artifact covers the versioned application routes. Operators can use the
+anonymous `GET /health/live` and `GET /health/ready` endpoints documented in the
+[deployment runbook](../deployment/backend.md).
+
+## Response examples
+
+The [OpenAPI document](openapi.json) embeds the response examples below in the
+corresponding operation and response status. Registration, login and session
+examples were captured using synthetic data in a disposable PostgreSQL database.
+Bearer values and trace IDs are illustrative.
+
+| Operation | Example responses |
+|---|---|
+| `POST /api/v1/auth/register` | 201 account profile |
+| `POST /api/v1/auth/login` | 200 opaque token response, 401 invalid credentials |
+| `GET /api/v1/sessions` | 401 missing authorization |
+| `POST /api/v1/sessions` | 400 invalid request |
+| `GET /api/v1/sessions/{id}` | 404 resource unavailable |
+| `POST /api/v1/sessions/{id}/complete` | 200 completed session with ratings and goal outcomes, 409 repeated completion with an outcome |
+| `POST /api/v1/sessions/{id}/activity/batch` | 200 aggregate ingestion counts |
+
+Success examples use `application/json`. Problem Details examples use
+`application/problem+json`. The [integration tutorial](integration-tutorial.md)
+runs the complete flow against the API. See [Errors](error-handling.md) for
+other statuses and how to handle them.
+
+## Application operations
 
 | Resource | Operations under `/api/v1` |
 |---|---|

@@ -1,6 +1,8 @@
 
 # Focus Assistant
 
+For diploma review, start with the [submission evidence index](docs/submission/evidence-index.md). It links the four review tracks, reproducible checks and Adaptive UI PDF.
+
 **Backend v1** is implemented in the existing ASP.NET Core and PostgreSQL projects.
 See the [API guide](docs/api/README.md), [deployment runbook](docs/deployment/backend.md),
 [verification instructions](docs/testing/backend.md), and
@@ -377,8 +379,9 @@ Confirm the run with `START` and use the same account as the web client. The Age
 uploads to the existing API and PostgreSQL database. See the [Windows Agent guide](docs/agent/windows-setup.md)
 for the short-session walkthrough, encrypted queue, retries and consent behavior.
 
-See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md), and
-[production hosting configuration](docs/frontend/api-integration.md).
+See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md),
+[production hosting configuration](docs/frontend/api-integration.md), and
+[Adaptive UI design](docs/design/focus-assistant-adaptive-ui.pdf).
 
 Use the [manual review checklist](docs/frontend/manual-review-checklist.md) for a short
 Windows walkthrough with a disposable PostgreSQL database and synthetic account.
