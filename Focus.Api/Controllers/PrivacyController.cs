@@ -23,7 +23,7 @@ public sealed class PrivacyController(AccountService accounts, SettingsService s
     [HttpPatch]
     [ProducesResponseType<PrivacySettings>(200)]
     public Task<PrivacySettings> Update(PrivacyUpdate request, CancellationToken ct) =>
-        accounts.SetPrivacyAsync(User.UserId(), request.TelemetryEnabled, ct);
+        accounts.SetPrivacyAsync(User.UserId(), request.TelemetryEnabled, request.CameraEnabled, request.VisionExperimental, ct);
 
     [HttpGet("export")]
     [ProducesResponseType<PrivateExport>(200)]
@@ -47,7 +47,7 @@ public sealed class PrivacyController(AccountService accounts, SettingsService s
     }
 }
 
-public sealed record PrivacyUpdate([property: System.Text.Json.Serialization.JsonRequired] bool TelemetryEnabled);
+public sealed record PrivacyUpdate(bool? TelemetryEnabled = null, bool? CameraEnabled = null, bool? VisionExperimental = null);
 public sealed record DeleteAccountRequest([Required, StringLength(128)] string Password);
 public sealed record PrivateExport(Profile Profile, PrivacySettings Privacy, PomodoroSettings Pomodoro,
     AvatarSettings Avatar, string WorkProfilesPath, string SessionsPath);

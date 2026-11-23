@@ -4,7 +4,8 @@ using Focus.Domain.Entities;
 namespace Focus.Application.Accounts;
 
 public sealed record Profile(Guid Id, string Email, string DisplayName, DateTimeOffset CreatedAt);
-public sealed record PrivacySettings(bool TelemetryEnabled, DateTimeOffset? ConsentedAt);
+public sealed record PrivacySettings(bool TelemetryEnabled, DateTimeOffset? ConsentedAt,
+    bool CameraEnabled, DateTimeOffset? CameraConsentedAt, bool VisionExperimental);
 
 public sealed class AccountService(IAccountStore store, IAccountPassword passwords, TimeProvider clock)
 {
@@ -49,12 +50,18 @@ public sealed class AccountService(IAccountStore store, IAccountPassword passwor
     public async Task<PrivacySettings> GetPrivacyAsync(Guid id, CancellationToken ct)
     {
         var user = await store.FindUserAsync(id, ct) ?? throw UseCaseException.NotFound();
-        return new PrivacySettings(user.TelemetryConsentAt.HasValue, user.TelemetryConsentAt);
+        return new PrivacySettings(user.TelemetryConsentAt.HasValue, user.TelemetryConsentAt,
+            user.CameraConsentAt.HasValue, user.CameraConsentAt, user.VisionExperimental);
     }
 
-    public async Task<PrivacySettings> SetPrivacyAsync(Guid id, bool enabled, CancellationToken ct)
+    public async Task<PrivacySettings> SetPrivacyAsync(Guid id, bool? enabled, bool? camera, bool? experimental, CancellationToken ct)
     {
-        await store.SetConsentAsync(id, enabled ? clock.GetUtcNow() : null, ct);
+        if (enabled is null && camera is null && experimental is null)
+            throw new UseCaseException(Failure.Invalid, "Provide at least one privacy setting.");
+        if (enabled is { } telemetry)
+            await store.SetConsentAsync(id, telemetry ? clock.GetUtcNow() : null, ct);
+        if (camera is not null || experimental is not null)
+            await store.SetCameraConsentAsync(id, camera, experimental, clock.GetUtcNow(), ct);
         return await GetPrivacyAsync(id, ct);
     }
 

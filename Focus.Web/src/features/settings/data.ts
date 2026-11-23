@@ -65,6 +65,12 @@ const settingsApi = focusApi.injectEndpoints({
       ),
       invalidatesTags: (_data, error) => (error ? [] : [{ type: 'Settings', id: 'privacy' }]),
     }),
+    saveVision: build.mutation<Model['PrivacySettings'], Model['PrivacyUpdate']>({
+      queryFn: mutationRequest((body, signal) =>
+        read(api.PATCH('/api/v1/settings/privacy', { body, signal })),
+      ),
+      invalidatesTags: (_data, error) => (error ? [] : [{ type: 'Settings', id: 'privacy' }]),
+    }),
     pomodoro: build.query<Model['PomodoroSettings'], void>({
       queryFn: queryRequest((_, signal) => read(api.GET('/api/v1/settings/pomodoro', { signal }))),
       providesTags: [{ type: 'Settings', id: 'pomodoro' }],
@@ -95,6 +101,7 @@ export const {
   useDeleteWorkProfileMutation,
   usePrivacyQuery,
   useSaveConsentMutation,
+  useSaveVisionMutation,
   usePomodoroQuery,
   useSavePomodoroMutation,
   useAvatarQuery,

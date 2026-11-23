@@ -24,7 +24,7 @@ export function Account() {
     },
   )
   const logout = usePrivateAction<void>(
-    () => done(api.POST('/api/v1/auth/logout')),
+    () => done(api.POST('/api/v1/auth/logout', { params: { query: { stopCamera: true } } })),
     () => {
       auth.setSession(null)
       navigate('/login', { replace: true })

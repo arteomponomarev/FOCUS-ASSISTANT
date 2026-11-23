@@ -5,12 +5,12 @@ namespace Focus.Agent.Sync;
 
 internal sealed class SessionAgent(
     Guid sessionId, IAgentEndpoint endpoint, ISignalSource source, ActivityQueue queue,
-    TimeProvider clock, Action<string> log)
+    TimeProvider clock, Action<string> log, bool camera = false)
 {
     private static readonly TimeSpan SamplePeriod = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan CheckPeriod = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan PermissionLifetime = TimeSpan.FromSeconds(3);
-    private readonly CaptureBuffer _buffer = new(sessionId, queue.Add);
+    private readonly CaptureBuffer _buffer = new(sessionId, queue.Add, camera);
     private readonly OfflineSync _sync = new(endpoint, queue, clock);
     private bool _capturing;
 
@@ -64,7 +64,7 @@ internal sealed class SessionAgent(
                     try
                     {
                         var result = await check;
-                        if (!result.Privacy.TelemetryEnabled || result.Privacy.ConsentedAt is not { } enabledAt)
+                        if (result.Privacy.Consent(camera) is not { } enabledAt)
                         {
                             Revoke();
                             return;
@@ -74,7 +74,11 @@ internal sealed class SessionAgent(
                             throw new InvalidDataException("The API did not return session status.");
 
                         if (session.Status != SessionStatus.Active || (consent is { } previous && previous != enabledAt))
+                        {
+                            if (camera && _capturing && source.Sample() is { } tail)
+                                _buffer.Add(tail);
                             StopSource();
+                        }
 
                         _buffer.Confirm(result);
                         if (session.Status == SessionStatus.Cancelled)
@@ -163,7 +167,7 @@ internal sealed class SessionAgent(
         try
         {
             var result = await endpoint.CheckAsync(sessionId, limit.Token);
-            if (!result.Privacy.TelemetryEnabled || result.Privacy.ConsentedAt is not { } consent)
+            if (result.Privacy.Consent(camera) is not { } consent)
             {
                 Revoke();
                 return;
@@ -192,7 +196,8 @@ internal sealed class SessionAgent(
         StopSource();
         _buffer.Discard();
         queue.Discard();
-        log("event=telemetry_disabled action=enable_consent_and_relaunch");
+        log(camera ? "event=camera_consent_disabled action=enable_consent_and_relaunch"
+            : "event=telemetry_disabled action=enable_consent_and_relaunch");
     }
 
     private void StopSource()

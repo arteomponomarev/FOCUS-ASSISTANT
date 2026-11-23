@@ -18,7 +18,7 @@ namespace Focus.Api.Controllers;
 [ProducesResponseType<ProblemDetails>(404)]
 [ProducesResponseType<ProblemDetails>(500)]
 public sealed class ResearchController(
-    SessionService sessions, TelemetryService telemetry, IResearchStore queries, IOptions<HttpApiOptions> options,
+    SessionService sessions, TelemetryService telemetry, IResearchStore queries, VisionResearch vision, IOptions<HttpApiOptions> options,
     ILogger<ResearchController> logger, ApiRuntimeMetrics metrics) : ControllerBase
 {
     [HttpPost("activity/batch")]
@@ -65,8 +65,24 @@ public sealed class ResearchController(
         var owner = User.UserId();
         var session = await sessions.GetAsync(owner, id, ct);
         var state = await queries.GetLatestEstimateAsync(owner, id, ct);
-        return new CurrentStateResponse(session.Status, state is null ? null : EstimateResponse.From(state),
+        var response = state is null ? null : EstimateResponse.From(state);
+        if (state is not null && response is not null && session.Status == SessionStatus.Active &&
+            await queries.UsesExperimentalVisionAsync(owner, ct) &&
+            await queries.GetCameraConsentAsync(owner, ct) is { } consent &&
+            await vision.CompareAsync(owner, state, ct, consent) is { Experimental: var estimated })
+            response = response with { EstimatedState = estimated.State, RuleVersion = estimated.RuleVersion, Reason = estimated.Reason };
+
+        return new CurrentStateResponse(session.Status, response,
             session.Goals.Select(GoalResponse.From).ToArray());
+    }
+
+    [HttpGet("vision")]
+    [ProducesResponseType<VisionReport>(200)]
+    public async Task<VisionReport> Vision(Guid id, CancellationToken ct)
+    {
+        var owner = User.UserId();
+        await sessions.GetAsync(owner, id, ct);
+        return await vision.ReadAsync(owner, id, ct);
     }
 
     [HttpGet("timeline")]
@@ -92,10 +108,19 @@ public sealed record ActivityInput(
     [property: JsonRequired][Range(0, TelemetryService.CounterLimit)] int MouseClickCount,
     [property: JsonRequired][Range(0, TelemetryService.CounterLimit)] int WindowSwitchCount,
     [property: JsonRequired][Range(0, 300)] int IdleSeconds,
-    [StringLength(200)] string? ActiveProcessName = null)
+    [StringLength(200)] string? ActiveProcessName = null,
+    VisionInput? Vision = null)
 {
     public AggregateInput ToInput() => new(ClientEventId, StartedAt, EndedAt, ActiveProcessName, KeyboardEventCount,
-        MouseClickCount, WindowSwitchCount, IdleSeconds);
+        MouseClickCount, WindowSwitchCount, IdleSeconds, Vision?.ToAggregate());
+}
+
+public sealed record VisionInput(
+    [property: JsonRequired] int PresentMs, [property: JsonRequired] int NotDetectedMs,
+    [property: JsonRequired] int UnknownMs, [property: JsonRequired] int FacingMs,
+    [property: JsonRequired] int AwayMs, [property: JsonRequired] int ValidSamples)
+{
+    public VisionAggregate ToAggregate() => new(PresentMs, NotDetectedMs, UnknownMs, FacingMs, AwayMs, ValidSamples);
 }
 public sealed record ActivityResponse(Guid Id, Guid? ClientEventId, DateTimeOffset StartedAt, DateTimeOffset EndedAt,
     string? ActiveProcessName, int KeyboardEventCount, int MouseClickCount, int WindowSwitchCount, int IdleSeconds)

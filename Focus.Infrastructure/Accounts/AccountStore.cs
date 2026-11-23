@@ -126,6 +126,18 @@ internal sealed class AccountStore(FocusDbContext db) : IAccountStore
             throw UseCaseException.NotFound();
     }
 
+    public async Task SetCameraConsentAsync(Guid userId, bool? enabled, bool? experimental, DateTimeOffset now, CancellationToken ct)
+    {
+        var updated = await db.Users.Where(x => x.Id == userId).ExecuteUpdateAsync(updates => updates
+            .SetProperty(x => x.CameraConsentAt,
+                x => enabled == false ? null : enabled == true ? x.CameraConsentAt ?? now : x.CameraConsentAt)
+            .SetProperty(x => x.VisionExperimental,
+                x => enabled != false && (enabled == true || x.CameraConsentAt != null) &&
+                    (experimental ?? x.VisionExperimental)), ct);
+        if (updated == 0)
+            throw UseCaseException.NotFound();
+    }
+
     public async Task DeleteAccountAsync(Guid userId, string expectedHash, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);

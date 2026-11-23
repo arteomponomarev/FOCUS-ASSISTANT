@@ -3,7 +3,8 @@ param(
     [string]$Player = 'artifacts/avatar-win64/FocusAvatar.exe',
     [string]$Screenshot = 'artifacts/avatar-window.png',
     [ValidateRange(100, 150)][int]$ClientPercent = 100,
-    [string]$SequenceDirectory
+    [string]$SequenceDirectory,
+    [switch]$CaptureOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -126,6 +127,12 @@ try {
     }
     Start-Sleep -Milliseconds 1800
     Save-WindowImage $bounds
+    if ($CaptureOnly) {
+        Send-WindowMessage 0x0010
+        if (-not $process.WaitForExit(7000) -or $process.ExitCode -ne 0) { throw 'Player did not exit after capture' }
+        Write-Output 'PASS: captured the Player and verified clean exit.'
+        return
+    }
     if ($SequenceDirectory) {
         $cue = Join-Path $SequenceDirectory 'cue.txt'
         $seen = Join-Path $SequenceDirectory 'seen.txt'

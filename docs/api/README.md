@@ -4,6 +4,7 @@ The API supports account authentication, focus sessions, goals, observed activit
 heuristic focus estimates, reports, work profiles, and account preferences.
 
 - [OpenAPI JSON](openapi.json)
+- [Computer Vision architecture and API](../vision/architecture.md)
 - [Getting started](getting-started.md)
 - [Authentication](authentication.md)
 - [Errors](error-handling.md)

@@ -18,7 +18,8 @@ public sealed class ActivityAggregate
         int mouseClickCount,
         int windowSwitchCount,
         int idleSeconds,
-        Guid? clientEventId = null)
+        Guid? clientEventId = null,
+        VisionAggregate? vision = null)
     {
         if (focusSessionId == Guid.Empty)
             throw new ArgumentException(
@@ -53,6 +54,7 @@ public sealed class ActivityAggregate
         MouseClickCount = mouseClickCount;
         WindowSwitchCount = windowSwitchCount;
         IdleSeconds = idleSeconds;
+        Vision = vision;
     }
 
     public Guid Id { get; private set; }
@@ -73,6 +75,7 @@ public sealed class ActivityAggregate
     public int WindowSwitchCount { get; private set; }
 
     public int IdleSeconds { get; private set; }
+    public VisionAggregate? Vision { get; private set; }
 
     public FocusSession FocusSession { get; private set; }
         = null!;

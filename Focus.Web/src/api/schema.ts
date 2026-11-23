@@ -115,7 +115,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revoke the current login and its refresh token. */
+        /** Revoke the current login and optionally withdraw camera consent for the account. */
         post: operations["AuthLogout"];
         delete?: never;
         options?: never;
@@ -165,14 +165,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read the current account's telemetry consent. */
+        /** Read independent desktop and camera consent and the experimental estimate preference. */
         get: operations["PrivacyGet"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Enable or disable server-side telemetry acceptance. */
+        /** Change server-side acceptance or the vision experiment without opening a device. */
         patch: operations["PrivacyUpdate"];
         trace?: never;
     };
@@ -219,7 +219,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Store aggregate intervals and versioned estimates atomically, with retry deduplication. */
+        /** Store independently consented desktop or camera aggregates with retry deduplication. */
         post: operations["ResearchUpload"];
         delete?: never;
         options?: never;
@@ -270,6 +270,23 @@ export interface paths {
         };
         /** Read the latest available estimate, session status, and goals for an owned session. */
         get: operations["ResearchCurrent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/{id}/vision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Summarize coarse camera observation totals and compare baseline and experimental estimates for an owned session. */
+        get: operations["ResearchVision"];
         put?: never;
         post?: never;
         delete?: never;
@@ -555,6 +572,7 @@ export interface components {
             /** Format: int32 */
             idleSeconds: number;
             activeProcessName?: null | string;
+            vision?: null | components["schemas"]["VisionInput"];
         };
         ActivityResponse: {
             /** Format: uuid */
@@ -629,6 +647,11 @@ export interface components {
             ruleVersion: string;
             reason: null | string;
             inputProcessCategory: null | components["schemas"]["ProcessCategory"];
+        };
+        FocusEstimate: {
+            state: components["schemas"]["FocusStateType"];
+            ruleVersion: string;
+            reason: string;
         };
         /** @enum {unknown} */
         FocusStateType: "Neutral" | "Focused" | "Distracted" | "Idle" | "Break" | "Absent";
@@ -742,9 +765,15 @@ export interface components {
             telemetryEnabled: boolean;
             /** Format: date-time */
             consentedAt: null | string;
+            cameraEnabled: boolean;
+            /** Format: date-time */
+            cameraConsentedAt: null | string;
+            visionExperimental: boolean;
         };
         PrivacyUpdate: {
-            telemetryEnabled: boolean;
+            telemetryEnabled?: null | boolean;
+            cameraEnabled?: null | boolean;
+            visionExperimental?: null | boolean;
         };
         PrivateExport: {
             profile: components["schemas"]["Profile"];
@@ -908,6 +937,42 @@ export interface components {
         UpdateGoalRequest: {
             description: null | string;
             outcome: null | components["schemas"]["GoalStatus"];
+        };
+        VisionComparison: {
+            baseline: components["schemas"]["FocusEstimate"];
+            experimental: components["schemas"]["FocusEstimate"];
+        };
+        VisionInput: {
+            /** Format: int32 */
+            presentMs: number;
+            /** Format: int32 */
+            notDetectedMs: number;
+            /** Format: int32 */
+            unknownMs: number;
+            /** Format: int32 */
+            facingMs: number;
+            /** Format: int32 */
+            awayMs: number;
+            /** Format: int32 */
+            validSamples: number;
+        };
+        VisionReport: {
+            /** Format: int64 */
+            observedMs: number;
+            /** Format: int64 */
+            presentMs: number;
+            /** Format: int64 */
+            notDetectedMs: number;
+            /** Format: int64 */
+            unknownMs: number;
+            /** Format: int64 */
+            facingMs: number;
+            /** Format: int64 */
+            awayMs: number;
+            /** Format: int64 */
+            validSamples: number;
+            experimentalEnabled: boolean;
+            comparison: null | components["schemas"]["VisionComparison"];
         };
         WorkProfileRequest: {
             name: string;
@@ -1363,7 +1428,9 @@ export interface operations {
     };
     AuthLogout: {
         parameters: {
-            query?: never;
+            query?: {
+                stopCamera?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2148,6 +2215,66 @@ export interface operations {
                     "text/plain": components["schemas"]["CurrentStateResponse"];
                     "application/json": components["schemas"]["CurrentStateResponse"];
                     "text/json": components["schemas"]["CurrentStateResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ResearchVision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["VisionReport"];
+                    "application/json": components["schemas"]["VisionReport"];
+                    "text/json": components["schemas"]["VisionReport"];
                 };
             };
             /** @description Bad Request */

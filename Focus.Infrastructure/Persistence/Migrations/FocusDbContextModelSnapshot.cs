@@ -53,6 +53,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Vision")
+                        .HasColumnType("jsonb");
+
                     b.Property<int>("WindowSwitchCount")
                         .HasColumnType("integer");
 
@@ -63,7 +66,10 @@ namespace Focus.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("FocusSessionId", "StartedAt");
 
-                    b.ToTable("ActivityAggregates", (string)null);
+                    b.ToTable("ActivityAggregates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ActivityAggregates_CameraOnly", " \"Vision\" IS NULL OR (jsonb_typeof(\"Vision\") = 'object' AND \"ActiveProcessName\" IS NULL AND \"KeyboardEventCount\" = 0 AND \"MouseClickCount\" = 0 AND \"WindowSwitchCount\" = 0 AND \"IdleSeconds\" = 0) ");
+                        });
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.FocusSession", b =>
@@ -236,6 +242,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("CameraConsentAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -251,6 +260,9 @@ namespace Focus.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("TelemetryConsentAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("VisionExperimental")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

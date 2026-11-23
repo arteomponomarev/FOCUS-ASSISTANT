@@ -7,7 +7,8 @@ using Focus.Engine;
 namespace Focus.Application.Research;
 
 public sealed record AggregateInput(Guid ClientEventId, DateTimeOffset StartedAt, DateTimeOffset EndedAt,
-    string? ActiveProcessName, int KeyboardEventCount, int MouseClickCount, int WindowSwitchCount, int IdleSeconds);
+    string? ActiveProcessName, int KeyboardEventCount, int MouseClickCount, int WindowSwitchCount, int IdleSeconds,
+    VisionAggregate? Vision = null);
 
 public sealed record IngestionResult(int Created, int Duplicates);
 
@@ -30,8 +31,10 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
 
     private async Task<IngestionResult> PersistAsync(Guid owner, FocusSession session, AggregateInput[] inputs, CancellationToken ct)
     {
-        var consent = await research.GetConsentForUploadAsync(owner, ct)
-            ?? throw new UseCaseException(Failure.Forbidden, "Telemetry collection is disabled.");
+        var activityConsent = inputs.Any(x => x.Vision is null) ? await research.GetConsentForUploadAsync(owner, ct)
+            ?? throw new UseCaseException(Failure.Forbidden, "Telemetry collection is disabled.") : (DateTimeOffset?)null;
+        var cameraConsent = inputs.Any(x => x.Vision is not null) ? await research.GetCameraConsentAsync(owner, ct)
+            ?? throw new UseCaseException(Failure.Forbidden, "Camera observation is disabled.") : (DateTimeOffset?)null;
         var known = await research.FindByClientIdsAsync(session.Id, inputs.Select(x => x.ClientEventId).ToArray(), ct);
         var newItems = inputs.Where(x => !known.ContainsKey(x.ClientEventId)).ToArray();
         if (newItems.Length > 0 && await research.OverlapsAsync(session.Id, newItems, ct))
@@ -40,7 +43,7 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
         var categories = await research.GetProcessCategoriesAsync(session.WorkProfileId, ct);
         var created = 0;
         var latest = PersistencePrecision(clock.GetUtcNow());
-        DateTimeOffset? previousEnd = null;
+        var previousEnd = new DateTimeOffset?[2];
         foreach (var input in inputs)
         {
             if (known.TryGetValue(input.ClientEventId, out var existing))
@@ -57,27 +60,34 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
             if (latest - input.EndedAt > ActivityAggregate.MaximumUploadAge)
                 throw new UseCaseException(Failure.Unprocessable, "The telemetry upload window has expired.");
 
+            var stream = input.Vision is null ? 0 : 1;
+            var consent = stream == 0 ? activityConsent : cameraConsent;
             if (session.StartedAt is not { } start || input.StartedAt < start || input.StartedAt < consent ||
                 input.EndedAt > (session.EndedAt ?? latest))
                 throw new UseCaseException(Failure.Unprocessable, "The telemetry window is outside the session or consent interval.");
 
-            if (previousEnd > input.StartedAt)
+            if (previousEnd[stream] > input.StartedAt)
                 throw UseCaseException.Conflict("Telemetry windows cannot overlap.");
 
             var pause = session.Pauses.FirstOrDefault(x => x.StartedAt < input.EndedAt && (x.EndedAt ?? latest) > input.StartedAt);
-            if (pause is not null && (input.StartedAt < pause.StartedAt || input.EndedAt > (pause.EndedAt ?? latest)))
+            if (pause is not null && (input.Vision is not null || input.StartedAt < pause.StartedAt || input.EndedAt > (pause.EndedAt ?? latest)))
                 throw new UseCaseException(Failure.Unprocessable, "A telemetry window cannot cross a pause boundary.");
 
             var activity = new ActivityAggregate(session.Id, input.StartedAt, input.EndedAt, input.ActiveProcessName,
-                input.KeyboardEventCount, input.MouseClickCount, input.WindowSwitchCount, input.IdleSeconds, input.ClientEventId);
+                input.KeyboardEventCount, input.MouseClickCount, input.WindowSwitchCount, input.IdleSeconds, input.ClientEventId, input.Vision);
+            previousEnd[stream] = input.EndedAt;
+            created++;
+            if (input.Vision is not null)
+            {
+                research.Add(activity, null);
+                continue;
+            }
             var category = input.ActiveProcessName is { } name ? categories.GetValueOrDefault(name) : ProcessCategory.Neutral;
             var estimate = classifier.Evaluate(new SignalWindow((input.EndedAt - input.StartedAt).TotalSeconds,
                 input.KeyboardEventCount, input.MouseClickCount, input.WindowSwitchCount, input.IdleSeconds, pause is not null, category));
             var state = new FocusStateRecord(session.Id, input.StartedAt, input.EndedAt,
                 estimate.State, estimate.RuleVersion, estimate.Reason, activity.Id, category);
             research.Add(activity, state);
-            created++;
-            previousEnd = input.EndedAt;
         }
 
         return new IngestionResult(created, inputs.Length - created);
@@ -91,7 +101,10 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
         if (input.ClientEventId == Guid.Empty || duration <= TimeSpan.Zero || duration > TimeSpan.FromMinutes(5) ||
             input.IdleSeconds < 0 || input.IdleSeconds > duration.TotalSeconds ||
             !ValidCounter(input.KeyboardEventCount) || !ValidCounter(input.MouseClickCount) || !ValidCounter(input.WindowSwitchCount) ||
-            !ProcessIdentity.TryNormalize(input.ActiveProcessName, out var process))
+            !ProcessIdentity.TryNormalize(input.ActiveProcessName, out var process) ||
+            (input.Vision is { } vision && (duration < TimeSpan.FromMilliseconds(50) || process is not null || input.KeyboardEventCount != 0 ||
+                input.MouseClickCount != 0 || input.WindowSwitchCount != 0 || input.IdleSeconds != 0 ||
+                !vision.Fits(duration.Ticks / TimeSpan.TicksPerMillisecond))))
             throw new UseCaseException(Failure.Invalid, "A telemetry item contains an invalid ID, interval, process name, or counter.");
 
         return input with { StartedAt = start, EndedAt = end, ActiveProcessName = process };
@@ -106,5 +119,5 @@ public sealed class TelemetryService(ISessionStore sessions, IResearchStore rese
         expected.StartedAt == input.StartedAt && expected.EndedAt == input.EndedAt &&
         expected.ActiveProcessName == input.ActiveProcessName && expected.KeyboardEventCount == input.KeyboardEventCount &&
         expected.MouseClickCount == input.MouseClickCount && expected.WindowSwitchCount == input.WindowSwitchCount &&
-        expected.IdleSeconds == input.IdleSeconds;
+        expected.IdleSeconds == input.IdleSeconds && expected.Vision == input.Vision;
 }

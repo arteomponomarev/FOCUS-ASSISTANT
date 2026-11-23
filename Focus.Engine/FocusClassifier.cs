@@ -1,4 +1,5 @@
 using Focus.Domain.Enums;
+using Focus.Domain.Entities;
 
 namespace Focus.Engine;
 
@@ -10,6 +11,21 @@ public sealed record FocusEstimate(FocusStateType State, string RuleVersion, str
 public sealed class FocusClassifier
 {
     public const string Version = "rules-1.0.0";
+    public const string VisionVersion = "rules-vision-experimental-1.0.0";
+
+    public FocusEstimate EvaluateWithVision(FocusEstimate baseline, VisionAggregate? vision, bool silent,
+        double conservativeOverlap)
+    {
+        if (vision is null || baseline.State != FocusStateType.Idle || !silent || conservativeOverlap < .8)
+            return baseline;
+
+        var duration = (long)vision.PresentMs + vision.NotDetectedMs + vision.UnknownMs;
+        if (duration < 12_000 || vision.ValidSamples < 12 || vision.NotDetectedMs < duration * .90)
+            return baseline;
+
+        return new FocusEstimate(FocusStateType.Absent, VisionVersion,
+            "Desktop inactivity and sustained non-detection under usable camera conditions. Physical absence remains uncertain.");
+    }
 
     public FocusEstimate Evaluate(SignalWindow input)
     {

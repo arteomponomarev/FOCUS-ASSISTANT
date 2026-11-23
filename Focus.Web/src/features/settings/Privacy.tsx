@@ -8,6 +8,7 @@ import { timestamp } from '../../ui/format'
 import { Button, Dialog, Field, PasswordField, Section } from '../../ui/primitives'
 import { usePrivateAction } from '../auth/usePrivateAction'
 import { exportAccount, exportClosed } from './accountExport'
+import { ComputerVision } from './ComputerVision'
 import { usePrivacyQuery, useSaveConsentMutation } from './data'
 import { fieldValue, MutationFeedback, PendingData } from './shared'
 
@@ -75,6 +76,7 @@ export function Privacy() {
           )}
         </PendingData>
       </Section>
+      <ComputerVision />
       <Section
         title="Data export"
         subtitle="Download a JSON copy of your profile, settings, sessions, and research aggregates."

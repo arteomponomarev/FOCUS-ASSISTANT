@@ -22,6 +22,8 @@ public sealed class User
 
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? TelemetryConsentAt { get; private set; }
+    public DateTimeOffset? CameraConsentAt { get; private set; }
+    public bool VisionExperimental { get; private set; }
 
     public void Rename(string displayName) => DisplayName = displayName;
 

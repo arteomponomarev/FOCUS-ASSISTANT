@@ -14,7 +14,7 @@ internal sealed class AnalyticsStore(FocusDbContext db) : IAnalyticsStore
 
     public IAsyncEnumerable<ObservedActivity> ActivityAsync(Guid owner, ReportWindow window, Guid[]? ids, CancellationToken ct)
     {
-        var rows = db.ActivityAggregates.AsNoTracking().Where(x => x.FocusSession.UserId == owner &&
+        var rows = db.ActivityAggregates.AsNoTracking().Where(x => x.FocusSession.UserId == owner && x.Vision == null &&
             x.StartedAt >= window.From && x.StartedAt < window.To);
 
         if (ids is not null)

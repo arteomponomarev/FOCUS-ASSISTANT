@@ -34,7 +34,7 @@ internal sealed class ActivityQueue : IDisposable
         }
     }
 
-    public static ActivityQueue ForWindowsAccount(Uri origin, Guid account, string? root = null)
+    public static ActivityQueue ForWindowsAccount(Uri origin, Guid account, string? root = null, bool camera = false)
     {
         if (!OperatingSystem.IsWindows())
             throw new PlatformNotSupportedException("The desktop queue requires Windows.");
@@ -42,7 +42,7 @@ internal sealed class ActivityQueue : IDisposable
         var scope = Convert.ToHexString(SHA256.HashData(
             Encoding.UTF8.GetBytes($"{origin.GetLeftPart(UriPartial.Authority)}\n{account:D}")));
         root ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "FocusAssistant", "agent-v1");
+            "FocusAssistant", camera ? "vision-v1" : "agent-v1");
         if (!Path.IsPathFullyQualified(root))
             throw new IOException("An absolute Windows profile path is required for the Agent queue.");
         var directory = Path.Combine(root, scope);

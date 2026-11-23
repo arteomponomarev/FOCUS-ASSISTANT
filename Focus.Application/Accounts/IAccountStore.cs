@@ -18,6 +18,7 @@ public interface IAccountStore
     Task<Guid?> RotateLoginAsync(Guid userId, Guid loginId, Guid replacementId, DateTimeOffset now, DateTimeOffset expires, CancellationToken cancellationToken);
     Task RevokeLoginAsync(Guid userId, Guid familyId, CancellationToken cancellationToken);
     Task SetConsentAsync(Guid userId, DateTimeOffset? consent, CancellationToken cancellationToken);
+    Task SetCameraConsentAsync(Guid userId, bool? enabled, bool? experimental, DateTimeOffset now, CancellationToken cancellationToken);
     Task DeleteAccountAsync(Guid userId, string expectedHash, CancellationToken cancellationToken);
 }
 

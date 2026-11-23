@@ -11,6 +11,25 @@ internal sealed class ResearchStore(FocusDbContext db) : IResearchStore
     public Task<DateTimeOffset?> GetConsentForUploadAsync(Guid owner, CancellationToken ct) =>
         db.Users.Where(x => x.Id == owner).Select(x => x.TelemetryConsentAt).SingleOrDefaultAsync(ct);
 
+    public Task<DateTimeOffset?> GetCameraConsentAsync(Guid owner, CancellationToken ct) =>
+        db.Users.Where(x => x.Id == owner).Select(x => x.CameraConsentAt).SingleOrDefaultAsync(ct);
+
+    public Task<bool> UsesExperimentalVisionAsync(Guid owner, CancellationToken ct) =>
+        db.Users.AnyAsync(x => x.Id == owner && x.CameraConsentAt != null && x.VisionExperimental, ct);
+
+    private IQueryable<ActivityAggregate> ForSession(Guid owner, Guid session) => db.ActivityAggregates.AsNoTracking()
+        .Where(x => x.FocusSessionId == session && x.FocusSession.UserId == owner);
+
+    public IAsyncEnumerable<ActivityAggregate> ReadVisionAsync(Guid owner, Guid session, CancellationToken ct) =>
+        ForSession(owner, session).Where(x => x.Vision != null).AsAsyncEnumerable();
+
+    public Task<ActivityAggregate?> FindVisionAsync(Guid owner, Guid session, DateTimeOffset from, DateTimeOffset to,
+        CancellationToken ct) => ForSession(owner, session).Where(x => x.Vision != null && x.StartedAt < to && x.EndedAt > from)
+        .OrderByDescending(x => x.EndedAt).FirstOrDefaultAsync(ct);
+
+    public Task<ActivityAggregate?> FindActivityAsync(Guid owner, Guid session, Guid id, CancellationToken ct) =>
+        ForSession(owner, session).FirstOrDefaultAsync(x => x.Id == id && x.Vision == null, ct);
+
     public Task<Dictionary<Guid, ActivityAggregate>> FindByClientIdsAsync(Guid session, Guid[] clientIds, CancellationToken ct) =>
         db.ActivityAggregates.AsNoTracking()
             .Where(x => x.FocusSessionId == session && x.ClientEventId.HasValue && clientIds.Contains(x.ClientEventId.Value))
@@ -20,13 +39,15 @@ internal sealed class ResearchStore(FocusDbContext db) : IResearchStore
     {
         var starts = inputs.Select(x => x.StartedAt).ToArray();
         var ends = inputs.Select(x => x.EndedAt).ToArray();
+        var modes = inputs.Select(x => x.Vision is not null).ToArray();
         var result = await db.Database.SqlQuery<bool>($$"""
             SELECT EXISTS (
                 SELECT 1
-                FROM unnest({{starts}}::timestamptz[], {{ends}}::timestamptz[]) AS batch(start_at, end_at)
+                FROM unnest({{starts}}::timestamptz[], {{ends}}::timestamptz[], {{modes}}::boolean[]) AS batch(start_at, end_at, camera)
                 JOIN "ActivityAggregates" AS activity
                   ON activity."FocusSessionId" = {{session}}
                  AND activity."StartedAt" < batch.end_at AND activity."EndedAt" > batch.start_at
+                 AND (activity."Vision" IS NOT NULL) = batch.camera
             ) AS "Value"
             """).ToListAsync(ct);
         return result.Single();
@@ -38,14 +59,15 @@ internal sealed class ResearchStore(FocusDbContext db) : IResearchStore
             : db.Set<ProcessRule>().Where(x => x.WorkProfileId == profileId)
                 .ToDictionaryAsync(x => x.ProcessName, x => x.Category, ct);
 
-    public void Add(ActivityAggregate activity, FocusStateRecord estimate)
+    public void Add(ActivityAggregate activity, FocusStateRecord? estimate)
     {
         db.ActivityAggregates.Add(activity);
-        db.FocusStateRecords.Add(estimate);
+        if (estimate is not null)
+            db.FocusStateRecords.Add(estimate);
     }
 
     public Task<Page<ActivityAggregate>> ListActivityAsync(Guid owner, Guid session, PageRequest page, CancellationToken ct) =>
-        ReadPageAsync(db.ActivityAggregates.AsNoTracking().Where(x => x.FocusSessionId == session && x.FocusSession.UserId == owner)
+        ReadPageAsync(ForSession(owner, session).Where(x => x.Vision == null)
             .OrderBy(x => x.StartedAt).ThenBy(x => x.Id), page, ct);
 
     public Task<Page<FocusStateRecord>> ListEstimatesAsync(Guid owner, Guid session, PageRequest page, CancellationToken ct) =>
@@ -59,7 +81,7 @@ internal sealed class ResearchStore(FocusDbContext db) : IResearchStore
     public Task<Page<TimelineEntry>> ListTimelineAsync(Guid owner, Guid session, PageRequest page, CancellationToken ct)
     {
         var activity = db.ActivityAggregates.AsNoTracking()
-            .Where(x => x.FocusSessionId == session && x.FocusSession.UserId == owner)
+            .Where(x => x.FocusSessionId == session && x.FocusSession.UserId == owner && x.Vision == null)
             .Select(x => new { x.Id, x.StartedAt, x.EndedAt, Kind = "observedActivity", EstimatedState = (FocusStateType?)null });
         var estimates = db.FocusStateRecords.AsNoTracking()
             .Where(x => x.FocusSessionId == session && x.FocusSession.UserId == owner)

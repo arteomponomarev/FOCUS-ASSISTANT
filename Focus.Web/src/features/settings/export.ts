@@ -24,12 +24,13 @@ export async function downloadAccount(signal: AbortSignal) {
   const research = []
   for (const session of sessionItems) {
     if (signal.aborted) throw signal.reason
-    const [activity, estimates, timeline] = await Promise.all([
+    const [activity, estimates, timeline, vision] = await Promise.all([
       allPages((page) => sessions.activity(session.id, page, signal)),
       allPages((page) => sessions.estimates(session.id, page, signal)),
       sessions.timeline(session.id, 1, signal),
+      sessions.vision(session.id, signal),
     ])
-    research.push({ ...session, activity, estimates, pauses: timeline.pauses })
+    research.push({ ...session, activity, estimates, pauses: timeline.pauses, vision })
   }
   if (signal.aborted) throw signal.reason
   const blob = new Blob(

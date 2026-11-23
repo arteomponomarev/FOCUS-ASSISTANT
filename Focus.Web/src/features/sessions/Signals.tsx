@@ -6,14 +6,16 @@ import { Empty, Failure, Skeleton } from '../../ui/feedback'
 import { duration, timestamp } from '../../ui/format'
 import { Button, Pagination, Section } from '../../ui/primitives'
 import { usePrivacyQuery } from '../settings/data'
-import { useActivityQuery, useEstimatesQuery, useTimelineQuery } from './data'
+import { useActivityQuery, useEstimatesQuery, useTimelineQuery, useVisionQuery } from './data'
 import { Badge } from './SessionList'
 import { signalsClosed, signalsViewed } from './signalsSaga'
+import { VisionSummary } from './VisionSummary'
 
 const tabs = [
   { id: 'timeline', label: 'Timeline' },
   { id: 'estimates', label: 'Estimated states' },
   { id: 'activity', label: 'Activity aggregates' },
+  { id: 'vision', label: 'Computer Vision' },
 ] as const
 type Tab = (typeof tabs)[number]['id']
 
@@ -40,13 +42,23 @@ export function Signals({
   const timeline = useTimelineQuery(args, { skip: tab !== 'timeline' })
   const estimates = useEstimatesQuery(args, { skip: tab !== 'estimates' })
   const activity = useActivityQuery(args, { skip: tab !== 'activity' })
-  const selected = tab === 'timeline' ? timeline : tab === 'estimates' ? estimates : activity
+  const vision = useVisionQuery(id, { skip: tab !== 'vision' })
+  const selected =
+    tab === 'vision'
+      ? vision
+      : tab === 'timeline'
+        ? timeline
+        : tab === 'estimates'
+          ? estimates
+          : activity
   const total =
-    tab === 'timeline'
-      ? timeline.currentData?.events.totalCount
-      : tab === 'estimates'
-        ? estimates.currentData?.totalCount
-        : activity.currentData?.totalCount
+    tab === 'vision'
+      ? undefined
+      : tab === 'timeline'
+        ? timeline.currentData?.events.totalCount
+        : tab === 'estimates'
+          ? estimates.currentData?.totalCount
+          : activity.currentData?.totalCount
 
   return (
     <Section
@@ -182,6 +194,9 @@ export function Signals({
                 </li>
               ))}
             </ol>
+          )}
+          {tab === 'vision' && vision.currentData && (
+            <VisionSummary report={vision.currentData} enabled={privacy.data?.cameraEnabled} />
           )}
           {total === 0 && (
             <Empty title="No desktop signals recorded">

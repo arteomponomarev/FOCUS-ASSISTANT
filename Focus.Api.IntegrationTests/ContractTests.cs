@@ -19,7 +19,8 @@ public sealed class ContractTests
         Assert.Equal("integer", duration["type"]!.GetValue<string>());
         Assert.Equal("string", generated["components"]!["schemas"]!["ProblemDetails"]!["properties"]!["traceId"]!["type"]!.GetValue<string>());
         Assert.True(paths.ContainsKey("/api/v1/sessions/{id}/activity/batch"));
-        Assert.Equal(41, paths.Sum(path => path.Value!.AsObject().Count));
+        Assert.Equal(42, paths.Sum(path => path.Value!.AsObject().Count));
+        Assert.NotNull(paths["/api/v1/sessions/{id}/vision"]!["get"]!["security"]);
         Assert.NotNull(paths["/api/v1/sessions"]!["post"]!["responses"]!["415"]?["content"]?["application/problem+json"]);
         Assert.Null(paths["/api/v1/sessions"]!["post"]!["responses"]!["415"]?["content"]?["application/problem+json"]?["example"]);
         Assert.NotNull(paths["/api/v1/sessions"]!["post"]!["security"]);

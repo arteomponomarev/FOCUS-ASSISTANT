@@ -18,6 +18,7 @@ internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndp
 
     private readonly SemaphoreSlim _refreshLock = new(1);
     private Credentials? _credentials;
+    internal Func<string>? CameraStatus { get; set; }
 
     public static Uri ParseOrigin(string value)
     {
@@ -39,7 +40,7 @@ internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndp
     {
         var privacy = await GetAsync<Permission>("api/v1/settings/privacy", ct);
         var through = clock.GetUtcNow();
-        if (!privacy.TelemetryEnabled || privacy.ConsentedAt is null)
+        if (privacy.Consent(false) is null && privacy.Consent(true) is null)
             return new Authority(privacy, null, through);
 
         var timeline = await GetAsync<SessionWindow>($"api/v1/sessions/{session:D}/timeline?PageSize=1", ct);
@@ -70,6 +71,7 @@ internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndp
         snapshot.activeSeconds = duration.ActiveSeconds;
         snapshot.plannedSeconds = duration.PlannedDurationSeconds;
         snapshot.telemetryAllowed = consent.TelemetryEnabled && consent.ConsentedAt.HasValue;
+        snapshot.cameraState = !consent.CameraEnabled ? "Disabled" : CameraStatus?.Invoke() ?? "Waiting";
         snapshot.goal = current.Goals.FirstOrDefault(x => x.Status == GoalStatus.Pending)?.Description ?? "";
         snapshot.visibility = preferences.Visibility.ToString();
         snapshot.intensity = preferences.Intensity.ToString();

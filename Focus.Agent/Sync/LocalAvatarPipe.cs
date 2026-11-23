@@ -31,6 +31,10 @@ internal static class LocalAvatarPipe
             {
                 var error = Marshal.GetLastWin32Error();
                 pipe.Dispose();
+                // Windows uses access denied when another server holds the first pipe instance.
+                const int accessDenied = 5, pipeBusy = 231;
+                if (error is accessDenied or pipeBusy)
+                    throw new AvatarPipeUnavailableException(error);
                 throw new Win32Exception(error);
             }
 
@@ -69,3 +73,5 @@ internal static class LocalAvatarPipe
     [DllImport("kernel32.dll")]
     private static extern IntPtr LocalFree(IntPtr memory);
 }
+
+internal sealed class AvatarPipeUnavailableException(int error) : Win32Exception(error);

@@ -77,6 +77,7 @@ namespace Focus.Avatar.Protocol
         public bool hasTiming;
         public double activeSeconds;
         public double plannedSeconds;
+        public string cameraState = "";
 
         public bool IsValid(Guid session) =>
             version == AvatarProtocol.Version && Guid.TryParse(sessionId, out var received) && received == session &&
@@ -88,6 +89,7 @@ namespace Focus.Avatar.Protocol
             goal != null && goal.Length <= 500 &&
             visibility is "AlwaysVisible" or "OnlyWhenNeeded" or "NotificationsOnly" or "Hidden" &&
             intensity is "Quiet" or "Balanced" or "Active" &&
+            cameraState is "" or "Disabled" or "Waiting" or "Starting" or "Processing" or "Unavailable" &&
             (!hasTiming || (result == "ok" && activeSeconds >= 0 && activeSeconds < TimeSpan.MaxValue.TotalSeconds &&
                             plannedSeconds > 0 && plannedSeconds < TimeSpan.MaxValue.TotalSeconds)) &&
             (result == "ok" ? status.Length > 0 : status == "" && goal.Length == 0);

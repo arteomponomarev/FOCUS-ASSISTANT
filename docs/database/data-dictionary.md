@@ -19,6 +19,10 @@ and the constraints added by later migrations.
 
 ## 2. Users
 
+Migration `20261123161834_AddCameraObservation` adds nullable
+`CameraConsentAt` (`timestamp with time zone`) and `VisionExperimental`
+(`boolean`, default false). Camera consent is independent of desktop telemetry consent.
+
 Stores basic user account information.
 
 | Column | PostgreSQL Type | Constraints | Description |
@@ -73,6 +77,12 @@ Relationships:
 - Deleting a session deletes its goals.
 
 ## 5. ActivityAggregates
+
+`Vision` is nullable JSONB. A non-null value represents a camera-only interval.
+The six fields are `PresentMs`, `NotDetectedMs`, `UnknownMs`, `FacingMs`,
+`AwayMs` and `ValidSamples`. Camera intervals reuse the session FK and client
+event ID. A database check requires an object, empty process identity and zero
+desktop counters. The API validates duration arithmetic and same-stream overlap.
 
 Stores aggregated computer activity within time intervals.
 

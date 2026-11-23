@@ -96,6 +96,8 @@ export const sessions = {
         signal,
       }),
     ),
+  vision: (id: string, signal?: AbortSignal) =>
+    read(api.GET('/api/v1/sessions/{id}/vision', { params: { path: { id } }, signal })),
 }
 
 const collections = ['Sessions', 'Analytics'] as const
@@ -155,6 +157,10 @@ export const sessionApi = focusApi.injectEndpoints({
       queryFn: queryRequest(({ id, page }, signal) => sessions.timeline(id, page, signal)),
       providesTags: (_data, _error, { id }) => [{ type: 'Signals', id }],
     }),
+    vision: build.query<Model['VisionReport'], string>({
+      queryFn: queryRequest(sessions.vision),
+      providesTags: (_data, _error, id) => [{ type: 'Signals', id }],
+    }),
   }),
 })
 
@@ -168,6 +174,7 @@ export const {
   useActivityQuery,
   useEstimatesQuery,
   useTimelineQuery,
+  useVisionQuery,
 } = sessionApi
 
 export function sessionTitle(session: Session) {

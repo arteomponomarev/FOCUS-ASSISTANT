@@ -63,11 +63,13 @@ public sealed class AuthController(
     [HttpPost("logout")]
     [ProducesResponseType(204)]
     [ProducesResponseType<ProblemDetails>(429)]
-    public async Task<IActionResult> Logout(CancellationToken ct)
+    public async Task<IActionResult> Logout(CancellationToken ct, [FromQuery] bool stopCamera = false)
     {
         if (!AccountAuthentication.TryRead(User, out var user, out var login))
             throw AccountService.InvalidCredentials();
 
+        if (stopCamera)
+            await accounts.SetPrivacyAsync(user, null, false, null, ct);
         await accounts.LogoutAsync(user, User.FamilyId(login), ct);
         return NoContent();
     }

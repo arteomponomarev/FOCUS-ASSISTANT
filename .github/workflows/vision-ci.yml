@@ -1,0 +1,29 @@
+name: Vision CI
+
+on:
+  push:
+    paths:
+      - 'Focus.Vision/**'
+      - '.github/workflows/vision-ci.yml'
+  pull_request:
+    paths:
+      - 'Focus.Vision/**'
+      - '.github/workflows/vision-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Focus.Vision
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --requirement requirements.txt
+      - run: ./install-model.ps1
+      - run: python -B -m unittest -v

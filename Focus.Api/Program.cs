@@ -32,6 +32,7 @@ builder.Services.AddApiObservability(builder.Configuration);
 builder.Services.AddAccounts(builder.Configuration, builder.Environment.IsProduction());
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<TelemetryService>();
+builder.Services.AddScoped<VisionResearch>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddSingleton<FocusClassifier>();

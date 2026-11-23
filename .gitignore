@@ -510,3 +510,9 @@ $RECYCLE.BIN/
 /Focus.Avatar/*.csproj
 /Focus.Avatar/*.sln
 /Focus.Avatar/*.slnx
+
+# Local vision runtime, model cache and calibration
+/Focus.Vision/.venv/
+/Focus.Vision/models/
+/Focus.Vision/calibration.local.json
+/Focus.Vision/diagnostics/

@@ -78,8 +78,8 @@ public sealed class ApplicationTests
         await accounts.ChangePasswordAsync(user, "one", "two", default);
         await FailureAsync(Failure.Unauthenticated, () => accounts.LoginAsync(profile.Email, "one", TimeSpan.FromDays(1), default));
         Assert.False((await accounts.GetPrivacyAsync(user, default)).TelemetryEnabled);
-        Assert.Equal(TestClock.GetUtcNow(), (await accounts.SetPrivacyAsync(user, true, default)).ConsentedAt);
-        Assert.False((await accounts.SetPrivacyAsync(user, false, default)).TelemetryEnabled);
+        Assert.Equal(TestClock.GetUtcNow(), (await accounts.SetPrivacyAsync(user, true, null, null, default)).ConsentedAt);
+        Assert.False((await accounts.SetPrivacyAsync(user, false, null, null, default)).TelemetryEnabled);
         await FailureAsync(Failure.Unauthenticated, () => accounts.DeleteAccountAsync(user, "invalid", default));
         await accounts.DeleteAccountAsync(user, "two", default);
         await FailureAsync(Failure.NotFound, () => accounts.GetProfileAsync(user, default));
@@ -250,6 +250,8 @@ public sealed class ApplicationTests
 
     private sealed class AccountStore : IAccountStore
     {
+        public Task SetCameraConsentAsync(Guid userId, bool? enabled, bool? experimental, DateTimeOffset now, CancellationToken ct) =>
+            throw new NotSupportedException();
         private Account? _account;
         private readonly Dictionary<Guid, (Guid Family, DateTimeOffset Expires)> _logins = [];
 
@@ -370,6 +372,14 @@ public sealed class ApplicationTests
 
     private sealed class ResearchStore : IResearchStore
     {
+        public Task<DateTimeOffset?> GetCameraConsentAsync(Guid owner, CancellationToken ct) => Task.FromResult<DateTimeOffset?>(null);
+        public Task<bool> UsesExperimentalVisionAsync(Guid owner, CancellationToken ct) => Task.FromResult(false);
+        public IAsyncEnumerable<ActivityAggregate> ReadVisionAsync(Guid owner, Guid session, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<ActivityAggregate?> FindVisionAsync(Guid owner, Guid session, DateTimeOffset from, DateTimeOffset to, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<ActivityAggregate?> FindActivityAsync(Guid owner, Guid session, Guid id, CancellationToken ct) =>
+            throw new NotSupportedException();
         public DateTimeOffset? Consent { get; set; }
         public List<ActivityAggregate> Activities { get; } = [];
         public List<FocusStateRecord> Estimates { get; } = [];
@@ -387,10 +397,11 @@ public sealed class ApplicationTests
         public Task<Dictionary<string, ProcessCategory>> GetProcessCategoriesAsync(Guid? profile, CancellationToken ct) =>
             Task.FromResult(new Dictionary<string, ProcessCategory> { ["editor"] = ProcessCategory.Allowed });
 
-        public void Add(ActivityAggregate activity, FocusStateRecord estimate)
+        public void Add(ActivityAggregate activity, FocusStateRecord? estimate)
         {
             Activities.Add(activity);
-            Estimates.Add(estimate);
+            if (estimate is not null)
+                Estimates.Add(estimate);
         }
 
         public Task<Page<ActivityAggregate>> ListActivityAsync(Guid owner, Guid session, PageRequest page, CancellationToken ct) =>

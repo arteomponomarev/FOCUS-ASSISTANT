@@ -127,6 +127,12 @@ Delete behavior: Cascade.
 
 ## 4. Research Data Flow
 
+Computer Vision contributes a separate camera-only stream within
+`ActivityAggregates`. Existing desktop timeline and analytics exclude these
+rows. Consent and session changes serialize against uploads. The new migration
+is additive and blocks downgrade while camera aggregates exist, to avoid
+converting them into misleading desktop observations.
+
 The research workflow is based on the following process:
 
 1. A user creates and starts a focus session.

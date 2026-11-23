@@ -39,7 +39,9 @@ public sealed class AvatarWorkflowTests(ITestOutputHelper output)
         var profile = await JsonAsync(await ExpectAsync(HttpStatusCode.Created,
             owner.PostAsJsonAsync("/api/v1/settings/work-profiles", new
             {
-                name = "Reading", focusMinutes = 10, breakMinutes = 3,
+                name = "Reading",
+                focusMinutes = 10,
+                breakMinutes = 3,
                 rules = new[] { new { processName = "editor", category = "Allowed" } }
             })));
         var created = await JsonAsync(await ExpectAsync(HttpStatusCode.Created, owner.PostAsJsonAsync(Sessions,
@@ -139,7 +141,10 @@ public sealed class AvatarWorkflowTests(ITestOutputHelper output)
     {
         var info = new ProcessStartInfo("powershell.exe")
         {
-            UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
         };
         foreach (var argument in new[] { "-NoProfile", "-File", script, "-SessionId", session.ToString("D") }.Concat(options))
             info.ArgumentList.Add(argument);
@@ -168,7 +173,8 @@ public sealed class AvatarWorkflowTests(ITestOutputHelper output)
         using var fields = JsonDocument.Parse(bytes);
         Assert.All(fields.RootElement.EnumerateObject(), field =>
             Assert.Contains(field.Name, new[] { "version", "sessionId", "result", "status", "estimate",
-                "ruleVersion", "goal", "visibility", "intensity", "telemetryAllowed", "hasTiming", "activeSeconds", "plannedSeconds" }));
+                "ruleVersion", "goal", "visibility", "intensity", "telemetryAllowed", "hasTiming", "activeSeconds", "plannedSeconds",
+                "cameraState" }));
         return data;
     }
 }

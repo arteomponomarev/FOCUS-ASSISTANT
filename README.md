@@ -385,6 +385,12 @@ Open [the Unity project and Windows launch guide](Focus.Avatar/README.md) to bui
 and pair the desktop companion. It reads the selected session's processed
 estimate through the Agent and can start, pause or resume that session.
 
+### Optional local Computer Vision
+
+Focus.Vision processes camera observations locally on Windows with a separate
+camera opt-in. The Agent submits only coarse session totals. Follow the
+[setup guide](docs/vision/setup.md) and [manual webcam procedure](docs/vision/manual-verification.md).
+
 See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md),
 [production hosting configuration](docs/frontend/api-integration.md), and
 [Adaptive UI design](docs/design/focus-assistant-adaptive-ui.pdf).

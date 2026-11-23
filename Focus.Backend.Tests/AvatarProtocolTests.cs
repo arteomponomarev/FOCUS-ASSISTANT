@@ -1,9 +1,23 @@
 using Focus.Avatar.Protocol;
+using Focus.Agent.Sync;
 
 namespace Focus.Backend.Tests;
 
 public sealed class AvatarProtocolTests
 {
+    [AgentWindowsFact]
+    public void DuplicateAvatarBridgeReportsAnUnavailablePipeUntilTheOwnerClosesIt()
+    {
+        var name = AvatarProtocol.PipeName(Guid.NewGuid());
+        using (LocalAvatarPipe.Open(name))
+        {
+            Assert.Throws<AvatarPipeUnavailableException>(() => LocalAvatarPipe.Open(name));
+        }
+
+        using var reopened = LocalAvatarPipe.Open(name);
+        Assert.False(reopened.IsConnected);
+    }
+
     [Theory]
     [InlineData("", AvatarMood.Neutral)]
     [InlineData("Neutral", AvatarMood.Neutral)]

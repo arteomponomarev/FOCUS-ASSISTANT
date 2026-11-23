@@ -1,5 +1,12 @@
 # Backend API changelog
 
+## Computer Vision
+
+- Privacy settings now support independent camera consent and optional experimental evaluation.
+- The existing activity batch accepts camera-only aggregate intervals under camera consent.
+- Added an owned session vision report and optional camera-assisted current-state estimates.
+- Browser logout can request camera consent revocation through `stopCamera=true`.
+
 ## v1 verification
 
 - Added captured, sanitized success and Problem Details response examples to OpenAPI. Documented the optional `traceId` already returned by the API. Paths, DTOs and runtime behavior are unchanged.

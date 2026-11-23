@@ -665,8 +665,18 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Revoke the current login and its refresh token.",
+        "summary": "Revoke the current login and optionally withdraw camera consent for the account.",
         "operationId": "AuthLogout",
+        "parameters": [
+          {
+            "name": "stopCamera",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "400": {
             "description": "Bad Request",
@@ -973,7 +983,7 @@
         "tags": [
           "Privacy"
         ],
-        "summary": "Read the current account's telemetry consent.",
+        "summary": "Read independent desktop and camera consent and the experimental estimate preference.",
         "operationId": "PrivacyGet",
         "responses": {
           "400": {
@@ -1047,7 +1057,7 @@
         "tags": [
           "Privacy"
         ],
-        "summary": "Enable or disable server-side telemetry acceptance.",
+        "summary": "Change server-side acceptance or the vision experiment without opening a device.",
         "operationId": "PrivacyUpdate",
         "requestBody": {
           "content": {
@@ -1331,7 +1341,7 @@
         "tags": [
           "Research"
         ],
-        "summary": "Store aggregate intervals and versioned estimates atomically, with retry deduplication.",
+        "summary": "Store independently consented desktop or camera aggregates with retry deduplication.",
         "operationId": "ResearchUpload",
         "parameters": [
           {
@@ -1790,6 +1800,93 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CurrentStateResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/vision": {
+      "get": {
+        "tags": [
+          "Research"
+        ],
+        "summary": "Summarize coarse camera observation totals and compare baseline and experimental estimates for an owned session.",
+        "operationId": "ResearchVision",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionReport"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionReport"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionReport"
                 }
               }
             }
@@ -4290,6 +4387,16 @@
               "null",
               "string"
             ]
+          },
+          "vision": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/VisionInput"
+              }
+            ]
           }
         },
         "additionalProperties": false
@@ -4601,6 +4708,26 @@
                 "$ref": "#/components/schemas/ProcessCategory"
               }
             ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "FocusEstimate": {
+        "required": [
+          "state",
+          "ruleVersion",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/FocusStateType"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -4965,7 +5092,10 @@
       "PrivacySettings": {
         "required": [
           "telemetryEnabled",
-          "consentedAt"
+          "consentedAt",
+          "cameraEnabled",
+          "cameraConsentedAt",
+          "visionExperimental"
         ],
         "type": "object",
         "properties": {
@@ -4978,18 +5108,43 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "cameraEnabled": {
+            "type": "boolean"
+          },
+          "cameraConsentedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "visionExperimental": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
       },
       "PrivacyUpdate": {
-        "required": [
-          "telemetryEnabled"
-        ],
         "type": "object",
         "properties": {
           "telemetryEnabled": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "cameraEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "visionExperimental": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         },
         "additionalProperties": false
@@ -5579,6 +5734,118 @@
               },
               {
                 "$ref": "#/components/schemas/GoalStatus"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "VisionComparison": {
+        "required": [
+          "baseline",
+          "experimental"
+        ],
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "$ref": "#/components/schemas/FocusEstimate"
+          },
+          "experimental": {
+            "$ref": "#/components/schemas/FocusEstimate"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VisionInput": {
+        "required": [
+          "presentMs",
+          "notDetectedMs",
+          "unknownMs",
+          "facingMs",
+          "awayMs",
+          "validSamples"
+        ],
+        "type": "object",
+        "properties": {
+          "presentMs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notDetectedMs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unknownMs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facingMs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "awayMs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validSamples": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VisionReport": {
+        "required": [
+          "observedMs",
+          "presentMs",
+          "notDetectedMs",
+          "unknownMs",
+          "facingMs",
+          "awayMs",
+          "validSamples",
+          "experimentalEnabled",
+          "comparison"
+        ],
+        "type": "object",
+        "properties": {
+          "observedMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "presentMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "notDetectedMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unknownMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "facingMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "awayMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "validSamples": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "experimentalEnabled": {
+            "type": "boolean"
+          },
+          "comparison": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/VisionComparison"
               }
             ]
           }

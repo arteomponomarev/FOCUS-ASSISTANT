@@ -1,9 +1,10 @@
 using Focus.Domain.Enums;
+using Focus.Domain.Entities;
 
 namespace Focus.Agent.Sync;
 
 internal sealed record SignalSample(DateTimeOffset StartedAt, DateTimeOffset EndedAt,
-    string? ProcessName, int Keys, int Clicks, int Switches, double IdleSeconds);
+    string? ProcessName, int Keys, int Clicks, int Switches, double IdleSeconds, VisionSlice? Vision = null);
 
 internal interface ISignalSource
 {
@@ -12,7 +13,7 @@ internal interface ISignalSource
     void Stop();
 }
 
-internal sealed class CaptureBuffer(Guid sessionId, Action<PendingActivity> save)
+internal sealed class CaptureBuffer(Guid sessionId, Action<PendingActivity> save, bool camera = false)
 {
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(15);
     private readonly Queue<SignalSample> _pending = new();
@@ -29,7 +30,7 @@ internal sealed class CaptureBuffer(Guid sessionId, Action<PendingActivity> save
 
     public void Confirm(Authority authority)
     {
-        if (!authority.Privacy.TelemetryEnabled || authority.Privacy.ConsentedAt is not { } consent)
+        if (authority.Privacy.Consent(camera) is not { } consent)
         {
             Discard();
             return;
@@ -97,6 +98,20 @@ internal sealed class CaptureBuffer(Guid sessionId, Action<PendingActivity> save
 
         var start = _interval[0].StartedAt;
         var end = _interval[^1].EndedAt;
+        if (camera)
+        {
+            var slices = _interval.Select(x => x.Vision ?? default).ToArray();
+            var present = Milliseconds(slices.Sum(x => x.PresentTicks));
+            var absent = Milliseconds(slices.Sum(x => x.NotDetectedTicks));
+            var duration = Milliseconds((end - start).Ticks);
+            if (duration > 0)
+                save(new PendingActivity(sessionId, new Activity(Guid.NewGuid(), start, end, null, 0, 0, 0, 0,
+                    new VisionAggregate(present, absent, duration - present - absent,
+                        Milliseconds(slices.Sum(x => x.FacingTicks)), Milliseconds(slices.Sum(x => x.AwayTicks)),
+                        slices.Sum(x => x.ValidSamples)))));
+            _interval.Clear();
+            return;
+        }
         var process = _interval.Where(sample => sample.ProcessName is not null)
             .GroupBy(sample => sample.ProcessName)
             .MaxBy(group => group.Sum(sample => (sample.EndedAt - sample.StartedAt).Ticks))?.Key;
@@ -107,4 +122,5 @@ internal sealed class CaptureBuffer(Guid sessionId, Action<PendingActivity> save
     }
 
     private int Count(Func<SignalSample, int> select) => (int)Math.Min(100_000, _interval.Sum(sample => (long)select(sample)));
+    private static int Milliseconds(long ticks) => (int)(ticks / TimeSpan.TicksPerMillisecond);
 }

@@ -128,7 +128,16 @@ namespace Focus.Avatar
             Control(new Rect(205, 323, 171, 40), "Finish in browser ↗", "finish",
                 hasWeb && state.status is "Active" or "Paused");
 
-            Label(new Rect(26, 369, 170, 23), "Camera · unavailable", caption, Muted);
+            var cameraLabel = state.result != "ok" ? "status unknown" : state.cameraState switch
+            {
+                "Disabled" => "disabled",
+                "Starting" => "starting",
+                "Processing" => "processing locally",
+                "Unavailable" => "unavailable",
+                _ => "waiting for Agent"
+            };
+            Label(new Rect(26, 369, 170, 23), $"Camera · {cameraLabel}", caption,
+                state.cameraState == "Processing" ? Mint : Muted);
             var telemetry = state.result != "ok" ? "Telemetry status unknown" :
                 state.telemetryAllowed ? "Telemetry permitted" : "Telemetry off";
             Label(new Rect(200, 369, 174, 23), telemetry, center, state.telemetryAllowed ? Mint : Muted);
