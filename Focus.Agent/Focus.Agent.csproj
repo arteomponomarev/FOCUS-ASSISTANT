@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Compile Include="..\Focus.Avatar\Assets\Runtime\Protocol\*.cs" Link="AvatarProtocol\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

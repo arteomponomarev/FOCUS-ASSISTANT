@@ -22,6 +22,14 @@ dotnet run --project Focus.Agent -c Release -- --api http://127.0.0.1:8080 --ses
 For a remote installation, use the actual trusted HTTPS API origin. Loopback HTTP is accepted for local development. API origins use the root path. The Agent uses the operating system's TLS validation and accepts only the selected account and session.
 Keep Windows and server UTC clocks synchronized. The API checks captured timestamps against the recorded session history.
 
+## Pair the Windows desktop companion
+
+Add `--avatar` after `--collect` to enable the local connection during an authorized
+recording. To use desktop controls without capture, replace `--collect` with
+`--watch`. Both modes authenticate in the Agent terminal. When capture finishes,
+the bridge stays available until Ctrl+C, so the companion can react to completion.
+Use the [Windows desktop guide](../../Focus.Avatar/README.md) for build and pairing commands.
+
 ## Collection and synchronization
 
 - The Agent checks account consent and the owned session timeline approximately every second. Samples use a roughly 250 ms cadence. An active authorization expires after three seconds without a fresh check. Delivery delays and CLI scheduling affect the exact capture duration.

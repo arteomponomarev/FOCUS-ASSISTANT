@@ -3,10 +3,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Focus.Avatar.Protocol;
+using Focus.Domain.Entities;
+using Focus.Domain.Enums;
 
 namespace Focus.Agent.Sync;
 
-internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndpoint, IDisposable
+internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndpoint, IAvatarEndpoint, IDisposable
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
@@ -48,6 +51,52 @@ internal sealed class AgentApi(HttpClient http, TimeProvider clock) : IAgentEndp
         using var reply = await SendAsync(HttpMethod.Post, $"api/v1/sessions/{session:D}/activity/batch", new { items }, ct);
         return await ReadAsync<UploadReceipt>(reply, ct);
     }
+
+    public async Task<AvatarMessage> ReadAvatarAsync(Guid session, CancellationToken ct)
+    {
+        var state = GetAsync<AvatarState>($"api/v1/sessions/{session:D}/focus-states/current", ct);
+        var timing = GetAsync<AvatarTiming>($"api/v1/sessions/{session:D}", ct);
+        var privacy = GetAsync<Permission>("api/v1/settings/privacy", ct);
+        var settings = GetAsync<AvatarSettings>("api/v1/settings/avatar", ct);
+        await Task.WhenAll(state, timing, privacy, settings);
+
+        var current = await state;
+        var duration = await timing;
+        var consent = await privacy;
+        var preferences = await settings;
+        var snapshot = AvatarMessage.Reply(session, "ok");
+        snapshot.status = duration.Status.ToString();
+        snapshot.hasTiming = true;
+        snapshot.activeSeconds = duration.ActiveSeconds;
+        snapshot.plannedSeconds = duration.PlannedDurationSeconds;
+        snapshot.telemetryAllowed = consent.TelemetryEnabled && consent.ConsentedAt.HasValue;
+        snapshot.goal = current.Goals.FirstOrDefault(x => x.Status == GoalStatus.Pending)?.Description ?? "";
+        snapshot.visibility = preferences.Visibility.ToString();
+        snapshot.intensity = preferences.Intensity.ToString();
+
+        if (snapshot.telemetryAllowed && duration.Status == SessionStatus.Active && duration.Status == current.SessionStatus &&
+            current.LatestEstimate is { } estimate && clock.GetUtcNow() - estimate.EndedAt <= TimeSpan.FromSeconds(45))
+        {
+            snapshot.estimate = estimate.EstimatedState.ToString();
+            snapshot.ruleVersion = estimate.RuleVersion;
+        }
+
+        return snapshot;
+    }
+
+    public async Task TransitionAvatarAsync(Guid session, string action, CancellationToken ct)
+    {
+        if (!AvatarProtocol.IsCommand(action))
+            throw new ArgumentException("Unsupported Avatar command.", nameof(action));
+
+        using var reply = await SendAsync(HttpMethod.Post, $"api/v1/sessions/{session:D}/{action}", null, ct);
+        EnsureSuccess(reply);
+    }
+
+    private sealed record AvatarState(SessionStatus SessionStatus, AvatarEstimate? LatestEstimate, AvatarGoal[] Goals);
+    private sealed record AvatarTiming(SessionStatus Status, double ActiveSeconds, double PlannedDurationSeconds);
+    private sealed record AvatarEstimate(FocusStateType EstimatedState, string RuleVersion, DateTimeOffset EndedAt);
+    private sealed record AvatarGoal(string Description, GoalStatus Status);
 
     public async Task SignOutAsync(CancellationToken ct)
     {

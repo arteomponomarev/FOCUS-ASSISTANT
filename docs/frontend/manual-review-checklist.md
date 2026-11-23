@@ -24,7 +24,7 @@ $reviewConnection = [System.Data.Common.DbConnectionStringBuilder]::new()
 $reviewConnection['Host'] = '127.0.0.1'
 $reviewConnection['Port'] = 5432
 $reviewConnection['Database'] = $reviewDb
-$reviewConnection['Username'] = $reviewRole
+$reviewConnection['Username'] = [string]$reviewRole
 $reviewConnection['Password'] = [System.Net.NetworkCredential]::new('', $reviewPassword).Password
 
 $env:ASPNETCORE_ENVIRONMENT = 'Development'

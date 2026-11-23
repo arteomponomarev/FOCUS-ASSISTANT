@@ -495,3 +495,18 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Unity desktop project
+!/Focus.Avatar/Assets/**/*.meta
+!/Focus.Avatar/Assets/*.meta
+!/Focus.Avatar/Packages/manifest.json
+!/Focus.Avatar/Packages/packages-lock.json
+/Focus.Avatar/Library/
+/Focus.Avatar/Temp/
+/Focus.Avatar/Logs/
+/Focus.Avatar/UserSettings/
+/Focus.Avatar/MemoryCaptures/
+/Focus.Avatar/Builds/
+/Focus.Avatar/*.csproj
+/Focus.Avatar/*.sln
+/Focus.Avatar/*.slnx

@@ -9,14 +9,16 @@ internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        const string usage = "Usage: Focus.Agent --api <origin> --session <uuid> --collect";
+        const string usage = "Usage: Focus.Agent --api <origin> --session <uuid> (--collect [--avatar] | --watch)";
         if (args.Length == 0 || args is ["--help"])
         {
             Console.WriteLine(usage);
             return 0;
         }
 
-        if (args is not ["--api", var address, "--session", var value, "--collect"] ||
+        if (args is not ["--api", var address, "--session", var value, var mode, ..] ||
+            (args is not [_, _, _, _, "--collect" or "--watch"] &&
+             args is not [_, _, _, _, "--collect", "--avatar"]) ||
             !Guid.TryParse(value, out var sessionId) || sessionId == Guid.Empty)
         {
             Console.Error.WriteLine(usage);
@@ -40,10 +42,19 @@ internal static class Program
             return 2;
         }
 
-        Console.WriteLine("This Agent captures aggregate Windows activity only during the selected session.");
-        Console.Write("Enter START to authorize this run: ");
-        if (Console.ReadLine() != "START")
-            return 0;
+        var collect = mode == "--collect";
+        var avatar = !collect || args.Length == 6;
+        if (collect)
+        {
+            Console.WriteLine("This Agent captures aggregate Windows activity only during the selected session.");
+            Console.Write("Enter START to authorize this run: ");
+            if (Console.ReadLine() != "START")
+                return 0;
+        }
+        else
+        {
+            Console.WriteLine("Avatar controls are enabled for this session. Activity collection is off.");
+        }
 
         Console.Write("Account email: ");
         var email = Console.ReadLine()?.Trim();
@@ -74,13 +85,10 @@ internal static class Program
             if (account.Id == Guid.Empty)
                 throw new InvalidDataException("The API did not return an account identifier.");
 
-            using var queue = ActivityQueue.ForWindowsAccount(origin, account.Id);
-            using var hooks = new GlobalInputHook();
-            using var counts = new InputActivityCollector(hooks);
-            var source = new TelemetryService(new ActiveWindowCollector(), new IdleTimeCollector(), counts,
-                new WindowSwitchTracker(), TimeProvider.System);
-            Console.WriteLine("event=agent_connected collection=awaiting_session_and_consent");
-            await new SessionAgent(sessionId, api, source, queue, TimeProvider.System, Console.WriteLine).RunAsync(stop.Token);
+            if (!avatar)
+                await CollectAsync(origin, account.Id, sessionId, api, stop.Token);
+            else
+                await RunAvatarAsync(origin, account.Id, sessionId, api, collect, stop.Token);
             return 0;
         }
         catch (RemoteFailure error)
@@ -109,6 +117,45 @@ internal static class Program
                 Console.WriteLine("event=logout_unconfirmed");
             }
         }
+    }
+
+    private static async Task RunAvatarAsync(Uri origin, Guid account, Guid session, AgentApi api,
+        bool collect, CancellationToken stop)
+    {
+        using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(stop);
+        var bridge = new AvatarBridge(session, api).RunAsync(lifetime.Token);
+        try
+        {
+            if (bridge.IsCompleted)
+                await bridge;
+            Console.WriteLine("event=avatar_bridge_started scope=current_windows_user");
+            if (collect)
+            {
+                var collection = CollectAsync(origin, account, session, api, lifetime.Token);
+                if (await Task.WhenAny(collection, bridge) == bridge)
+                    lifetime.Cancel();
+                await collection;
+            }
+
+            await bridge;
+        }
+        finally
+        {
+            lifetime.Cancel();
+            try { await bridge; }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        }
+    }
+
+    private static async Task CollectAsync(Uri origin, Guid account, Guid session, AgentApi api, CancellationToken ct)
+    {
+        using var queue = ActivityQueue.ForWindowsAccount(origin, account);
+        using var hooks = new GlobalInputHook();
+        using var counts = new InputActivityCollector(hooks);
+        var source = new TelemetryService(new ActiveWindowCollector(), new IdleTimeCollector(), counts,
+            new WindowSwitchTracker(), TimeProvider.System);
+        Console.WriteLine("event=agent_connected collection=awaiting_session_and_consent");
+        await new SessionAgent(session, api, source, queue, TimeProvider.System, Console.WriteLine).RunAsync(ct);
     }
 
     private static string ReadPassword()

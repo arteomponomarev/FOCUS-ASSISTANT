@@ -1,0 +1,5 @@
+{
+  "name": "Focus.Avatar.Editor",
+  "rootNamespace": "Focus.Avatar.Editor",
+  "includePlatforms": ["Editor"]
+}

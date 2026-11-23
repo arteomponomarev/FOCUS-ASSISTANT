@@ -379,6 +379,12 @@ Confirm the run with `START` and use the same account as the web client. The Age
 uploads to the existing API and PostgreSQL database. See the [Windows Agent guide](docs/agent/windows-setup.md)
 for the short-session walkthrough, encrypted queue, retries and consent behavior.
 
+### Windows desktop companion
+
+Open [the Unity project and Windows launch guide](Focus.Avatar/README.md) to build
+and pair the desktop companion. It reads the selected session's processed
+estimate through the Agent and can start, pause or resume that session.
+
 See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md),
 [production hosting configuration](docs/frontend/api-integration.md), and
 [Adaptive UI design](docs/design/focus-assistant-adaptive-ui.pdf).

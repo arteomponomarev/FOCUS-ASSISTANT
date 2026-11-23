@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../Focus.Avatar/Assets/Runtime/Animation/AvatarAnimator.cs" Link="AvatarAnimator.cs" />
     <ProjectReference Include="../Focus.Agent/Focus.Agent.csproj" />
     <ProjectReference Include="../Focus.Application/Focus.Application.csproj" />
     <ProjectReference Include="../Focus.Domain/Focus.Domain.csproj" />
