@@ -14,6 +14,7 @@ namespace Focus.Api.Controllers;
 [Route("api/v1/auth")]
 [ProducesResponseType<ProblemDetails>(400)]
 [ProducesResponseType<ProblemDetails>(401)]
+[ProducesResponseType<ProblemDetails>(429)]
 [ProducesResponseType<ProblemDetails>(500)]
 [EnableRateLimiting(ApiHosting.AuthenticationRateLimit)]
 public sealed class AuthController(
@@ -25,7 +26,6 @@ public sealed class AuthController(
     [HttpPost("register")]
     [ProducesResponseType<Profile>(201)]
     [ProducesResponseType<ProblemDetails>(409)]
-    [ProducesResponseType<ProblemDetails>(429)]
     public async Task<ActionResult<Profile>> Register(RegisterRequest request, CancellationToken ct)
     {
         var user = await accounts.RegisterAsync(request.Email, request.Password, request.DisplayName, ct);
@@ -35,7 +35,6 @@ public sealed class AuthController(
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType<AccessTokenResponse>(200)]
-    [ProducesResponseType<ProblemDetails>(429)]
     public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct)
     {
         var (user, login) = await accounts.LoginAsync(request.Email, request.Password, AccountAuthentication.RefreshLifetime, ct);
@@ -46,7 +45,6 @@ public sealed class AuthController(
     [AllowAnonymous]
     [HttpPost("refresh")]
     [ProducesResponseType<AccessTokenResponse>(200)]
-    [ProducesResponseType<ProblemDetails>(429)]
     public async Task<IActionResult> Refresh(RefreshRequest request, CancellationToken ct)
     {
         var options = bearerOptions.Get(AccountAuthentication.Scheme);
@@ -62,7 +60,7 @@ public sealed class AuthController(
 
     [HttpPost("logout")]
     [ProducesResponseType(204)]
-    [ProducesResponseType<ProblemDetails>(429)]
+    [ProducesResponseType<ProblemDetails>(404)]
     public async Task<IActionResult> Logout(CancellationToken ct, [FromQuery] bool stopCamera = false)
     {
         if (!AccountAuthentication.TryRead(User, out var user, out var login))
@@ -76,16 +74,17 @@ public sealed class AuthController(
 
     [HttpGet("me")]
     [ProducesResponseType<Profile>(200)]
+    [ProducesResponseType<ProblemDetails>(404)]
     public Task<Profile> Me(CancellationToken ct) => accounts.GetProfileAsync(User.UserId(), ct);
 
     [HttpPatch("me")]
     [ProducesResponseType<Profile>(200)]
+    [ProducesResponseType<ProblemDetails>(404)]
     public Task<Profile> Rename(RenameRequest request, CancellationToken ct) =>
         accounts.RenameAsync(User.UserId(), request.DisplayName, ct);
 
     [HttpPost("me/change-password")]
     [ProducesResponseType(204)]
-    [ProducesResponseType<ProblemDetails>(429)]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken ct)
     {
         await accounts.ChangePasswordAsync(User.UserId(), request.CurrentPassword, request.NewPassword, ct);

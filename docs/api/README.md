@@ -4,6 +4,8 @@ The API supports account authentication, focus sessions, goals, observed activit
 heuristic focus estimates, reports, work profiles, and account preferences.
 
 - [OpenAPI JSON](openapi.json)
+- [Operation coverage and examples](operation-coverage.md)
+- [Contract guide and maintenance](contract-guide.md)
 - [Computer Vision architecture and API](../vision/architecture.md)
 - [Getting started](getting-started.md)
 - [Authentication](authentication.md)
@@ -25,10 +27,11 @@ anonymous `GET /health/live` and `GET /health/ready` endpoints documented in the
 
 ## Response examples
 
-The [OpenAPI document](openapi.json) embeds the response examples below in the
-corresponding operation and response status. Registration, login and session
-examples were captured using synthetic data in a disposable PostgreSQL database.
-Bearer values and trace IDs are illustrative.
+The [OpenAPI document](openapi.json) contains examples for every operation with
+a JSON request or successful JSON response. The [coverage report](operation-coverage.md)
+lists parameters, authorization, and error examples by operation. The successful
+responses and selected failures came from a disposable PostgreSQL-backed API.
+Bearer credentials in the published examples are illustrative placeholders.
 
 | Operation | Example responses |
 |---|---|

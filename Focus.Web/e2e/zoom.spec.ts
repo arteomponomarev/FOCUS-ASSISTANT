@@ -41,9 +41,17 @@ test('retains the main experience at native browser zoom 125%, 150% and 200%', a
           .poll(() => page.evaluate(() => window.innerWidth))
           .toBe(Math.round(1440 / scale))
       })
-      for (const section of ['Overview', 'Sessions', 'Analytics', 'Settings']) {
-        await nav(page, section).click()
-        await expect(page.getByRole('heading', { name: section, exact: true })).toBeVisible()
+      for (const section of ['Overview', 'Sessions', 'Analytics', 'Settings', 'Privacy']) {
+        if (section === 'Privacy') {
+          await page
+            .getByRole('navigation', { name: 'Settings sections' })
+            .getByRole('link', { name: 'Privacy' })
+            .click()
+        } else {
+          await nav(page, section).click()
+        }
+        const heading = section === 'Privacy' ? 'Computer Vision' : section
+        await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
         await expect(page.locator('.skeleton-wrap, .busy')).toHaveCount(0)
         expect(
           await page.evaluate(

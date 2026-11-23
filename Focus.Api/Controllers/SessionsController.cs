@@ -142,7 +142,7 @@ public sealed record CompleteSessionRequest(
     [MaxLength(FocusSession.MaximumGoals)] IReadOnlyList<GoalOutcome>? GoalOutcomes = null);
 
 public sealed record CreateGoalRequest([Required, StringLength(500)] string Description);
-public sealed record UpdateGoalRequest([StringLength(500)] string? Description, GoalStatus? Outcome);
+public sealed record UpdateGoalRequest([StringLength(500)] string? Description = null, GoalStatus? Outcome = null);
 
 public class PagingQuery
 {

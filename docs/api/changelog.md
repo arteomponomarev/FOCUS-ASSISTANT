@@ -1,5 +1,13 @@
 # Backend API changelog
 
+## Diploma contract evidence
+
+- Embedded operation, parameter, model and field descriptions across all 42 routes.
+- Added redacted examples captured against a disposable database and checked
+  every published example with JSON Schema 2020-12.
+- Corrected the documented planned-goal PATCH shape to allow an omitted outcome
+  and removed a spurious registration 401. Session and token semantics remain v1.
+
 ## Computer Vision
 
 - Privacy settings now support independent camera consent and optional experimental evaluation.

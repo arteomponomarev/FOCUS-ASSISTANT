@@ -1,6 +1,9 @@
 
 # Focus Assistant — Database Schema
 
+For the current schema, see the [logical ERD, 3NF and query evidence](oltp-verification.md),
+[physical catalog dictionary](oltp-data-dictionary.md) and [migration-generated DDL](oltp-schema.sql).
+
 The core schema below records the historical two-migration baseline. The
 [backend v1 schema addendum](backend-v1.md) describes the additional tables and
 relationships.

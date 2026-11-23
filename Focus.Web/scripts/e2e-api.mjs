@@ -7,6 +7,11 @@ import { join, resolve } from 'node:path'
 const source = process.env.FOCUS_WEB_TEST_DATABASE
 if (!source) throw new Error('Set FOCUS_WEB_TEST_DATABASE to a disposable PostgreSQL cluster.')
 
+const port = Number(process.env.FOCUS_WEB_FIXTURE_PORT ?? 5188)
+if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+  throw new Error('Use a valid unprivileged test API port.')
+}
+
 const parameters = source
   .split(';')
   .filter(Boolean)
@@ -42,7 +47,7 @@ const env = Object.fromEntries(
 Object.assign(env, {
   ASPNETCORE_ENVIRONMENT: 'Contract',
   DOTNET_ENVIRONMENT: 'Contract',
-  ASPNETCORE_URLS: 'http://127.0.0.1:5188',
+  ASPNETCORE_URLS: 'http://127.0.0.1:' + port,
   ConnectionStrings__PostgreSQL: [...settings].map(([key, value]) => key + '=' + value).join(';'),
 })
 const migration = spawnSync('dotnet', [dll, '--migrate'], { cwd: api, env, stdio: 'inherit' })

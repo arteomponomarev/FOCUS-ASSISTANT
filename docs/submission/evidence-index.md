@@ -6,6 +6,8 @@ For the desktop and Computer Vision release candidate, see the [release verifica
 
 For managed cloud delivery, see the [DigitalOcean release runbook](../deployment/managed-cloud.md) and [verification and requirements trace](../deployment/managed-verification.md).
 
+TASK 20 evidence links the [42-operation OpenAPI coverage](../api/operation-coverage.md), the [PostgreSQL catalog and verification](../database/oltp-verification.md), the [responsive and zoom results](../design/responsive-audit.md), the [authenticated Lighthouse measurements](../frontend/task20-performance.md) and the [focused verification report](../audit/task20-verification.md).
+
 ## Start a review
 
 | Track | Start here | Reproduce |

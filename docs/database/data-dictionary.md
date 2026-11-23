@@ -1,6 +1,10 @@
 
 # Focus Assistant — Database Data Dictionary
 
+The [current PostgreSQL catalog dictionary](oltp-data-dictionary.md) enumerates
+all columns, defaults, nullability, constraints and indexes after eight migrations.
+See the [normalization and integrity analysis](oltp-verification.md) for domain semantics.
+
 The core dictionary below records the historical two-migration baseline. See the
 [backend v1 addendum](backend-v1.md) for additional fields, tables, constraints,
 and migration compatibility.

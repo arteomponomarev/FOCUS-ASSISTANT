@@ -35,5 +35,11 @@ Telemetry requests accept 1–100 records. Generate each UUID once at capture ti
 retain it across retries. IDs are scoped to a session. Reusing an ID with different
 normalized data returns 409. Every batch is atomic with its classifications.
 Use UTC timestamps and omit process name when it is unavailable or inappropriate.
-Choose capture windows that fit entirely within the session and within active time
-or a single recorded pause. See [research definitions](../architecture/research-metrics.md).
+Choose capture windows that fit entirely within the session. Desktop intervals
+may fit inside one recorded pause. Camera intervals must fall in active time.
+For the optional Vision step, enable camera consent separately with
+`PATCH /api/v1/settings/privacy`, use the mixed-stream JSON example in
+[OpenAPI](openapi.json) with fresh UUIDs and timestamps inside the live fixture
+session, then query `GET /api/v1/sessions/{id}/vision`. Its observation totals
+are separate from desktop counts. For exact synthetic reproduction of these
+steps and contract examples see the [capture commands](contract-guide.md#change-protocol).

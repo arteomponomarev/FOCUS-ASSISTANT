@@ -1,0 +1,1907 @@
+{
+  "AuthMe": {
+    "responses": {
+      "401": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+        "title": "Unauthorized",
+        "status": 401,
+        "traceId": "129ba9ed1b49ae07f8c663ed9f6a698a"
+      },
+      "200": {
+        "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+        "email": "researcher@example.invalid",
+        "displayName": "Research Reviewer",
+        "createdAt": "2026-11-23T21:13:18.371185+00:00"
+      }
+    }
+  },
+  "AuthRegister": {
+    "request": {
+      "email": "researcher@example.invalid",
+      "password": "<example-password>",
+      "displayName": "Research Reviewer"
+    },
+    "responses": {
+      "201": {
+        "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+        "email": "researcher@example.invalid",
+        "displayName": "Research Reviewer",
+        "createdAt": "2026-11-23T21:13:18.3711855+00:00"
+      },
+      "409": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "An account with this email already exists.",
+        "traceId": "77417385c4cf94de578eeadefc9de671"
+      }
+    }
+  },
+  "AuthLogin": {
+    "responses": {
+      "401": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "The credentials are invalid or expired.",
+        "traceId": "b117f4054e912d65d6a01dc6c4e79e29"
+      },
+      "200": {
+        "tokenType": "Bearer",
+        "accessToken": "<access-token>",
+        "expiresIn": 900,
+        "refreshToken": "<refresh-token>"
+      }
+    },
+    "request": {
+      "email": "researcher@example.invalid",
+      "password": "<example-password>"
+    }
+  },
+  "AuthRefresh": {
+    "request": {
+      "refreshToken": "<refresh-token>"
+    },
+    "responses": {
+      "200": {
+        "tokenType": "Bearer",
+        "accessToken": "<access-token>",
+        "expiresIn": 900,
+        "refreshToken": "<refresh-token>"
+      },
+      "401": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "The credentials are invalid or expired.",
+        "traceId": "42199981efb5e83ecf3df9e82398c403"
+      }
+    }
+  },
+  "AuthRename": {
+    "request": {
+      "displayName": "Focus Reviewer"
+    },
+    "responses": {
+      "200": {
+        "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+        "email": "researcher@example.invalid",
+        "displayName": "Focus Reviewer",
+        "createdAt": "2026-11-23T21:13:18.371185+00:00"
+      }
+    }
+  },
+  "PrivacyGet": {
+    "responses": {
+      "200": {
+        "telemetryEnabled": false,
+        "consentedAt": null,
+        "cameraEnabled": false,
+        "cameraConsentedAt": null,
+        "visionExperimental": false
+      }
+    }
+  },
+  "PrivacyUpdate": {
+    "request": {
+      "telemetryEnabled": true,
+      "cameraEnabled": true,
+      "visionExperimental": true
+    },
+    "responses": {
+      "200": {
+        "telemetryEnabled": true,
+        "consentedAt": "2026-11-23T21:13:19.642375+00:00",
+        "cameraEnabled": true,
+        "cameraConsentedAt": "2026-11-23T21:13:19.67116+00:00",
+        "visionExperimental": true
+      }
+    }
+  },
+  "SettingsGetPomodoro": {
+    "responses": {
+      "200": {
+        "focusMinutes": 25,
+        "shortBreakMinutes": 5,
+        "longBreakMinutes": 15,
+        "intervalsBeforeLongBreak": 4
+      }
+    }
+  },
+  "SettingsSetPomodoro": {
+    "request": {
+      "focusMinutes": 35,
+      "shortBreakMinutes": 5,
+      "longBreakMinutes": 15,
+      "intervalsBeforeLongBreak": 4
+    },
+    "responses": {
+      "200": {
+        "focusMinutes": 35,
+        "shortBreakMinutes": 5,
+        "longBreakMinutes": 15,
+        "intervalsBeforeLongBreak": 4
+      }
+    }
+  },
+  "SettingsGetAvatar": {
+    "responses": {
+      "200": {
+        "visibility": "OnlyWhenNeeded",
+        "intensity": "Balanced",
+        "avatarId": null
+      }
+    }
+  },
+  "SettingsSetAvatar": {
+    "request": {
+      "visibility": "OnlyWhenNeeded",
+      "intensity": "Quiet",
+      "avatarId": null
+    },
+    "responses": {
+      "200": {
+        "visibility": "OnlyWhenNeeded",
+        "intensity": "Quiet",
+        "avatarId": null
+      }
+    }
+  },
+  "SettingsCreateProfile": {
+    "request": {
+      "name": "Documentation review",
+      "description": "Writing and editing focus",
+      "focusMinutes": 35,
+      "breakMinutes": 5,
+      "rules": [
+        {
+          "processName": "editor",
+          "category": "Allowed"
+        }
+      ]
+    },
+    "responses": {
+      "201": {
+        "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "name": "Documentation review",
+        "description": "Writing and editing focus",
+        "focusMinutes": 35,
+        "breakMinutes": 5,
+        "rules": [
+          {
+            "processName": "editor",
+            "category": "Allowed"
+          }
+        ]
+      }
+    }
+  },
+  "SettingsGetProfiles": {
+    "responses": {
+      "200": {
+        "items": [
+          {
+            "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+            "name": "Documentation review",
+            "description": "Writing and editing focus",
+            "focusMinutes": 35,
+            "breakMinutes": 5,
+            "rules": [
+              {
+                "processName": "editor",
+                "category": "Allowed"
+              }
+            ]
+          }
+        ],
+        "pageNumber": 1,
+        "pageSize": 25,
+        "totalCount": 1
+      }
+    }
+  },
+  "SettingsGetProfile": {
+    "responses": {
+      "200": {
+        "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "name": "Documentation review",
+        "description": "Writing and editing focus",
+        "focusMinutes": 35,
+        "breakMinutes": 5,
+        "rules": [
+          {
+            "processName": "editor",
+            "category": "Allowed"
+          }
+        ]
+      }
+    }
+  },
+  "SettingsReplaceProfile": {
+    "request": {
+      "name": "Documentation review",
+      "description": "Writing and editing focus",
+      "focusMinutes": 35,
+      "breakMinutes": 6,
+      "rules": [
+        {
+          "processName": "editor",
+          "category": "Allowed"
+        }
+      ]
+    },
+    "responses": {
+      "200": {
+        "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "name": "Documentation review",
+        "description": "Writing and editing focus",
+        "focusMinutes": 35,
+        "breakMinutes": 6,
+        "rules": [
+          {
+            "processName": "editor",
+            "category": "Allowed"
+          }
+        ]
+      }
+    }
+  },
+  "SettingsDeleteProfile": {
+    "responses": {
+      "409": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "A session references this work profile.",
+        "traceId": "8fb5d5418d5e121d2a755edf2f192cd5"
+      }
+    }
+  },
+  "PrivacyExport": {
+    "responses": {
+      "200": {
+        "profile": {
+          "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+          "email": "researcher@example.invalid",
+          "displayName": "Focus Reviewer",
+          "createdAt": "2026-11-23T21:13:18.371185+00:00"
+        },
+        "privacy": {
+          "telemetryEnabled": true,
+          "consentedAt": "2026-11-23T21:13:19.642375+00:00",
+          "cameraEnabled": true,
+          "cameraConsentedAt": "2026-11-23T21:13:19.67116+00:00",
+          "visionExperimental": true
+        },
+        "pomodoro": {
+          "focusMinutes": 35,
+          "shortBreakMinutes": 5,
+          "longBreakMinutes": 15,
+          "intervalsBeforeLongBreak": 4
+        },
+        "avatar": {
+          "visibility": "OnlyWhenNeeded",
+          "intensity": "Quiet",
+          "avatarId": null
+        },
+        "workProfilesPath": "/api/v1/settings/work-profiles",
+        "sessionsPath": "/api/v1/sessions"
+      }
+    }
+  },
+  "SessionsCreate": {
+    "responses": {
+      "400": {
+        "title": "Request validation failed",
+        "status": 400,
+        "detail": "Check the required fields, request format, and value limits in the API contract.",
+        "traceId": "a167fed05e0a868b84209d14b66c611d"
+      },
+      "415": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.16",
+        "title": "Unsupported Media Type",
+        "status": 415,
+        "traceId": "48bc3c07277eb1a849c2d9d15171dc60"
+      },
+      "201": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Planned",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.1819806+00:00",
+        "startedAt": null,
+        "endedAt": null,
+        "elapsedSeconds": 0,
+        "pausedSeconds": 0,
+        "activeSeconds": 0,
+        "selfReportedConcentration": null,
+        "selfReportedProductivity": null,
+        "reflection": null,
+        "goals": [],
+        "goalStatistics": {
+          "total": 0,
+          "completed": 0,
+          "partiallyCompleted": 0,
+          "completionPercentage": 0
+        }
+      }
+    },
+    "request": {
+      "plannedDurationSeconds": 2100,
+      "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe"
+    }
+  },
+  "SessionsGet": {
+    "responses": {
+      "404": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+        "title": "Not Found",
+        "status": 404,
+        "detail": "Resource not found.",
+        "traceId": "92e63c3cb9f43522e79c0770a109d672"
+      },
+      "200": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Completed",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.585207+00:00",
+        "endedAt": "2026-11-23T21:13:22.628017+00:00",
+        "elapsedSeconds": 2.04281,
+        "pausedSeconds": 0.066661,
+        "activeSeconds": 1.976149,
+        "selfReportedConcentration": 4,
+        "selfReportedProductivity": 3,
+        "reflection": "One planned interruption.",
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Completed"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 1,
+          "partiallyCompleted": 0,
+          "completionPercentage": 100
+        }
+      }
+    }
+  },
+  "SessionsAddGoal": {
+    "request": {
+      "description": "Review methods"
+    },
+    "responses": {
+      "201": {
+        "id": "631aa03f-312d-4269-8d04-e75f68969759",
+        "description": "Review methods",
+        "status": "Pending"
+      }
+    }
+  },
+  "SessionsGetGoal": {
+    "responses": {
+      "200": {
+        "id": "631aa03f-312d-4269-8d04-e75f68969759",
+        "description": "Review methods",
+        "status": "Pending"
+      }
+    }
+  },
+  "SessionsUpdateGoal": {
+    "request": {
+      "description": "Review research methods"
+    },
+    "responses": {
+      "200": {
+        "id": "631aa03f-312d-4269-8d04-e75f68969759",
+        "description": "Review research methods",
+        "status": "Pending"
+      }
+    }
+  },
+  "SessionsDeleteGoal": {},
+  "SessionsListGoals": {
+    "responses": {
+      "200": [
+        {
+          "id": "631aa03f-312d-4269-8d04-e75f68969759",
+          "description": "Review research methods",
+          "status": "Pending"
+        }
+      ]
+    }
+  },
+  "SessionsStart": {
+    "responses": {
+      "200": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Active",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.5852078+00:00",
+        "endedAt": null,
+        "elapsedSeconds": 0.0040461,
+        "pausedSeconds": 0,
+        "activeSeconds": 0.0040461,
+        "selfReportedConcentration": null,
+        "selfReportedProductivity": null,
+        "reflection": null,
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Pending"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 0,
+          "partiallyCompleted": 0,
+          "completionPercentage": 0
+        }
+      },
+      "409": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "Only a planned session can be started.",
+        "traceId": "603521439e661a945cc069470d8d0245"
+      }
+    }
+  },
+  "ResearchUpload": {
+    "request": {
+      "items": [
+        {
+          "clientEventId": "bbaf74f6-8987-49af-a501-4876c3aa390d",
+          "startedAt": "2026-11-23T21:13:20.685207+00:00",
+          "endedAt": "2026-11-23T21:13:21.685207+00:00",
+          "activeProcessName": "editor",
+          "keyboardEventCount": 7,
+          "mouseClickCount": 2,
+          "windowSwitchCount": 1,
+          "idleSeconds": 0
+        },
+        {
+          "clientEventId": "77654e8e-b6f9-442b-af75-85d4eb126373",
+          "startedAt": "2026-11-23T21:13:20.685207+00:00",
+          "endedAt": "2026-11-23T21:13:21.685207+00:00",
+          "activeProcessName": null,
+          "keyboardEventCount": 0,
+          "mouseClickCount": 0,
+          "windowSwitchCount": 0,
+          "idleSeconds": 0,
+          "vision": {
+            "presentMs": 700,
+            "notDetectedMs": 0,
+            "unknownMs": 300,
+            "facingMs": 500,
+            "awayMs": 0,
+            "validSamples": 5
+          }
+        }
+      ]
+    },
+    "responses": {
+      "200": {
+        "created": 2,
+        "duplicates": 0
+      },
+      "409": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "A client event ID was reused with different data.",
+        "traceId": "bcf044f9db3fbd0e665299ba68541c47"
+      },
+      "422": {
+        "type": "https://tools.ietf.org/html/rfc4918#section-11.2",
+        "title": "Unprocessable Entity",
+        "status": 422,
+        "detail": "The telemetry window is outside the session or consent interval.",
+        "traceId": "42fe3d0e002172e0f38ac4ffd9545cb1"
+      }
+    }
+  },
+  "ResearchActivity": {
+    "responses": {
+      "200": {
+        "items": [
+          {
+            "id": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+            "clientEventId": "bbaf74f6-8987-49af-a501-4876c3aa390d",
+            "startedAt": "2026-11-23T21:13:20.685207+00:00",
+            "endedAt": "2026-11-23T21:13:21.685207+00:00",
+            "activeProcessName": "editor",
+            "keyboardEventCount": 7,
+            "mouseClickCount": 2,
+            "windowSwitchCount": 1,
+            "idleSeconds": 0
+          }
+        ],
+        "pageNumber": 1,
+        "pageSize": 25,
+        "totalCount": 1
+      }
+    }
+  },
+  "ResearchEstimates": {
+    "responses": {
+      "200": {
+        "items": [
+          {
+            "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+            "activityAggregateId": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+            "startedAt": "2026-11-23T21:13:20.685207+00:00",
+            "endedAt": "2026-11-23T21:13:21.685207+00:00",
+            "estimatedState": "Neutral",
+            "ruleVersion": "rules-1.0.0",
+            "reason": "Available signals are insufficient for a stronger estimate.",
+            "inputProcessCategory": "Allowed"
+          }
+        ],
+        "pageNumber": 1,
+        "pageSize": 25,
+        "totalCount": 1
+      }
+    }
+  },
+  "ResearchCurrent": {
+    "responses": {
+      "200": {
+        "sessionStatus": "Active",
+        "latestEstimate": {
+          "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+          "activityAggregateId": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+          "startedAt": "2026-11-23T21:13:20.685207+00:00",
+          "endedAt": "2026-11-23T21:13:21.685207+00:00",
+          "estimatedState": "Neutral",
+          "ruleVersion": "rules-1.0.0",
+          "reason": "Available signals are insufficient for a stronger estimate.",
+          "inputProcessCategory": "Allowed"
+        },
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Pending"
+          }
+        ]
+      }
+    }
+  },
+  "ResearchVision": {
+    "responses": {
+      "200": {
+        "observedMs": 700,
+        "presentMs": 700,
+        "notDetectedMs": 0,
+        "unknownMs": 300,
+        "facingMs": 500,
+        "awayMs": 0,
+        "validSamples": 5,
+        "experimentalEnabled": true,
+        "comparison": {
+          "baseline": {
+            "state": "Neutral",
+            "ruleVersion": "rules-1.0.0",
+            "reason": "Available signals are insufficient for a stronger estimate."
+          },
+          "experimental": {
+            "state": "Neutral",
+            "ruleVersion": "rules-1.0.0",
+            "reason": "Available signals are insufficient for a stronger estimate."
+          }
+        }
+      }
+    }
+  },
+  "SessionsPause": {
+    "responses": {
+      "200": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Paused",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.585207+00:00",
+        "endedAt": null,
+        "elapsedSeconds": 1.9988759,
+        "pausedSeconds": 0.051761,
+        "activeSeconds": 1.9471149,
+        "selfReportedConcentration": null,
+        "selfReportedProductivity": null,
+        "reflection": null,
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Pending"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 0,
+          "partiallyCompleted": 0,
+          "completionPercentage": 0
+        }
+      }
+    }
+  },
+  "SessionsResume": {
+    "responses": {
+      "200": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Active",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.585207+00:00",
+        "endedAt": null,
+        "elapsedSeconds": 2.0171179,
+        "pausedSeconds": 0.0666612,
+        "activeSeconds": 1.9504567,
+        "selfReportedConcentration": null,
+        "selfReportedProductivity": null,
+        "reflection": null,
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Pending"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 0,
+          "partiallyCompleted": 0,
+          "completionPercentage": 0
+        }
+      }
+    }
+  },
+  "SessionsComplete": {
+    "request": {
+      "selfReportedConcentration": 4,
+      "selfReportedProductivity": 3,
+      "reflection": "One planned interruption.",
+      "goalOutcomes": [
+        {
+          "goalId": "631aa03f-312d-4269-8d04-e75f68969759",
+          "status": "Completed"
+        }
+      ]
+    },
+    "responses": {
+      "200": {
+        "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+        "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+        "status": "Completed",
+        "plannedDurationSeconds": 2100,
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.585207+00:00",
+        "endedAt": "2026-11-23T21:13:22.6280175+00:00",
+        "elapsedSeconds": 2.0428105,
+        "pausedSeconds": 0.066661,
+        "activeSeconds": 1.9761495,
+        "selfReportedConcentration": 4,
+        "selfReportedProductivity": 3,
+        "reflection": "One planned interruption.",
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Completed"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 1,
+          "partiallyCompleted": 0,
+          "completionPercentage": 100
+        }
+      },
+      "409": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "Goal outcomes can only be set during a started session.",
+        "traceId": "957fa73165971d69eba815d747580d1c"
+      }
+    }
+  },
+  "SessionsList": {
+    "responses": {
+      "200": {
+        "items": [
+          {
+            "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+            "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+            "status": "Completed",
+            "plannedDurationSeconds": 2100,
+            "createdAt": "2026-11-23T21:13:20.18198+00:00",
+            "startedAt": "2026-11-23T21:13:20.585207+00:00",
+            "endedAt": "2026-11-23T21:13:22.628017+00:00",
+            "elapsedSeconds": 2.04281,
+            "pausedSeconds": 0.066661,
+            "activeSeconds": 1.976149,
+            "selfReportedConcentration": 4,
+            "selfReportedProductivity": 3,
+            "reflection": "One planned interruption.",
+            "goals": [
+              {
+                "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                "description": "Review research methods",
+                "status": "Completed"
+              }
+            ],
+            "goalStatistics": {
+              "total": 1,
+              "completed": 1,
+              "partiallyCompleted": 0,
+              "completionPercentage": 100
+            }
+          }
+        ],
+        "pageNumber": 1,
+        "pageSize": 10,
+        "totalCount": 1
+      }
+    }
+  },
+  "ResearchTimeline": {
+    "responses": {
+      "200": {
+        "status": "Completed",
+        "createdAt": "2026-11-23T21:13:20.18198+00:00",
+        "startedAt": "2026-11-23T21:13:20.585207+00:00",
+        "endedAt": "2026-11-23T21:13:22.628017+00:00",
+        "pauses": [
+          {
+            "startedAt": "2026-11-23T21:13:22.532321+00:00",
+            "endedAt": "2026-11-23T21:13:22.598982+00:00"
+          }
+        ],
+        "goals": [
+          {
+            "id": "631aa03f-312d-4269-8d04-e75f68969759",
+            "description": "Review research methods",
+            "status": "Completed"
+          }
+        ],
+        "goalStatistics": {
+          "total": 1,
+          "completed": 1,
+          "partiallyCompleted": 0,
+          "completionPercentage": 100
+        },
+        "events": {
+          "items": [
+            {
+              "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+              "startedAt": "2026-11-23T21:13:20.685207+00:00",
+              "endedAt": "2026-11-23T21:13:21.685207+00:00",
+              "kind": "estimatedState",
+              "estimatedState": "Neutral"
+            },
+            {
+              "id": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+              "startedAt": "2026-11-23T21:13:20.685207+00:00",
+              "endedAt": "2026-11-23T21:13:21.685207+00:00",
+              "kind": "observedActivity",
+              "estimatedState": null
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 25,
+          "totalCount": 2
+        }
+      }
+    }
+  },
+  "AnalyticsSummary": {
+    "responses": {
+      "200": {
+        "from": "2026-10-24T21:13:22.7978626+00:00",
+        "to": "2026-11-23T21:13:22.7978626+00:00",
+        "metrics": {
+          "trackedActiveSeconds": 1.976149,
+          "sessions": 1,
+          "completedSessions": 1,
+          "averageSelfReportedConcentration": 4,
+          "averageSelfReportedProductivity": 3,
+          "concentrationRatingCount": 1,
+          "productivityRatingCount": 1,
+          "goals": {
+            "total": 1,
+            "completed": 1,
+            "partiallyCompleted": 0,
+            "completionPercentage": 100
+          },
+          "keyboardEvents": 7,
+          "mouseClicks": 2,
+          "windowSwitches": 1,
+          "observedIdleSeconds": 0,
+          "estimatedStateSeconds": {
+            "Neutral": 1,
+            "Focused": 0,
+            "Distracted": 0,
+            "Idle": 0,
+            "Break": 0,
+            "Absent": 0
+          }
+        }
+      }
+    }
+  },
+  "AnalyticsStatistics": {
+    "responses": {
+      "200": {
+        "timeZone": "UTC",
+        "buckets": [
+          {
+            "from": "2026-10-24T21:13:22.90403+00:00",
+            "to": "2026-10-25T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-25T00:00:00+00:00",
+            "to": "2026-10-26T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-26T00:00:00+00:00",
+            "to": "2026-10-27T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-27T00:00:00+00:00",
+            "to": "2026-10-28T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-28T00:00:00+00:00",
+            "to": "2026-10-29T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-29T00:00:00+00:00",
+            "to": "2026-10-30T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-30T00:00:00+00:00",
+            "to": "2026-10-31T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-10-31T00:00:00+00:00",
+            "to": "2026-11-01T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-01T00:00:00+00:00",
+            "to": "2026-11-02T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-02T00:00:00+00:00",
+            "to": "2026-11-03T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-03T00:00:00+00:00",
+            "to": "2026-11-04T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-04T00:00:00+00:00",
+            "to": "2026-11-05T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-05T00:00:00+00:00",
+            "to": "2026-11-06T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-06T00:00:00+00:00",
+            "to": "2026-11-07T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-07T00:00:00+00:00",
+            "to": "2026-11-08T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-08T00:00:00+00:00",
+            "to": "2026-11-09T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-09T00:00:00+00:00",
+            "to": "2026-11-10T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-10T00:00:00+00:00",
+            "to": "2026-11-11T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-11T00:00:00+00:00",
+            "to": "2026-11-12T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-12T00:00:00+00:00",
+            "to": "2026-11-13T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-13T00:00:00+00:00",
+            "to": "2026-11-14T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-14T00:00:00+00:00",
+            "to": "2026-11-15T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-15T00:00:00+00:00",
+            "to": "2026-11-16T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-16T00:00:00+00:00",
+            "to": "2026-11-17T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-17T00:00:00+00:00",
+            "to": "2026-11-18T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-18T00:00:00+00:00",
+            "to": "2026-11-19T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-19T00:00:00+00:00",
+            "to": "2026-11-20T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-20T00:00:00+00:00",
+            "to": "2026-11-21T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-21T00:00:00+00:00",
+            "to": "2026-11-22T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-22T00:00:00+00:00",
+            "to": "2026-11-23T00:00:00+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 0,
+              "sessions": 0,
+              "completedSessions": 0,
+              "averageSelfReportedConcentration": null,
+              "averageSelfReportedProductivity": null,
+              "concentrationRatingCount": 0,
+              "productivityRatingCount": 0,
+              "goals": {
+                "total": 0,
+                "completed": 0,
+                "partiallyCompleted": 0,
+                "completionPercentage": 0
+              },
+              "keyboardEvents": 0,
+              "mouseClicks": 0,
+              "windowSwitches": 0,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 0,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          },
+          {
+            "from": "2026-11-23T00:00:00+00:00",
+            "to": "2026-11-23T21:13:22.90403+00:00",
+            "metrics": {
+              "trackedActiveSeconds": 1.976149,
+              "sessions": 1,
+              "completedSessions": 1,
+              "averageSelfReportedConcentration": 4,
+              "averageSelfReportedProductivity": 3,
+              "concentrationRatingCount": 1,
+              "productivityRatingCount": 1,
+              "goals": {
+                "total": 1,
+                "completed": 1,
+                "partiallyCompleted": 0,
+                "completionPercentage": 100
+              },
+              "keyboardEvents": 7,
+              "mouseClicks": 2,
+              "windowSwitches": 1,
+              "observedIdleSeconds": 0,
+              "estimatedStateSeconds": {
+                "Neutral": 1,
+                "Focused": 0,
+                "Distracted": 0,
+                "Idle": 0,
+                "Break": 0,
+                "Absent": 0
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "AnalyticsResearch": {
+    "responses": {
+      "200": {
+        "items": [
+          {
+            "sessionId": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+            "startedAt": "2026-11-23T21:13:20.585207+00:00",
+            "status": "Completed",
+            "activeSeconds": 1.976149,
+            "selfReportedConcentration": 4,
+            "selfReportedProductivity": 3,
+            "goals": {
+              "total": 1,
+              "completed": 1,
+              "partiallyCompleted": 0,
+              "completionPercentage": 100
+            },
+            "keyboardEvents": 7,
+            "mouseClicks": 2,
+            "windowSwitches": 1,
+            "observedIdleSeconds": 0,
+            "estimatedStateSeconds": {
+              "Neutral": 1,
+              "Focused": 0,
+              "Distracted": 0,
+              "Idle": 0,
+              "Break": 0,
+              "Absent": 0
+            }
+          }
+        ],
+        "pageNumber": 1,
+        "pageSize": 10,
+        "totalCount": 1
+      }
+    }
+  },
+  "SessionsCancel": {
+    "responses": {
+      "200": {
+        "id": "8a2233db-7925-4471-81cf-9b041124d5e4",
+        "workProfileId": null,
+        "status": "Cancelled",
+        "plannedDurationSeconds": 600,
+        "createdAt": "2026-11-23T21:13:22.982708+00:00",
+        "startedAt": null,
+        "endedAt": "2026-11-23T21:13:23.0021786+00:00",
+        "elapsedSeconds": 0,
+        "pausedSeconds": 0,
+        "activeSeconds": 0,
+        "selfReportedConcentration": null,
+        "selfReportedProductivity": null,
+        "reflection": null,
+        "goals": [],
+        "goalStatistics": {
+          "total": 0,
+          "completed": 0,
+          "partiallyCompleted": 0,
+          "completionPercentage": 0
+        }
+      }
+    }
+  },
+  "AuthLogout": {},
+  "AuthChangePassword": {
+    "request": {
+      "currentPassword": "<example-password>",
+      "newPassword": "<example-password>"
+    }
+  },
+  "PrivacyDeleteAccount": {
+    "request": {
+      "password": "<example-password>"
+    }
+  }
+}

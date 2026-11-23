@@ -123,6 +123,7 @@ const layouts = [
   { width: 768, height: 1024 },
   { width: 1024, height: 768 },
   { width: 844, height: 390 },
+  { width: 667, height: 375 },
   { width: 1440, height: 1000 },
   { width: 1920, height: 1080 },
   { width: 1152, height: 800 },
@@ -137,6 +138,16 @@ test('checks responsive routes, dark theme, touch targets, axe and dialog focus'
   test.setTimeout(150_000)
   const account = await registerByApi(request, 'Alex Morgan')
   await seed(request, account)
+  await page.goto('/login')
+  for (const layout of layouts) {
+    await page.setViewportSize(layout)
+    await ready(page, 'Welcome back')
+    await noOverflow(page)
+    await page.getByRole('link', { name: 'Create an account' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await noOverflow(page)
+    await page.getByRole('link', { name: 'Sign in', exact: true }).click()
+  }
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/login')
   await auditAxe(page)
@@ -172,6 +183,26 @@ test('checks responsive routes, dark theme, touch targets, axe and dialog focus'
       await noOverflow(page)
       if (layout.width === 390) await touchTargets(page)
       if (section === 'Overview') await captureQa(page, 'overview-' + layout.width)
+    }
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('link', { name: 'Privacy' })
+      .click()
+    await expect(page.getByRole('heading', { name: 'Computer Vision' })).toBeVisible()
+    const cameraConsent = page.getByRole('checkbox', {
+      name: 'Allow coarse camera observation totals',
+    })
+    await expect(cameraConsent).toBeEnabled()
+    await expect(cameraConsent).not.toBeChecked()
+    await noOverflow(page)
+    if (layout.width === 390) {
+      await touchTargets(page)
+      await auditAxe(page)
+      await captureQa(page, 'mobile-light-privacy')
+      await page.getByRole('button', { name: 'Switch to dark theme' }).click()
+      await auditAxe(page)
+      await captureQa(page, 'mobile-dark-privacy')
+      await page.getByRole('button', { name: 'Switch to light theme' }).click()
     }
     await nav(page, 'Overview').click()
     await page.getByRole('link', { name: 'New session', exact: true }).click()

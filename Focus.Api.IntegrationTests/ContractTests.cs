@@ -22,36 +22,29 @@ public sealed class ContractTests
         Assert.Equal(42, paths.Sum(path => path.Value!.AsObject().Count));
         Assert.NotNull(paths["/api/v1/sessions/{id}/vision"]!["get"]!["security"]);
         Assert.NotNull(paths["/api/v1/sessions"]!["post"]!["responses"]!["415"]?["content"]?["application/problem+json"]);
-        Assert.Null(paths["/api/v1/sessions"]!["post"]!["responses"]!["415"]?["content"]?["application/problem+json"]?["example"]);
+        Assert.NotNull(paths["/api/v1/sessions"]!["post"]!["responses"]!["415"]?["content"]?["application/problem+json"]?["example"]);
         Assert.NotNull(paths["/api/v1/sessions"]!["post"]!["security"]);
         Assert.Null(paths["/api/v1/auth/login"]!["post"]!["security"]);
-        foreach (var operation in paths.SelectMany(path => path.Value!.AsObject()).Select(method => method.Value))
+        Assert.Null(paths["/api/v1/auth/register"]!["post"]!["responses"]!["401"]);
+        foreach (var operation in paths.SelectMany(path => path.Value!.AsObject()).Select(method => method.Value!))
         {
-            Assert.NotNull(operation!["operationId"]);
+            Assert.NotNull(operation["operationId"]);
             Assert.NotNull(operation["summary"]);
-            Assert.NotNull(operation["responses"]);
+            Assert.NotNull(operation["description"]);
             Assert.Contains(operation["responses"]!.AsObject(), x => x.Key.StartsWith('2'));
-        }
+            if (operation["requestBody"]?["content"]?["application/json"] is { } input)
+                Assert.NotNull(input["example"]);
 
-        var expectedExamples = new (string Path, string Method, int Status)[]
-        {
-            ("/api/v1/auth/register", "post", 201),
-            ("/api/v1/auth/login", "post", 200),
-            ("/api/v1/auth/login", "post", 401),
-            ("/api/v1/sessions", "get", 401),
-            ("/api/v1/sessions", "post", 400),
-            ("/api/v1/sessions/{id}", "get", 404),
-            ("/api/v1/sessions/{id}/complete", "post", 200),
-            ("/api/v1/sessions/{id}/complete", "post", 409),
-            ("/api/v1/sessions/{id}/activity/batch", "post", 200)
-        };
-        foreach (var (path, method, status) in expectedExamples)
-        {
-            var mediaType = status < 300 ? "application/json" : "application/problem+json";
-            var example = paths[path]![method]!["responses"]![status.ToString()]?["content"]?[mediaType]?["example"];
-            Assert.NotNull(example);
-            if (status >= 400)
-                Assert.Equal(status, example["status"]!.GetValue<int>());
+            foreach (var response in operation["responses"]!.AsObject())
+            {
+                var body = response.Value!["content"];
+                if (response.Key == "204")
+                    Assert.Null(body);
+                if (body?["application/json"] is { } data)
+                    Assert.NotNull(data["example"]);
+                if (body?["application/problem+json"] is { } error)
+                    Assert.Equal(response.Key, error["example"]!["status"]!.ToString());
+            }
         }
 
         var root = new DirectoryInfo(AppContext.BaseDirectory);

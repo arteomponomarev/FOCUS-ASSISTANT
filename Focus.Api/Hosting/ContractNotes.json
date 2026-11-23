@@ -1,0 +1,625 @@
+{
+  "operations": {
+    "AnalyticsSummary": "Returns one aggregate bucket over a half-open range. An omitted range defaults to recent data. Reported ratings and heuristic state durations are distinct fields.",
+    "AnalyticsStatistics": "Groups observed metrics by calendar day, ISO week or month in the requested IANA zone. Each bucket exposes UTC boundaries, including daylight-saving transitions.",
+    "AnalyticsResearch": "Returns paged per-session observed metrics, estimated state durations and self-reports. A missing rating remains null.",
+    "AuthRegister": "Creates a new account with a case-insensitively unique normalized email. The password is hashed and no tokens are issued. A duplicate email returns 409.",
+    "AuthLogin": "Validates credentials and returns an opaque access/refresh pair with Cache-Control: no-store. Invalid credentials return 401 without revealing which credential failed.",
+    "AuthRefresh": "Consumes the previous refresh token and returns a replacement pair. Serialize refresh requests per client, and discard the old access and refresh tokens after rotation.",
+    "AuthLogout": "Revokes the current login family. Set stopCamera=true to revoke account-wide camera consent as well; ordinary logout keeps the saved consent. The 204 response has no body.",
+    "AuthMe": "Returns profile attributes for the account associated with the presented token, including the account email.",
+    "AuthRename": "Changes the current account display name. The account ID and email remain unchanged.",
+    "AuthChangePassword": "Requires the current password and a new password. Revokes account logins on success; sign in again. The 204 response has no body.",
+    "PrivacyGet": "Returns stored consent separately for desktop aggregates and camera aggregates. Vision experiment selection is independent of consent to capture.",
+    "PrivacyUpdate": "Updates only non-null flags. Consent applies to server ingestion; the Windows Agent still needs local opt-in and camera access.",
+    "PrivacyExport": "Returns a small private account snapshot and relative links to pageable work profiles and sessions. Follow their pagination to build a full export. Responses use Cache-Control: no-store.",
+    "PrivacyDeleteAccount": "Verifies the current password before removing the authenticated account and its owned records. A successful 204 has no body; discard local tokens.",
+    "ResearchUpload": "Accepts a batch of desktop or camera-only windows. Persist one unique clientEventId for each window; an identical retry is counted as a duplicate and changed data for that ID yields 409. Consent and interval boundaries are checked separately for each stream.",
+    "ResearchActivity": "Returns chronological desktop aggregate windows. Camera-only measurements are available from the separate vision resource.",
+    "ResearchEstimates": "Returns persisted heuristic state intervals and rule versions derived from desktop windows. The timeline is an estimate rather than a ground-truth concentration label.",
+    "ResearchCurrent": "Returns the current session state and most recent available estimate. For an active session with the experiment enabled and consent present, an eligible camera overlap can influence the returned estimate.",
+    "ResearchVision": "Returns totals of coarse camera observations and an optional comparison between baseline and experimental rules. A missing comparison or zero observations does not imply absence.",
+    "ResearchTimeline": "Combines session time boundaries and goals with a chronological page of activity and estimate references. A client may follow the dedicated activity and estimate feeds for details.",
+    "SessionsCreate": "Starts in Planned with no working time. Supply a target duration in seconds, optional initial goals and an optional work profile owned by the account.",
+    "SessionsList": "Filters owned sessions with one-based offset pagination. Results sort by effective start or creation time and use the session ID as a deterministic tie breaker.",
+    "SessionsGet": "Returns an owned session and its computed durations, goals and any completion ratings. A missing or foreign session is represented as 404.",
+    "SessionsStart": "Transitions Planned to Active and assigns the server-side start timestamp. A repeated request on an active session returns 409.",
+    "SessionsPause": "Transitions Active to Paused and opens a single pause interval. A duplicate pause or a pause in another state returns 409.",
+    "SessionsResume": "Closes the current pause and moves Paused to Active. Resume without an open pause returns 409.",
+    "SessionsCancel": "Transitions an eligible unfinished session to Cancelled and closes an open pause if needed. A completed or already cancelled session cannot be cancelled again.",
+    "SessionsComplete": "Finishes an active or paused session. Required 1–5 ratings, an optional reflection and outcomes for owned session goals are applied in one transaction.",
+    "SessionsListGoals": "Returns the goals attached to the addressed session. Ownership is checked before reading even if there are no goals.",
+    "SessionsGetGoal": "Looks up the goal only within the addressed owned session. An existing goal under another session is treated as missing.",
+    "SessionsAddGoal": "Adds a goal while the session is Planned. The created goal has Pending status and the Location response header identifies the goal resource.",
+    "SessionsUpdateGoal": "Edits descriptions in Planned or updates the outcome after work starts. Send only supplied changes; changes inconsistent with the current session state return 409.",
+    "SessionsDeleteGoal": "Removes a goal only from a Planned session. Success returns 204 with no body.",
+    "SettingsGetPomodoro": "Returns the account's saved schedule. The default schedule uses 25 minutes of focus, 5 minutes for a short break, 15 for a long break and four intervals.",
+    "SettingsSetPomodoro": "Replaces the entire schedule. Send all four duration and interval entries; the response contains the values stored by the API.",
+    "SettingsGetAvatar": "Returns saved settings or the default OnlyWhenNeeded visibility, Balanced intensity and no explicit avatar ID.",
+    "SettingsSetAvatar": "Replaces the avatar preferences for the account. These settings guide the desktop player and do not control collection consent.",
+    "SettingsGetProfiles": "Lists owned work profiles, each with its configured process rules. Use the returned pagination metadata to traverse the collection.",
+    "SettingsGetProfile": "Returns one owned profile and its normalized process rule names. A missing or foreign profile returns 404.",
+    "SettingsCreateProfile": "Creates a work profile and an optional list of process rules. Duplicate normalized process identifiers are invalid.",
+    "SettingsReplaceProfile": "Replaces settings and the complete set of rules for the addressed profile. Omitted rules are interpreted as an empty replacement.",
+    "SettingsDeleteProfile": "Deletes an owned profile if it is unreferenced. A session reference causes 409. The successful 204 response has no body."
+  },
+  "parameters": {
+    "id": "UUID of the addressed session. The account must own it.",
+    "profileId": "UUID of the addressed work profile, owned by the authenticated account.",
+    "goalId": "UUID of a goal under the addressed session.",
+    "From": "Inclusive ISO 8601 lower bound with UTC offset. Omit to use the endpoint default.",
+    "To": "Exclusive ISO 8601 upper bound with UTC offset. If supplied with From, To must be later.",
+    "TimeZone": "IANA reporting time zone, such as Europe/Kyiv or UTC. The default is UTC.",
+    "Period": "Calendar grouping for statistics. Day, Week (ISO week beginning Monday), or Month.",
+    "Status": "Optional exact session state. Planned, Active, Paused, Completed or Cancelled.",
+    "Sort": "Chronological asc or desc order, with desc as the default.",
+    "Page": "One-based page number from 1 to 100,000. Default 1.",
+    "PageSize": "Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500.",
+    "stopCamera": "When true, withdraws account-wide camera consent before revoking the current login. Defaults to false."
+  },
+  "errors": {
+    "400": {
+      "description": "Correct malformed JSON, invalid field values or parameters. In production use HTTPS.",
+      "example": {
+        "title": "Bad Request",
+        "status": 400,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "401": {
+      "description": "Log in again or use a current token. When changing credentials, verify the supplied password.",
+      "example": {
+        "title": "Unauthorized",
+        "status": 401,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "403": {
+      "description": "Enable consent for the corresponding desktop or camera stream before retrying.",
+      "example": {
+        "title": "Forbidden",
+        "status": 403,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "404": {
+      "description": "Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones.",
+      "example": {
+        "title": "Not Found",
+        "status": 404,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "409": {
+      "description": "Read the latest resource state, fix the conflicting transition or resend the identical event payload.",
+      "example": {
+        "title": "Conflict",
+        "status": 409,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "413": {
+      "description": "Reduce the batch payload before retrying.",
+      "example": {
+        "title": "Content Too Large",
+        "status": 413,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "415": {
+      "description": "Send JSON with Content-Type: application/json.",
+      "example": {
+        "title": "Unsupported Media Type",
+        "status": 415,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "422": {
+      "description": "Correct the observation timestamps relative to the session, consent, pause and upload window.",
+      "example": {
+        "title": "Unprocessable Content",
+        "status": 422,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "429": {
+      "description": "Wait for the Retry-After interval before resending.",
+      "example": {
+        "title": "Too Many Requests",
+        "status": 429,
+        "traceId": "00000000000000000000000000000001"
+      }
+    },
+    "500": {
+      "description": "Retry later and give the request correlation ID to support if the failure persists.",
+      "example": {
+        "title": "Internal Server Error",
+        "status": 500,
+        "traceId": "00000000000000000000000000000001"
+      }
+    }
+  },
+  "schemas": {
+    "AccessTokenResponse": {
+      "description": "Opaque bearer credentials issued by ASP.NET Core on login or token rotation.",
+      "fields": {
+        "tokenType": "Authorization scheme used in the request header; currently Bearer.",
+        "accessToken": "Opaque credential for Authorization: Bearer. Keep it private.",
+        "expiresIn": "Access token lifetime in seconds from issuance.",
+        "refreshToken": "Opaque renewal credential. Replace both tokens after successful renewal."
+      }
+    },
+    "ActivityBatch": {
+      "description": "Up to 100 desktop or camera-only observation windows submitted together.",
+      "fields": {
+        "items": "Between one and 100 desktop or camera-only aggregates."
+      }
+    },
+    "ActivityInput": {
+      "description": "One consented aggregate window with a stable client event ID. Desktop and camera observations are separate streams.",
+      "fields": {
+        "clientEventId": "Client-assigned UUID for retry deduplication. Keep it stable for identical content.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "keyboardEventCount": "Count of key events during the desktop window; excludes values of pressed keys.",
+        "mouseClickCount": "Count of mouse clicks during the desktop window.",
+        "windowSwitchCount": "Count of active-window changes during the window.",
+        "idleSeconds": "Seconds of inactivity measured in the desktop window.",
+        "activeProcessName": "Optional normalized process name. Camera-only windows leave this null.",
+        "vision": "Optional coarse camera totals. When supplied, no process identity or desktop counters are permitted."
+      }
+    },
+    "ActivityResponse": {
+      "description": "Stored desktop activity aggregate projected without raw key values or window titles.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "clientEventId": "Client-assigned UUID for retry deduplication. Keep it stable for identical content.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "activeProcessName": "Optional normalized process name. Camera-only windows leave this null.",
+        "keyboardEventCount": "Count of key events during the desktop window; excludes values of pressed keys.",
+        "mouseClickCount": "Count of mouse clicks during the desktop window.",
+        "windowSwitchCount": "Count of active-window changes during the window.",
+        "idleSeconds": "Seconds of inactivity measured in the desktop window."
+      }
+    },
+    "AnalyticsReport": {
+      "description": "Calendar-bucket analytics in the selected time zone.",
+      "fields": {
+        "timeZone": "IANA time-zone identifier used to align calendar boundaries.",
+        "buckets": "Calendar bucket list including empty intervals where returned by the service."
+      }
+    },
+    "AvatarSettings": {
+      "description": "Saved visibility, notification intensity and optional avatar selection.",
+      "fields": {
+        "visibility": "Desktop avatar display policy.",
+        "intensity": "Desktop notification intensity.",
+        "avatarId": "Optional asset identifier. After trimming, use 1 to 80 ASCII letters, digits, underscores or hyphens."
+      }
+    },
+    "AvatarVisibility": {
+      "description": "Desktop overlay visibility. AlwaysVisible displays persistently; OnlyWhenNeeded follows current interactions; NotificationsOnly shows notifications; Hidden disables display.",
+      "fields": {}
+    },
+    "ChangePasswordRequest": {
+      "description": "Current and replacement passwords. On success all existing logins are revoked.",
+      "fields": {
+        "currentPassword": "Existing account password for verification.",
+        "newPassword": "Replacement password, 12 to 128 characters."
+      }
+    },
+    "CompleteSessionRequest": {
+      "description": "Finish a session with required 1–5 ratings and optional reflection and goal outcomes.",
+      "fields": {
+        "selfReportedConcentration": "Required user-reported concentration rating, integer 1 to 5.",
+        "selfReportedProductivity": "Required user-reported productivity rating, integer 1 to 5.",
+        "reflection": "Optional completion note, at most 1,000 characters.",
+        "goalOutcomes": "Optional outcomes for goals that belong to this session."
+      }
+    },
+    "CreateGoalRequest": {
+      "description": "Goal text used when appending to a planned session.",
+      "fields": {
+        "description": "User-supplied description, trimmed and length-validated according to the resource."
+      }
+    },
+    "CreateSessionRequest": {
+      "description": "Target duration, optional initial goals and optional owned profile.",
+      "fields": {
+        "plannedDurationSeconds": "Required planned focus duration, integer from 1 to 86,400 seconds.",
+        "goals": "Optional initial goal descriptions; each may contain at most 500 characters.",
+        "workProfileId": "Optional UUID of a profile owned by the account."
+      }
+    },
+    "CurrentStateResponse": {
+      "description": "Snapshot of the session, goals and latest available estimate for desktop consumers.",
+      "fields": {
+        "sessionStatus": "Current lifecycle state of the session.",
+        "latestEstimate": "Latest available estimate, or null when none is available.",
+        "goals": "Goals associated with this session. Creation accepts goal text; reads return objects."
+      }
+    },
+    "DeleteAccountRequest": {
+      "description": "Password confirmation for deletion of the authenticated account.",
+      "fields": {
+        "password": "Account password. Use a private value and never include it in logs or exports."
+      }
+    },
+    "EstimateResponse": {
+      "description": "Persisted heuristic state, its interval, rule version and associated desktop aggregate where available.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "activityAggregateId": "UUID of the triggering desktop aggregate when one is linked.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "estimatedState": "Heuristic state for the reported interval; may be absent from observation references.",
+        "ruleVersion": "Version of the deterministic rules used to produce the estimate.",
+        "reason": "Human-readable rule explanation when recorded.",
+        "inputProcessCategory": "Work-profile category recorded when calculating the estimate."
+      }
+    },
+    "FocusEstimate": {
+      "description": "One heuristic estimate in the baseline/experiment comparison.",
+      "fields": {
+        "state": "Heuristic state selected by the included rule.",
+        "ruleVersion": "Version of the deterministic rules used to produce the estimate.",
+        "reason": "Human-readable rule explanation when recorded."
+      }
+    },
+    "FocusStateType": {
+      "description": "Heuristic state vocabulary. Neutral is inconclusive; Focused and Distracted are estimated patterns; Idle, Break and Absent describe rule outcomes, not intent or diagnosis.",
+      "fields": {}
+    },
+    "GoalOutcome": {
+      "description": "Completion outcome for one existing session goal.",
+      "fields": {
+        "goalId": "UUID of the addressed session goal.",
+        "status": "Concrete goal outcome. Pending is rejected for completion."
+      }
+    },
+    "GoalResponse": {
+      "description": "Saved goal and its latest outcome.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "description": "User-supplied description, trimmed and length-validated according to the resource.",
+        "status": "Lifecycle or goal outcome status as defined by the referenced schema."
+      }
+    },
+    "GoalStatistics": {
+      "description": "Goal counters and weighted completion percentage. A partially completed goal contributes half.",
+      "fields": {
+        "total": "Number of goals in the session.",
+        "completed": "Number of fully completed goals.",
+        "partiallyCompleted": "Number of goals marked partially completed.",
+        "completionPercentage": "Weighted goal completion percentage from 0 to 100."
+      }
+    },
+    "GoalStatus": {
+      "description": "Pending, Completed, NotCompleted or PartiallyCompleted. Pending is unset and is not a concrete completion outcome.",
+      "fields": {}
+    },
+    "IngestionResult": {
+      "description": "Number of inserted windows and identical duplicate windows in a batch.",
+      "fields": {
+        "created": "Count of newly inserted observation windows.",
+        "duplicates": "Count of identical windows already present for these client IDs."
+      }
+    },
+    "LoginRequest": {
+      "description": "Account credentials supplied to obtain an opaque bearer pair.",
+      "fields": {
+        "email": "Account email address. Registration and login normalize it for matching.",
+        "password": "Account password. Use a private value and never include it in logs or exports."
+      }
+    },
+    "NotificationIntensity": {
+      "description": "Desktop notification preference from Quiet through Balanced to Active.",
+      "fields": {}
+    },
+    "PageOfActivityResponse": {
+      "description": "Pagination envelope for ActivityResponse. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PageOfEstimateResponse": {
+      "description": "Pagination envelope for EstimateResponse. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PageOfSessionResearchRow": {
+      "description": "Pagination envelope for SessionResearchRow. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PageOfSessionResponse": {
+      "description": "Pagination envelope for SessionResponse. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PageOfTimelineEntry": {
+      "description": "Pagination envelope for TimelineEntry. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PageOfWorkProfileResponse": {
+      "description": "Pagination envelope for WorkProfileResponse. Empty pages may still include a total count.",
+      "fields": {
+        "items": "Items in the current collection or upload batch, in the server-defined order.",
+        "pageNumber": "Current one-based page index.",
+        "pageSize": "Server-selected maximum result count on each page.",
+        "totalCount": "Total rows matching filters before pagination."
+      }
+    },
+    "PauseResponse": {
+      "description": "Time window in which the session was paused.",
+      "fields": {
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null."
+      }
+    },
+    "PomodoroSettings": {
+      "description": "Account-level default focus and break durations and long-break cadence.",
+      "fields": {
+        "focusMinutes": "Length of a focus interval, in whole minutes from 1 to 240.",
+        "shortBreakMinutes": "Short break duration, in whole minutes from 1 to 120.",
+        "longBreakMinutes": "Long break duration, in whole minutes from 1 to 120 and at least as long as the short break.",
+        "intervalsBeforeLongBreak": "Number of focus intervals before a long break, from 1 to 12."
+      }
+    },
+    "PrivacySettings": {
+      "description": "Independent consent state and timestamps for desktop and camera streams, plus an experiment preference.",
+      "fields": {
+        "telemetryEnabled": "Allow acceptance of desktop aggregate uploads.",
+        "consentedAt": "UTC acceptance boundary for desktop observations while consent is enabled.",
+        "cameraEnabled": "Allow acceptance of coarse camera observations when the Agent is separately authorized.",
+        "cameraConsentedAt": "UTC acceptance boundary for camera observations while consent is enabled.",
+        "visionExperimental": "Enable comparison or use of the experimental camera-assisted rule where applicable."
+      }
+    },
+    "PrivacyUpdate": {
+      "description": "Partial update; omit or send null to leave an individual flag unchanged.",
+      "fields": {
+        "telemetryEnabled": "Allow acceptance of desktop aggregate uploads.",
+        "cameraEnabled": "Allow acceptance of coarse camera observations when the Agent is separately authorized.",
+        "visionExperimental": "Enable comparison or use of the experimental camera-assisted rule where applicable."
+      }
+    },
+    "PrivateExport": {
+      "description": "Private account summary and links to pageable data, with no authentication secrets.",
+      "fields": {
+        "profile": "Public attributes of the account making the export.",
+        "privacy": "Current account consent settings.",
+        "pomodoro": "Current schedule settings.",
+        "avatar": "Current avatar preferences.",
+        "workProfilesPath": "Relative URL for the pageable list of owned work profiles.",
+        "sessionsPath": "Relative URL for the pageable list of owned sessions."
+      }
+    },
+    "ProblemDetails": {
+      "description": "RFC 9457-compatible problem object with an optional request correlation ID.",
+      "fields": {
+        "type": "Problem type URI, often an HTTP semantics reference for generic errors.",
+        "title": "Short problem category safe to show to a client.",
+        "status": "HTTP status code for this problem; matches the response status.",
+        "detail": "Optional safe explanation with context for the failure.",
+        "instance": "Optional identifier of this problem occurrence.",
+        "traceId": "Request correlation identifier to cite in support diagnostics."
+      }
+    },
+    "ProcessCategory": {
+      "description": "A configured process rule: Neutral, Allowed or Distracting. Null in estimate provenance means no category was recorded.",
+      "fields": {}
+    },
+    "Profile": {
+      "description": "Public fields of the authenticated account, including its own email.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "email": "Account email address. Registration and login normalize it for matching.",
+        "displayName": "Visible account name, at most 100 characters.",
+        "createdAt": "Server creation timestamp as an ISO 8601 instant."
+      }
+    },
+    "RefreshRequest": {
+      "description": "Current opaque refresh credential; single-use after successful rotation.",
+      "fields": {
+        "refreshToken": "Opaque renewal credential. Replace both tokens after successful renewal."
+      }
+    },
+    "RegisterRequest": {
+      "description": "New account email, display name and initial password.",
+      "fields": {
+        "email": "Account email address. Registration and login normalize it for matching.",
+        "password": "Private initial account password, 12 to 128 characters.",
+        "displayName": "Visible account name, at most 100 characters."
+      }
+    },
+    "RenameRequest": {
+      "description": "Replacement display name for the authenticated account.",
+      "fields": {
+        "displayName": "Visible account name, at most 100 characters."
+      }
+    },
+    "ReportBucket": {
+      "description": "Half-open aggregate interval and its summary metrics.",
+      "fields": {
+        "from": "Inclusive start boundary of the reporting interval.",
+        "to": "Exclusive end boundary of the reporting interval.",
+        "metrics": "Computed metrics for this reporting interval."
+      }
+    },
+    "ReportMetrics": {
+      "description": "Summary of time, goals, self-reports, observed counters and heuristic state durations.",
+      "fields": {
+        "trackedActiveSeconds": "Sum of active tracked time, excluding pauses, in seconds.",
+        "sessions": "Count of matching sessions.",
+        "completedSessions": "Count of matching completed sessions.",
+        "averageSelfReportedConcentration": "Mean of available concentration ratings; null if no ratings exist.",
+        "averageSelfReportedProductivity": "Mean of available productivity ratings; null if no ratings exist.",
+        "concentrationRatingCount": "Count of concentration ratings included in the mean.",
+        "productivityRatingCount": "Count of productivity ratings included in the mean.",
+        "goals": "Goals associated with this session. Creation accepts goal text; reads return objects.",
+        "keyboardEvents": "Sum of desktop keyboard event counts.",
+        "mouseClicks": "Sum of desktop mouse click counts.",
+        "windowSwitches": "Sum of desktop active-window change counts.",
+        "observedIdleSeconds": "Total observed desktop inactivity in seconds.",
+        "estimatedStateSeconds": "Duration in seconds keyed by the rule-based focus state."
+      }
+    },
+    "ReportPeriod": {
+      "description": "Group analytics by local calendar Day, ISO Week starting Monday, or Month.",
+      "fields": {}
+    },
+    "RuleInput": {
+      "description": "One process name and its classification for a work profile.",
+      "fields": {
+        "processName": "Normalized process name to classify.",
+        "category": "Allowed, Neutral or Distracting policy for this process."
+      }
+    },
+    "SessionResearchRow": {
+      "description": "Per-session research projection with activity, estimates, outcomes and self-reports.",
+      "fields": {
+        "sessionId": "UUID of the owning session.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "status": "Lifecycle or goal outcome status as defined by the referenced schema.",
+        "activeSeconds": "Measured active session duration excluding pauses, in seconds.",
+        "selfReportedConcentration": "Optional user-reported concentration, integer 1–5. Missing data is null.",
+        "selfReportedProductivity": "Optional user-reported productivity, integer 1–5. Missing data is null.",
+        "goals": "Goals associated with this session. Creation accepts goal text; reads return objects.",
+        "keyboardEvents": "Sum of desktop keyboard event counts.",
+        "mouseClicks": "Sum of desktop mouse click counts.",
+        "windowSwitches": "Sum of desktop active-window change counts.",
+        "observedIdleSeconds": "Total observed desktop inactivity in seconds.",
+        "estimatedStateSeconds": "Duration in seconds keyed by the rule-based focus state."
+      }
+    },
+    "SessionResponse": {
+      "description": "Session identifiers, lifecycle timestamps, elapsed/paused/active time, ratings and goals.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "workProfileId": "Optional UUID of a profile owned by the account.",
+        "status": "Lifecycle or goal outcome status as defined by the referenced schema.",
+        "plannedDurationSeconds": "Planned focus duration in seconds.",
+        "createdAt": "Server creation timestamp as an ISO 8601 instant.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "elapsedSeconds": "Seconds from session start to end, or to calculation time while running.",
+        "pausedSeconds": "Seconds spent paused during the tracked interval.",
+        "activeSeconds": "Measured active session duration excluding pauses, in seconds.",
+        "selfReportedConcentration": "Optional user-reported concentration, integer 1–5. Missing data is null.",
+        "selfReportedProductivity": "Optional user-reported productivity, integer 1–5. Missing data is null.",
+        "reflection": "Optional completion note, at most 1,000 characters.",
+        "goals": "Goals associated with this session. Creation accepts goal text; reads return objects.",
+        "goalStatistics": "Computed goal completion counters for the session."
+      }
+    },
+    "SessionStatus": {
+      "description": "Planned precedes the first start. Active permits work, Paused suspends it, Completed and Cancelled are terminal.",
+      "fields": {}
+    },
+    "TimelineEntry": {
+      "description": "Chronological reference to an observation or estimate in a session.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "kind": "Discriminator: observedActivity for a desktop aggregate or estimatedState for a rule-based estimate.",
+        "estimatedState": "Heuristic state for the reported interval; may be absent from observation references."
+      }
+    },
+    "TimelineResponse": {
+      "description": "Lifecycle and goals with a page of timeline entries.",
+      "fields": {
+        "status": "Lifecycle or goal outcome status as defined by the referenced schema.",
+        "createdAt": "Server creation timestamp as an ISO 8601 instant.",
+        "startedAt": "Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.",
+        "endedAt": "End timestamp in ISO 8601. An unfinished interval or session may leave it null.",
+        "pauses": "Chronological list of open or closed pauses.",
+        "goals": "Goals associated with this session. Creation accepts goal text; reads return objects.",
+        "goalStatistics": "Computed goal completion counters for the session.",
+        "events": "Page of chronological timeline references."
+      }
+    },
+    "UpdateGoalRequest": {
+      "description": "Provide at least one non-null field. Change the description in Planned or set a goal outcome during an ongoing session.",
+      "fields": {
+        "description": "User-supplied description, trimmed and length-validated according to the resource.",
+        "outcome": "New non-pending goal outcome when editing a started session."
+      }
+    },
+    "VisionComparison": {
+      "description": "Baseline estimate and an experimental estimate based on an eligible camera overlap.",
+      "fields": {
+        "baseline": "Rule-based estimate without camera input.",
+        "experimental": "Estimate made by the experimental rule using eligible coarse camera observations."
+      }
+    },
+    "VisionInput": {
+      "description": "Camera-only aggregate durations and sample count. No frames, landmarks or identifying biometric data are accepted.",
+      "fields": {
+        "presentMs": "Milliseconds with a detected face.",
+        "notDetectedMs": "Milliseconds of usable observations without a detected face.",
+        "unknownMs": "Milliseconds with unknown or unreliable camera observations.",
+        "facingMs": "Milliseconds of approximate screen-facing orientation among present observations.",
+        "awayMs": "Milliseconds estimated to be facing away among present observations.",
+        "validSamples": "Number of valid observations, at most 10 samples per second plus a tolerance of two and never above 3,000."
+      }
+    },
+    "VisionReport": {
+      "description": "Read-only coarse camera observation totals and optional research comparison.",
+      "fields": {
+        "observedMs": "Milliseconds of usable camera observations. Equals presentMs plus notDetectedMs.",
+        "presentMs": "Milliseconds with a detected face.",
+        "notDetectedMs": "Milliseconds of usable observations without a detected face.",
+        "unknownMs": "Milliseconds with unknown or unreliable camera observations.",
+        "facingMs": "Milliseconds of approximate screen-facing orientation among present observations.",
+        "awayMs": "Milliseconds estimated to be facing away among present observations.",
+        "validSamples": "Total valid samples across accepted camera intervals; can exceed a single upload's limit.",
+        "experimentalEnabled": "Whether the authenticated account currently opts into the camera-assisted experiment.",
+        "comparison": "Optional baseline and experimental comparison if inputs overlap adequately."
+      }
+    },
+    "WorkProfileRequest": {
+      "description": "Complete work profile configuration including its optional replacement rule set.",
+      "fields": {
+        "name": "User-visible work profile name.",
+        "description": "User-supplied description, trimmed and length-validated according to the resource.",
+        "focusMinutes": "Default length of a focus interval in minutes.",
+        "breakMinutes": "Work-profile default break length in minutes.",
+        "rules": "Process rules for this profile; submitted replacements replace the existing set."
+      }
+    },
+    "WorkProfileResponse": {
+      "description": "Stored work profile and sorted process rules.",
+      "fields": {
+        "id": "UUID of the returned resource.",
+        "name": "User-visible work profile name.",
+        "description": "User-supplied description, trimmed and length-validated according to the resource.",
+        "focusMinutes": "Default length of a focus interval in minutes.",
+        "breakMinutes": "Work-profile default break length in minutes.",
+        "rules": "Process rules for this profile; submitted replacements replace the existing set."
+      }
+    }
+  }
+}

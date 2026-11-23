@@ -45,6 +45,7 @@ jobs:
       - run: |
           python -m pip install openapi-spec-validator==0.7.2
           python -m openapi_spec_validator docs/api/openapi.json
+          python scripts/check-api-documentation.py
       - run: dotnet format "FOCUS ASSISTANT.slnx" --no-restore --verify-no-changes
       - run: docker build -t focus-assistant-api:local .
       - name: Validate managed deployment inputs without deploying

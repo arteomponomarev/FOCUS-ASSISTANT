@@ -11,7 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Summarize observed activity, estimates, goals, and self-reports in a date range. */
+        /**
+         * Summarize observed activity, estimates, goals, and self-reports in a date range.
+         * @description Returns one aggregate bucket over a half-open range. An omitted range defaults to recent data. Reported ratings and heuristic state durations are distinct fields. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["AnalyticsSummary"];
         put?: never;
         post?: never;
@@ -28,7 +31,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Return calendar day, ISO week, or month buckets in the requested IANA time zone. */
+        /**
+         * Return calendar day, ISO week, or month buckets in the requested IANA time zone.
+         * @description Groups observed metrics by calendar day, ISO week or month in the requested IANA zone. Each bucket exposes UTC boundaries, including daylight-saving transitions. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["AnalyticsStatistics"];
         put?: never;
         post?: never;
@@ -45,7 +51,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Page through comparable per-session research measures. */
+        /**
+         * Page through comparable per-session research measures.
+         * @description Returns paged per-session observed metrics, estimated state durations and self-reports. A missing rating remains null. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["AnalyticsResearch"];
         put?: never;
         post?: never;
@@ -64,7 +73,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create an account and return its public profile. */
+        /**
+         * Create an account and return its public profile.
+         * @description Creates a new account with a case-insensitively unique normalized email. The password is hashed and no tokens are issued. A duplicate email returns 409. Does not require a Bearer access token.
+         */
         post: operations["AuthRegister"];
         delete?: never;
         options?: never;
@@ -81,7 +93,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Exchange account credentials for access and refresh tokens. */
+        /**
+         * Exchange account credentials for access and refresh tokens.
+         * @description Validates credentials and returns an opaque access/refresh pair with Cache-Control: no-store. Invalid credentials return 401 without revealing which credential failed. Does not require a Bearer access token.
+         */
         post: operations["AuthLogin"];
         delete?: never;
         options?: never;
@@ -98,7 +113,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Rotate a refresh token and revoke the previous token pair. */
+        /**
+         * Rotate a refresh token and revoke the previous token pair.
+         * @description Consumes the previous refresh token and returns a replacement pair. Serialize refresh requests per client, and discard the old access and refresh tokens after rotation. Does not require a Bearer access token.
+         */
         post: operations["AuthRefresh"];
         delete?: never;
         options?: never;
@@ -115,7 +133,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revoke the current login and optionally withdraw camera consent for the account. */
+        /**
+         * Revoke the current login and optionally withdraw camera consent for the account.
+         * @description Revokes the current login family. Set stopCamera=true to revoke account-wide camera consent as well; ordinary logout keeps the saved consent. The 204 response has no body. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["AuthLogout"];
         delete?: never;
         options?: never;
@@ -130,14 +151,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read the authenticated account profile. */
+        /**
+         * Read the authenticated account profile.
+         * @description Returns profile attributes for the account associated with the presented token, including the account email. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["AuthMe"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update the authenticated account's display name. */
+        /**
+         * Update the authenticated account's display name.
+         * @description Changes the current account display name. The account ID and email remain unchanged. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         patch: operations["AuthRename"];
         trace?: never;
     };
@@ -150,7 +177,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Change the password and revoke all account logins. */
+        /**
+         * Change the password and revoke all account logins.
+         * @description Requires the current password and a new password. Revokes account logins on success; sign in again. The 204 response has no body. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["AuthChangePassword"];
         delete?: never;
         options?: never;
@@ -165,14 +195,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read independent desktop and camera consent and the experimental estimate preference. */
+        /**
+         * Read independent desktop and camera consent and the experimental estimate preference.
+         * @description Returns stored consent separately for desktop aggregates and camera aggregates. Vision experiment selection is independent of consent to capture. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["PrivacyGet"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Change server-side acceptance or the vision experiment without opening a device. */
+        /**
+         * Change server-side acceptance or the vision experiment without opening a device.
+         * @description Updates only non-null flags. Consent applies to server ingestion; the Windows Agent still needs local opt-in and camera access. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         patch: operations["PrivacyUpdate"];
         trace?: never;
     };
@@ -183,7 +219,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read the account privacy export and links to pageable records. */
+        /**
+         * Read the account privacy export and links to pageable records.
+         * @description Returns a small private account snapshot and relative links to pageable work profiles and sessions. Follow their pagination to build a full export. Responses use Cache-Control: no-store. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["PrivacyExport"];
         put?: never;
         post?: never;
@@ -202,7 +241,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Verify the account password and delete the account and its owned data. */
+        /**
+         * Verify the account password and delete the account and its owned data.
+         * @description Verifies the current password before removing the authenticated account and its owned records. A successful 204 has no body; discard local tokens. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["PrivacyDeleteAccount"];
         delete?: never;
         options?: never;
@@ -219,7 +261,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Store independently consented desktop or camera aggregates with retry deduplication. */
+        /**
+         * Store independently consented desktop or camera aggregates with retry deduplication.
+         * @description Accepts a batch of desktop or camera-only windows. Persist one unique clientEventId for each window; an identical retry is counted as a duplicate and changed data for that ID yields 409. Consent and interval boundaries are checked separately for each stream. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["ResearchUpload"];
         delete?: never;
         options?: never;
@@ -234,7 +279,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Page through observed aggregate windows in chronological order. */
+        /**
+         * Page through observed aggregate windows in chronological order.
+         * @description Returns chronological desktop aggregate windows. Camera-only measurements are available from the separate vision resource. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["ResearchActivity"];
         put?: never;
         post?: never;
@@ -251,7 +299,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Page through heuristic estimates in chronological order. */
+        /**
+         * Page through heuristic estimates in chronological order.
+         * @description Returns persisted heuristic state intervals and rule versions derived from desktop windows. The timeline is an estimate rather than a ground-truth concentration label. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["ResearchEstimates"];
         put?: never;
         post?: never;
@@ -268,7 +319,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read the latest available estimate, session status, and goals for an owned session. */
+        /**
+         * Read the latest available estimate, session status, and goals for an owned session.
+         * @description Returns the current session state and most recent available estimate. For an active session with the experiment enabled and consent present, an eligible camera overlap can influence the returned estimate. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["ResearchCurrent"];
         put?: never;
         post?: never;
@@ -285,7 +339,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Summarize coarse camera observation totals and compare baseline and experimental estimates for an owned session. */
+        /**
+         * Summarize coarse camera observation totals and compare baseline and experimental estimates for an owned session.
+         * @description Returns totals of coarse camera observations and an optional comparison between baseline and experimental rules. A missing comparison or zero observations does not imply absence. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["ResearchVision"];
         put?: never;
         post?: never;
@@ -302,7 +359,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read lifecycle timestamps, goals, and a page of chronological interval references. */
+        /**
+         * Read lifecycle timestamps, goals, and a page of chronological interval references.
+         * @description Combines session time boundaries and goals with a chronological page of activity and estimate references. A client may follow the dedicated activity and estimate feeds for details. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["ResearchTimeline"];
         put?: never;
         post?: never;
@@ -319,10 +379,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Page through owned sessions by start or creation time. */
+        /**
+         * Page through owned sessions by start or creation time.
+         * @description Filters owned sessions with one-based offset pagination. Results sort by effective start or creation time and use the session ID as a deterministic tie breaker. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SessionsList"];
         put?: never;
-        /** Create a planned session with optional goals and an owned work profile. */
+        /**
+         * Create a planned session with optional goals and an owned work profile.
+         * @description Starts in Planned with no working time. Supply a target duration in seconds, optional initial goals and an optional work profile owned by the account. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsCreate"];
         delete?: never;
         options?: never;
@@ -337,7 +403,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read one owned session with durations, ratings, and goal statistics. */
+        /**
+         * Read one owned session with durations, ratings, and goal statistics.
+         * @description Returns an owned session and its computed durations, goals and any completion ratings. A missing or foreign session is represented as 404. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SessionsGet"];
         put?: never;
         post?: never;
@@ -356,7 +425,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start a planned session. */
+        /**
+         * Start a planned session.
+         * @description Transitions Planned to Active and assigns the server-side start timestamp. A repeated request on an active session returns 409. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsStart"];
         delete?: never;
         options?: never;
@@ -373,7 +445,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Record the beginning of a pause in an active session. */
+        /**
+         * Record the beginning of a pause in an active session.
+         * @description Transitions Active to Paused and opens a single pause interval. A duplicate pause or a pause in another state returns 409. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsPause"];
         delete?: never;
         options?: never;
@@ -390,7 +465,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** End the active pause and resume work. */
+        /**
+         * End the active pause and resume work.
+         * @description Closes the current pause and moves Paused to Active. Resume without an open pause returns 409. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsResume"];
         delete?: never;
         options?: never;
@@ -407,7 +485,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancel a planned, active, or paused session. */
+        /**
+         * Cancel a planned, active, or paused session.
+         * @description Transitions an eligible unfinished session to Cancelled and closes an open pause if needed. A completed or already cancelled session cannot be cancelled again. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsCancel"];
         delete?: never;
         options?: never;
@@ -424,7 +505,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Finish a started session and atomically record ratings and goal outcomes. */
+        /**
+         * Finish a started session and atomically record ratings and goal outcomes.
+         * @description Finishes an active or paused session. Required 1–5 ratings, an optional reflection and outcomes for owned session goals are applied in one transaction. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsComplete"];
         delete?: never;
         options?: never;
@@ -439,10 +523,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List goals attached to an owned session. */
+        /**
+         * List goals attached to an owned session.
+         * @description Returns the goals attached to the addressed session. Ownership is checked before reading even if there are no goals. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SessionsListGoals"];
         put?: never;
-        /** Add a goal to a planned session. */
+        /**
+         * Add a goal to a planned session.
+         * @description Adds a goal while the session is Planned. The created goal has Pending status and the Location response header identifies the goal resource. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SessionsAddGoal"];
         delete?: never;
         options?: never;
@@ -457,15 +547,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read a goal by its ID within an owned session. */
+        /**
+         * Read a goal by its ID within an owned session.
+         * @description Looks up the goal only within the addressed owned session. An existing goal under another session is treated as missing. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SessionsGetGoal"];
         put?: never;
         post?: never;
-        /** Remove a goal from a planned session. */
+        /**
+         * Remove a goal from a planned session.
+         * @description Removes a goal only from a Planned session. Success returns 204 with no body. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         delete: operations["SessionsDeleteGoal"];
         options?: never;
         head?: never;
-        /** Edit a planned goal description or record a started goal's outcome. */
+        /**
+         * Edit a planned goal description or record a started goal's outcome.
+         * @description Edits descriptions in Planned or updates the outcome after work starts. Send only supplied changes; changes inconsistent with the current session state return 409. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         patch: operations["SessionsUpdateGoal"];
         trace?: never;
     };
@@ -476,9 +575,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read persisted Pomodoro preferences or the defaults. */
+        /**
+         * Read persisted Pomodoro preferences or the defaults.
+         * @description Returns the account's saved schedule. The default schedule uses 25 minutes of focus, 5 minutes for a short break, 15 for a long break and four intervals. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SettingsGetPomodoro"];
-        /** Replace the authenticated account's Pomodoro preferences. */
+        /**
+         * Replace the authenticated account's Pomodoro preferences.
+         * @description Replaces the entire schedule. Send all four duration and interval entries; the response contains the values stored by the API. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         put: operations["SettingsSetPomodoro"];
         post?: never;
         delete?: never;
@@ -494,9 +599,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read persisted avatar preferences or the defaults. */
+        /**
+         * Read persisted avatar preferences or the defaults.
+         * @description Returns saved settings or the default OnlyWhenNeeded visibility, Balanced intensity and no explicit avatar ID. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SettingsGetAvatar"];
-        /** Replace the authenticated account's avatar preferences. */
+        /**
+         * Replace the authenticated account's avatar preferences.
+         * @description Replaces the avatar preferences for the account. These settings guide the desktop player and do not control collection consent. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         put: operations["SettingsSetAvatar"];
         post?: never;
         delete?: never;
@@ -512,10 +623,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Page through the account's work profiles and process rules. */
+        /**
+         * Page through the account's work profiles and process rules.
+         * @description Lists owned work profiles, each with its configured process rules. Use the returned pagination metadata to traverse the collection. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SettingsGetProfiles"];
         put?: never;
-        /** Create a work profile and optional process rules. */
+        /**
+         * Create a work profile and optional process rules.
+         * @description Creates a work profile and an optional list of process rules. Duplicate normalized process identifiers are invalid. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         post: operations["SettingsCreateProfile"];
         delete?: never;
         options?: never;
@@ -530,12 +647,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read one owned work profile and its process rules. */
+        /**
+         * Read one owned work profile and its process rules.
+         * @description Returns one owned profile and its normalized process rule names. A missing or foreign profile returns 404. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         get: operations["SettingsGetProfile"];
-        /** Replace an owned work profile and its process rules. */
+        /**
+         * Replace an owned work profile and its process rules.
+         * @description Replaces settings and the complete set of rules for the addressed profile. Omitted rules are interpreted as an empty replacement. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         put: operations["SettingsReplaceProfile"];
         post?: never;
-        /** Delete an unused profile. Sessions retain their profile references. */
+        /**
+         * Delete an unused profile. Sessions retain their profile references.
+         * @description Deletes an owned profile if it is unreferenced. A session reference causes 409. The successful 204 response has no body. Requires a Bearer access token. Owned resources are scoped to the authenticated account.
+         */
         delete: operations["SettingsDeleteProfile"];
         options?: never;
         head?: never;
@@ -546,452 +672,973 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Opaque bearer credentials issued by ASP.NET Core on login or token rotation. */
         AccessTokenResponse: {
+            /** @description Authorization scheme used in the request header; currently Bearer. */
             tokenType?: null | string;
+            /** @description Opaque credential for Authorization: Bearer. Keep it private. */
             accessToken: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Access token lifetime in seconds from issuance.
+             */
             expiresIn: number;
+            /** @description Opaque renewal credential. Replace both tokens after successful renewal. */
             refreshToken: string;
         };
+        /** @description Up to 100 desktop or camera-only observation windows submitted together. */
         ActivityBatch: {
+            /** @description Between one and 100 desktop or camera-only aggregates. */
             items: components["schemas"]["ActivityInput"][];
         };
+        /** @description One consented aggregate window with a stable client event ID. Desktop and camera observations are separate streams. */
         ActivityInput: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Client-assigned UUID for retry deduplication. Keep it stable for identical content.
+             */
             clientEventId: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of key events during the desktop window; excludes values of pressed keys.
+             */
             keyboardEventCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of mouse clicks during the desktop window.
+             */
             mouseClickCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of active-window changes during the window.
+             */
             windowSwitchCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Seconds of inactivity measured in the desktop window.
+             */
             idleSeconds: number;
+            /** @description Optional normalized process name. Camera-only windows leave this null. */
             activeProcessName?: null | string;
+            /** @description Optional coarse camera totals. When supplied, no process identity or desktop counters are permitted. */
             vision?: null | components["schemas"]["VisionInput"];
         };
+        /** @description Stored desktop activity aggregate projected without raw key values or window titles. */
         ActivityResponse: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Client-assigned UUID for retry deduplication. Keep it stable for identical content.
+             */
             clientEventId: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: string;
+            /** @description Optional normalized process name. Camera-only windows leave this null. */
             activeProcessName: null | string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of key events during the desktop window; excludes values of pressed keys.
+             */
             keyboardEventCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of mouse clicks during the desktop window.
+             */
             mouseClickCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of active-window changes during the window.
+             */
             windowSwitchCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Seconds of inactivity measured in the desktop window.
+             */
             idleSeconds: number;
         };
+        /** @description Calendar-bucket analytics in the selected time zone. */
         AnalyticsReport: {
+            /** @description IANA time-zone identifier used to align calendar boundaries. */
             timeZone: string;
+            /** @description Calendar bucket list including empty intervals where returned by the service. */
             buckets: components["schemas"]["ReportBucket"][];
         };
+        /** @description Saved visibility, notification intensity and optional avatar selection. */
         AvatarSettings: {
+            /** @description Desktop avatar display policy. */
             visibility: components["schemas"]["AvatarVisibility"];
+            /** @description Desktop notification intensity. */
             intensity: components["schemas"]["NotificationIntensity"];
+            /** @description Optional asset identifier. After trimming, use 1 to 80 ASCII letters, digits, underscores or hyphens. */
             avatarId: null | string;
         };
-        /** @enum {unknown} */
+        /**
+         * @description Desktop overlay visibility. AlwaysVisible displays persistently; OnlyWhenNeeded follows current interactions; NotificationsOnly shows notifications; Hidden disables display.
+         * @enum {unknown}
+         */
         AvatarVisibility: "AlwaysVisible" | "OnlyWhenNeeded" | "NotificationsOnly" | "Hidden";
+        /** @description Current and replacement passwords. On success all existing logins are revoked. */
         ChangePasswordRequest: {
+            /** @description Existing account password for verification. */
             currentPassword: string;
+            /** @description Replacement password, 12 to 128 characters. */
             newPassword: string;
         };
+        /** @description Finish a session with required 1–5 ratings and optional reflection and goal outcomes. */
         CompleteSessionRequest: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Required user-reported concentration rating, integer 1 to 5.
+             */
             selfReportedConcentration: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Required user-reported productivity rating, integer 1 to 5.
+             */
             selfReportedProductivity: number;
+            /** @description Optional completion note, at most 1,000 characters. */
             reflection?: null | string;
+            /** @description Optional outcomes for goals that belong to this session. */
             goalOutcomes?: null | components["schemas"]["GoalOutcome"][];
         };
+        /** @description Goal text used when appending to a planned session. */
         CreateGoalRequest: {
+            /** @description User-supplied description, trimmed and length-validated according to the resource. */
             description: string;
         };
+        /** @description Target duration, optional initial goals and optional owned profile. */
         CreateSessionRequest: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Required planned focus duration, integer from 1 to 86,400 seconds.
+             */
             plannedDurationSeconds: number;
+            /** @description Optional initial goal descriptions; each may contain at most 500 characters. */
             goals?: null | string[];
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Optional UUID of a profile owned by the account.
+             */
             workProfileId?: null | string;
         };
+        /** @description Snapshot of the session, goals and latest available estimate for desktop consumers. */
         CurrentStateResponse: {
+            /** @description Current lifecycle state of the session. */
             sessionStatus: components["schemas"]["SessionStatus"];
+            /** @description Latest available estimate, or null when none is available. */
             latestEstimate: null | components["schemas"]["EstimateResponse"];
+            /** @description Goals associated with this session. Creation accepts goal text; reads return objects. */
             goals: components["schemas"]["GoalResponse"][];
         };
+        /** @description Password confirmation for deletion of the authenticated account. */
         DeleteAccountRequest: {
+            /** @description Account password. Use a private value and never include it in logs or exports. */
             password: string;
         };
+        /** @description Persisted heuristic state, its interval, rule version and associated desktop aggregate where available. */
         EstimateResponse: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the triggering desktop aggregate when one is linked.
+             */
             activityAggregateId: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: string;
+            /** @description Heuristic state for the reported interval; may be absent from observation references. */
             estimatedState: components["schemas"]["FocusStateType"];
+            /** @description Version of the deterministic rules used to produce the estimate. */
             ruleVersion: string;
+            /** @description Human-readable rule explanation when recorded. */
             reason: null | string;
+            /** @description Work-profile category recorded when calculating the estimate. */
             inputProcessCategory: null | components["schemas"]["ProcessCategory"];
         };
+        /** @description One heuristic estimate in the baseline/experiment comparison. */
         FocusEstimate: {
+            /** @description Heuristic state selected by the included rule. */
             state: components["schemas"]["FocusStateType"];
+            /** @description Version of the deterministic rules used to produce the estimate. */
             ruleVersion: string;
+            /** @description Human-readable rule explanation when recorded. */
             reason: string;
         };
-        /** @enum {unknown} */
+        /**
+         * @description Heuristic state vocabulary. Neutral is inconclusive; Focused and Distracted are estimated patterns; Idle, Break and Absent describe rule outcomes, not intent or diagnosis.
+         * @enum {unknown}
+         */
         FocusStateType: "Neutral" | "Focused" | "Distracted" | "Idle" | "Break" | "Absent";
+        /** @description Completion outcome for one existing session goal. */
         GoalOutcome: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the addressed session goal.
+             */
             goalId: string;
+            /** @description Concrete goal outcome. Pending is rejected for completion. */
             status: components["schemas"]["GoalStatus"];
         };
+        /** @description Saved goal and its latest outcome. */
         GoalResponse: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
+            /** @description User-supplied description, trimmed and length-validated according to the resource. */
             description: string;
+            /** @description Lifecycle or goal outcome status as defined by the referenced schema. */
             status: components["schemas"]["GoalStatus"];
         };
+        /** @description Goal counters and weighted completion percentage. A partially completed goal contributes half. */
         GoalStatistics: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of goals in the session.
+             */
             total: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of fully completed goals.
+             */
             completed: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of goals marked partially completed.
+             */
             partiallyCompleted: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Weighted goal completion percentage from 0 to 100.
+             */
             completionPercentage: number;
         };
-        /** @enum {unknown} */
+        /**
+         * @description Pending, Completed, NotCompleted or PartiallyCompleted. Pending is unset and is not a concrete completion outcome.
+         * @enum {unknown}
+         */
         GoalStatus: "Pending" | "Completed" | "NotCompleted" | "PartiallyCompleted";
+        /** @description Number of inserted windows and identical duplicate windows in a batch. */
         IngestionResult: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of newly inserted observation windows.
+             */
             created: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of identical windows already present for these client IDs.
+             */
             duplicates: number;
         };
+        /** @description Account credentials supplied to obtain an opaque bearer pair. */
         LoginRequest: {
-            /** Format: email */
+            /**
+             * Format: email
+             * @description Account email address. Registration and login normalize it for matching.
+             */
             email: string;
+            /** @description Account password. Use a private value and never include it in logs or exports. */
             password: string;
         };
-        /** @enum {unknown} */
+        /**
+         * @description Desktop notification preference from Quiet through Balanced to Active.
+         * @enum {unknown}
+         */
         NotificationIntensity: "Quiet" | "Balanced" | "Active";
+        /** @description Pagination envelope for ActivityResponse. Empty pages may still include a total count. */
         PageOfActivityResponse: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["ActivityResponse"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Pagination envelope for EstimateResponse. Empty pages may still include a total count. */
         PageOfEstimateResponse: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["EstimateResponse"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Pagination envelope for SessionResearchRow. Empty pages may still include a total count. */
         PageOfSessionResearchRow: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["SessionResearchRow"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Pagination envelope for SessionResponse. Empty pages may still include a total count. */
         PageOfSessionResponse: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["SessionResponse"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Pagination envelope for TimelineEntry. Empty pages may still include a total count. */
         PageOfTimelineEntry: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["TimelineEntry"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Pagination envelope for WorkProfileResponse. Empty pages may still include a total count. */
         PageOfWorkProfileResponse: {
+            /** @description Items in the current collection or upload batch, in the server-defined order. */
             items: components["schemas"]["WorkProfileResponse"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Current one-based page index.
+             */
             pageNumber: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Server-selected maximum result count on each page.
+             */
             pageSize: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total rows matching filters before pagination.
+             */
             totalCount: number;
         };
+        /** @description Time window in which the session was paused. */
         PauseResponse: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: null | string;
         };
+        /** @description Account-level default focus and break durations and long-break cadence. */
         PomodoroSettings: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Length of a focus interval, in whole minutes from 1 to 240.
+             */
             focusMinutes: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Short break duration, in whole minutes from 1 to 120.
+             */
             shortBreakMinutes: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Long break duration, in whole minutes from 1 to 120 and at least as long as the short break.
+             */
             longBreakMinutes: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of focus intervals before a long break, from 1 to 12.
+             */
             intervalsBeforeLongBreak: number;
         };
+        /** @description Independent consent state and timestamps for desktop and camera streams, plus an experiment preference. */
         PrivacySettings: {
+            /** @description Allow acceptance of desktop aggregate uploads. */
             telemetryEnabled: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description UTC acceptance boundary for desktop observations while consent is enabled.
+             */
             consentedAt: null | string;
+            /** @description Allow acceptance of coarse camera observations when the Agent is separately authorized. */
             cameraEnabled: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description UTC acceptance boundary for camera observations while consent is enabled.
+             */
             cameraConsentedAt: null | string;
+            /** @description Enable comparison or use of the experimental camera-assisted rule where applicable. */
             visionExperimental: boolean;
         };
+        /** @description Partial update; omit or send null to leave an individual flag unchanged. */
         PrivacyUpdate: {
+            /** @description Allow acceptance of desktop aggregate uploads. */
             telemetryEnabled?: null | boolean;
+            /** @description Allow acceptance of coarse camera observations when the Agent is separately authorized. */
             cameraEnabled?: null | boolean;
+            /** @description Enable comparison or use of the experimental camera-assisted rule where applicable. */
             visionExperimental?: null | boolean;
         };
+        /** @description Private account summary and links to pageable data, with no authentication secrets. */
         PrivateExport: {
+            /** @description Public attributes of the account making the export. */
             profile: components["schemas"]["Profile"];
+            /** @description Current account consent settings. */
             privacy: components["schemas"]["PrivacySettings"];
+            /** @description Current schedule settings. */
             pomodoro: components["schemas"]["PomodoroSettings"];
+            /** @description Current avatar preferences. */
             avatar: components["schemas"]["AvatarSettings"];
+            /** @description Relative URL for the pageable list of owned work profiles. */
             workProfilesPath: string;
+            /** @description Relative URL for the pageable list of owned sessions. */
             sessionsPath: string;
         };
+        /** @description RFC 9457-compatible problem object with an optional request correlation ID. */
         ProblemDetails: {
+            /** @description Problem type URI, often an HTTP semantics reference for generic errors. */
             type?: null | string;
+            /** @description Short problem category safe to show to a client. */
             title?: null | string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description HTTP status code for this problem; matches the response status.
+             */
             status?: null | number;
+            /** @description Optional safe explanation with context for the failure. */
             detail?: null | string;
+            /** @description Optional identifier of this problem occurrence. */
             instance?: null | string;
-            /** @description Request correlation identifier, when available. */
+            /** @description Request correlation identifier to cite in support diagnostics. */
             traceId?: string;
         };
-        /** @enum {unknown} */
+        /**
+         * @description A configured process rule: Neutral, Allowed or Distracting. Null in estimate provenance means no category was recorded.
+         * @enum {unknown}
+         */
         ProcessCategory: "Neutral" | "Allowed" | "Distracting" | null;
+        /** @description Public fields of the authenticated account, including its own email. */
         Profile: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
+            /** @description Account email address. Registration and login normalize it for matching. */
             email: string;
+            /** @description Visible account name, at most 100 characters. */
             displayName: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Server creation timestamp as an ISO 8601 instant.
+             */
             createdAt: string;
         };
+        /** @description Current opaque refresh credential; single-use after successful rotation. */
         RefreshRequest: {
+            /** @description Opaque renewal credential. Replace both tokens after successful renewal. */
             refreshToken: string;
         };
+        /** @description New account email, display name and initial password. */
         RegisterRequest: {
-            /** Format: email */
+            /**
+             * Format: email
+             * @description Account email address. Registration and login normalize it for matching.
+             */
             email: string;
+            /** @description Private initial account password, 12 to 128 characters. */
             password: string;
+            /** @description Visible account name, at most 100 characters. */
             displayName: string;
         };
+        /** @description Replacement display name for the authenticated account. */
         RenameRequest: {
+            /** @description Visible account name, at most 100 characters. */
             displayName: string;
         };
+        /** @description Half-open aggregate interval and its summary metrics. */
         ReportBucket: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Inclusive start boundary of the reporting interval.
+             */
             from: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Exclusive end boundary of the reporting interval.
+             */
             to: string;
+            /** @description Computed metrics for this reporting interval. */
             metrics: components["schemas"]["ReportMetrics"];
         };
+        /** @description Summary of time, goals, self-reports, observed counters and heuristic state durations. */
         ReportMetrics: {
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Sum of active tracked time, excluding pauses, in seconds.
+             */
             trackedActiveSeconds: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of matching sessions.
+             */
             sessions: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of matching completed sessions.
+             */
             completedSessions: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Mean of available concentration ratings; null if no ratings exist.
+             */
             averageSelfReportedConcentration: null | number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Mean of available productivity ratings; null if no ratings exist.
+             */
             averageSelfReportedProductivity: null | number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of concentration ratings included in the mean.
+             */
             concentrationRatingCount: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Count of productivity ratings included in the mean.
+             */
             productivityRatingCount: number;
+            /** @description Goals associated with this session. Creation accepts goal text; reads return objects. */
             goals: components["schemas"]["GoalStatistics"];
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop keyboard event counts.
+             */
             keyboardEvents: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop mouse click counts.
+             */
             mouseClicks: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop active-window change counts.
+             */
             windowSwitches: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total observed desktop inactivity in seconds.
+             */
             observedIdleSeconds: number;
+            /** @description Duration in seconds keyed by the rule-based focus state. */
             estimatedStateSeconds: {
                 [key: string]: number;
             };
         };
-        /** @enum {unknown} */
+        /**
+         * @description Group analytics by local calendar Day, ISO Week starting Monday, or Month.
+         * @enum {unknown}
+         */
         ReportPeriod: "Day" | "Week" | "Month";
+        /** @description One process name and its classification for a work profile. */
         RuleInput: {
+            /** @description Normalized process name to classify. */
             processName: string;
+            /** @description Allowed, Neutral or Distracting policy for this process. */
             category: components["schemas"]["ProcessCategory"];
         };
+        /** @description Per-session research projection with activity, estimates, outcomes and self-reports. */
         SessionResearchRow: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the owning session.
+             */
             sessionId: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: null | string;
+            /** @description Lifecycle or goal outcome status as defined by the referenced schema. */
             status: components["schemas"]["SessionStatus"];
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Measured active session duration excluding pauses, in seconds.
+             */
             activeSeconds: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Optional user-reported concentration, integer 1–5. Missing data is null.
+             */
             selfReportedConcentration: null | number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Optional user-reported productivity, integer 1–5. Missing data is null.
+             */
             selfReportedProductivity: null | number;
+            /** @description Goals associated with this session. Creation accepts goal text; reads return objects. */
             goals: components["schemas"]["GoalStatistics"];
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop keyboard event counts.
+             */
             keyboardEvents: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop mouse click counts.
+             */
             mouseClicks: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Sum of desktop active-window change counts.
+             */
             windowSwitches: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total observed desktop inactivity in seconds.
+             */
             observedIdleSeconds: number;
+            /** @description Duration in seconds keyed by the rule-based focus state. */
             estimatedStateSeconds: {
                 [key: string]: number;
             };
         };
+        /** @description Session identifiers, lifecycle timestamps, elapsed/paused/active time, ratings and goals. */
         SessionResponse: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Optional UUID of a profile owned by the account.
+             */
             workProfileId: null | string;
+            /** @description Lifecycle or goal outcome status as defined by the referenced schema. */
             status: components["schemas"]["SessionStatus"];
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Planned focus duration in seconds.
+             */
             plannedDurationSeconds: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Server creation timestamp as an ISO 8601 instant.
+             */
             createdAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: null | string;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Seconds from session start to end, or to calculation time while running.
+             */
             elapsedSeconds: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Seconds spent paused during the tracked interval.
+             */
             pausedSeconds: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Measured active session duration excluding pauses, in seconds.
+             */
             activeSeconds: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Optional user-reported concentration, integer 1–5. Missing data is null.
+             */
             selfReportedConcentration: null | number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Optional user-reported productivity, integer 1–5. Missing data is null.
+             */
             selfReportedProductivity: null | number;
+            /** @description Optional completion note, at most 1,000 characters. */
             reflection: null | string;
+            /** @description Goals associated with this session. Creation accepts goal text; reads return objects. */
             goals: components["schemas"]["GoalResponse"][];
+            /** @description Computed goal completion counters for the session. */
             goalStatistics: components["schemas"]["GoalStatistics"];
         };
-        /** @enum {unknown} */
+        /**
+         * @description Planned precedes the first start. Active permits work, Paused suspends it, Completed and Cancelled are terminal.
+         * @enum {unknown}
+         */
         SessionStatus: "Planned" | "Active" | "Completed" | "Cancelled" | "Paused";
+        /** @description Chronological reference to an observation or estimate in a session. */
         TimelineEntry: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: string;
+            /** @description Discriminator: observedActivity for a desktop aggregate or estimatedState for a rule-based estimate. */
             kind: string;
+            /** @description Heuristic state for the reported interval; may be absent from observation references. */
             estimatedState: null | components["schemas"]["FocusStateType"];
         };
+        /** @description Lifecycle and goals with a page of timeline entries. */
         TimelineResponse: {
+            /** @description Lifecycle or goal outcome status as defined by the referenced schema. */
             status: components["schemas"]["SessionStatus"];
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Server creation timestamp as an ISO 8601 instant.
+             */
             createdAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Interval or session start as an ISO 8601 instant. A session that has never started has no timestamp.
+             */
             startedAt: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description End timestamp in ISO 8601. An unfinished interval or session may leave it null.
+             */
             endedAt: null | string;
+            /** @description Chronological list of open or closed pauses. */
             pauses: components["schemas"]["PauseResponse"][];
+            /** @description Goals associated with this session. Creation accepts goal text; reads return objects. */
             goals: components["schemas"]["GoalResponse"][];
+            /** @description Computed goal completion counters for the session. */
             goalStatistics: components["schemas"]["GoalStatistics"];
+            /** @description Page of chronological timeline references. */
             events: components["schemas"]["PageOfTimelineEntry"];
         };
+        /** @description Provide at least one non-null field. Change the description in Planned or set a goal outcome during an ongoing session. */
         UpdateGoalRequest: {
-            description: null | string;
-            outcome: null | components["schemas"]["GoalStatus"];
+            /** @description User-supplied description, trimmed and length-validated according to the resource. */
+            description?: null | string;
+            /** @description New non-pending goal outcome when editing a started session. */
+            outcome?: null | components["schemas"]["GoalStatus"];
         };
+        /** @description Baseline estimate and an experimental estimate based on an eligible camera overlap. */
         VisionComparison: {
+            /** @description Rule-based estimate without camera input. */
             baseline: components["schemas"]["FocusEstimate"];
+            /** @description Estimate made by the experimental rule using eligible coarse camera observations. */
             experimental: components["schemas"]["FocusEstimate"];
         };
+        /** @description Camera-only aggregate durations and sample count. No frames, landmarks or identifying biometric data are accepted. */
         VisionInput: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Milliseconds with a detected face.
+             */
             presentMs: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Milliseconds of usable observations without a detected face.
+             */
             notDetectedMs: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Milliseconds with unknown or unreliable camera observations.
+             */
             unknownMs: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Milliseconds of approximate screen-facing orientation among present observations.
+             */
             facingMs: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Milliseconds estimated to be facing away among present observations.
+             */
             awayMs: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of valid observations, at most 10 samples per second plus a tolerance of two and never above 3,000.
+             */
             validSamples: number;
         };
+        /** @description Read-only coarse camera observation totals and optional research comparison. */
         VisionReport: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds of usable camera observations. Equals presentMs plus notDetectedMs.
+             */
             observedMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds with a detected face.
+             */
             presentMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds of usable observations without a detected face.
+             */
             notDetectedMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds with unknown or unreliable camera observations.
+             */
             unknownMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds of approximate screen-facing orientation among present observations.
+             */
             facingMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Milliseconds estimated to be facing away among present observations.
+             */
             awayMs: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total valid samples across accepted camera intervals; can exceed a single upload's limit.
+             */
             validSamples: number;
+            /** @description Whether the authenticated account currently opts into the camera-assisted experiment. */
             experimentalEnabled: boolean;
+            /** @description Optional baseline and experimental comparison if inputs overlap adequately. */
             comparison: null | components["schemas"]["VisionComparison"];
         };
+        /** @description Complete work profile configuration including its optional replacement rule set. */
         WorkProfileRequest: {
+            /** @description User-visible work profile name. */
             name: string;
+            /** @description User-supplied description, trimmed and length-validated according to the resource. */
             description: null | string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Default length of a focus interval in minutes.
+             */
             focusMinutes: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Work-profile default break length in minutes.
+             */
             breakMinutes: number;
+            /** @description Process rules for this profile; submitted replacements replace the existing set. */
             rules: null | components["schemas"]["RuleInput"][];
         };
+        /** @description Stored work profile and sorted process rules. */
         WorkProfileResponse: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description UUID of the returned resource.
+             */
             id: string;
+            /** @description User-visible work profile name. */
             name: string;
+            /** @description User-supplied description, trimmed and length-validated according to the resource. */
             description: null | string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Default length of a focus interval in minutes.
+             */
             focusMinutes: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Work-profile default break length in minutes.
+             */
             breakMinutes: number;
+            /** @description Process rules for this profile; submitted replacements replace the existing set. */
             rules: components["schemas"]["RuleInput"][];
         };
     };
@@ -1006,8 +1653,11 @@ export interface operations {
     AnalyticsSummary: {
         parameters: {
             query?: {
+                /** @description Inclusive ISO 8601 lower bound with UTC offset. Omit to use the endpoint default. */
                 From?: string;
+                /** @description Exclusive ISO 8601 upper bound with UTC offset. If supplied with From, To must be later. */
                 To?: string;
+                /** @description IANA reporting time zone, such as Europe/Kyiv or UTC. The default is UTC. */
                 TimeZone?: string;
             };
             header?: never;
@@ -1023,34 +1673,88 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["ReportBucket"];
+                    /**
+                     * @example {
+                     *       "from": "2026-10-24T21:13:22.7978626+00:00",
+                     *       "to": "2026-11-23T21:13:22.7978626+00:00",
+                     *       "metrics": {
+                     *         "trackedActiveSeconds": 1.976149,
+                     *         "sessions": 1,
+                     *         "completedSessions": 1,
+                     *         "averageSelfReportedConcentration": 4,
+                     *         "averageSelfReportedProductivity": 3,
+                     *         "concentrationRatingCount": 1,
+                     *         "productivityRatingCount": 1,
+                     *         "goals": {
+                     *           "total": 1,
+                     *           "completed": 1,
+                     *           "partiallyCompleted": 0,
+                     *           "completionPercentage": 100
+                     *         },
+                     *         "keyboardEvents": 7,
+                     *         "mouseClicks": 2,
+                     *         "windowSwitches": 1,
+                     *         "observedIdleSeconds": 0,
+                     *         "estimatedStateSeconds": {
+                     *           "Neutral": 1,
+                     *           "Focused": 0,
+                     *           "Distracted": 0,
+                     *           "Idle": 0,
+                     *           "Break": 0,
+                     *           "Absent": 0
+                     *         }
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ReportBucket"];
                     "text/json": components["schemas"]["ReportBucket"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1059,9 +1763,13 @@ export interface operations {
     AnalyticsStatistics: {
         parameters: {
             query?: {
+                /** @description Calendar grouping for statistics. Day, Week (ISO week beginning Monday), or Month. */
                 Period?: components["schemas"]["ReportPeriod"];
+                /** @description Inclusive ISO 8601 lower bound with UTC offset. Omit to use the endpoint default. */
                 From?: string;
+                /** @description Exclusive ISO 8601 upper bound with UTC offset. If supplied with From, To must be later. */
                 To?: string;
+                /** @description IANA reporting time zone, such as Europe/Kyiv or UTC. The default is UTC. */
                 TimeZone?: string;
             };
             header?: never;
@@ -1077,34 +1785,1023 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["AnalyticsReport"];
+                    /**
+                     * @example {
+                     *       "timeZone": "UTC",
+                     *       "buckets": [
+                     *         {
+                     *           "from": "2026-10-24T21:13:22.90403+00:00",
+                     *           "to": "2026-10-25T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-25T00:00:00+00:00",
+                     *           "to": "2026-10-26T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-26T00:00:00+00:00",
+                     *           "to": "2026-10-27T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-27T00:00:00+00:00",
+                     *           "to": "2026-10-28T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-28T00:00:00+00:00",
+                     *           "to": "2026-10-29T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-29T00:00:00+00:00",
+                     *           "to": "2026-10-30T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-30T00:00:00+00:00",
+                     *           "to": "2026-10-31T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-10-31T00:00:00+00:00",
+                     *           "to": "2026-11-01T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-01T00:00:00+00:00",
+                     *           "to": "2026-11-02T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-02T00:00:00+00:00",
+                     *           "to": "2026-11-03T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-03T00:00:00+00:00",
+                     *           "to": "2026-11-04T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-04T00:00:00+00:00",
+                     *           "to": "2026-11-05T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-05T00:00:00+00:00",
+                     *           "to": "2026-11-06T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-06T00:00:00+00:00",
+                     *           "to": "2026-11-07T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-07T00:00:00+00:00",
+                     *           "to": "2026-11-08T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-08T00:00:00+00:00",
+                     *           "to": "2026-11-09T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-09T00:00:00+00:00",
+                     *           "to": "2026-11-10T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-10T00:00:00+00:00",
+                     *           "to": "2026-11-11T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-11T00:00:00+00:00",
+                     *           "to": "2026-11-12T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-12T00:00:00+00:00",
+                     *           "to": "2026-11-13T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-13T00:00:00+00:00",
+                     *           "to": "2026-11-14T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-14T00:00:00+00:00",
+                     *           "to": "2026-11-15T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-15T00:00:00+00:00",
+                     *           "to": "2026-11-16T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-16T00:00:00+00:00",
+                     *           "to": "2026-11-17T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-17T00:00:00+00:00",
+                     *           "to": "2026-11-18T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-18T00:00:00+00:00",
+                     *           "to": "2026-11-19T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-19T00:00:00+00:00",
+                     *           "to": "2026-11-20T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-20T00:00:00+00:00",
+                     *           "to": "2026-11-21T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-21T00:00:00+00:00",
+                     *           "to": "2026-11-22T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-22T00:00:00+00:00",
+                     *           "to": "2026-11-23T00:00:00+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 0,
+                     *             "sessions": 0,
+                     *             "completedSessions": 0,
+                     *             "averageSelfReportedConcentration": null,
+                     *             "averageSelfReportedProductivity": null,
+                     *             "concentrationRatingCount": 0,
+                     *             "productivityRatingCount": 0,
+                     *             "goals": {
+                     *               "total": 0,
+                     *               "completed": 0,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 0
+                     *             },
+                     *             "keyboardEvents": 0,
+                     *             "mouseClicks": 0,
+                     *             "windowSwitches": 0,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 0,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "from": "2026-11-23T00:00:00+00:00",
+                     *           "to": "2026-11-23T21:13:22.90403+00:00",
+                     *           "metrics": {
+                     *             "trackedActiveSeconds": 1.976149,
+                     *             "sessions": 1,
+                     *             "completedSessions": 1,
+                     *             "averageSelfReportedConcentration": 4,
+                     *             "averageSelfReportedProductivity": 3,
+                     *             "concentrationRatingCount": 1,
+                     *             "productivityRatingCount": 1,
+                     *             "goals": {
+                     *               "total": 1,
+                     *               "completed": 1,
+                     *               "partiallyCompleted": 0,
+                     *               "completionPercentage": 100
+                     *             },
+                     *             "keyboardEvents": 7,
+                     *             "mouseClicks": 2,
+                     *             "windowSwitches": 1,
+                     *             "observedIdleSeconds": 0,
+                     *             "estimatedStateSeconds": {
+                     *               "Neutral": 1,
+                     *               "Focused": 0,
+                     *               "Distracted": 0,
+                     *               "Idle": 0,
+                     *               "Break": 0,
+                     *               "Absent": 0
+                     *             }
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
                     "application/json": components["schemas"]["AnalyticsReport"];
                     "text/json": components["schemas"]["AnalyticsReport"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1113,11 +2810,17 @@ export interface operations {
     AnalyticsResearch: {
         parameters: {
             query?: {
+                /** @description Inclusive ISO 8601 lower bound with UTC offset. Omit to use the endpoint default. */
                 From?: string;
+                /** @description Exclusive ISO 8601 upper bound with UTC offset. If supplied with From, To must be later. */
                 To?: string;
+                /** @description Optional exact session state. Planned, Active, Paused, Completed or Cancelled. */
                 Status?: components["schemas"]["SessionStatus"];
+                /** @description Chronological asc or desc order, with desc as the default. */
                 Sort?: string;
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
@@ -1133,34 +2836,90 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PageOfSessionResearchRow"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "sessionId": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *           "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *           "status": "Completed",
+                     *           "activeSeconds": 1.976149,
+                     *           "selfReportedConcentration": 4,
+                     *           "selfReportedProductivity": 3,
+                     *           "goals": {
+                     *             "total": 1,
+                     *             "completed": 1,
+                     *             "partiallyCompleted": 0,
+                     *             "completionPercentage": 100
+                     *           },
+                     *           "keyboardEvents": 7,
+                     *           "mouseClicks": 2,
+                     *           "windowSwitches": 1,
+                     *           "observedIdleSeconds": 0,
+                     *           "estimatedStateSeconds": {
+                     *             "Neutral": 1,
+                     *             "Focused": 0,
+                     *             "Distracted": 0,
+                     *             "Idle": 0,
+                     *             "Break": 0,
+                     *             "Absent": 0
+                     *           }
+                     *         }
+                     *       ],
+                     *       "pageNumber": 1,
+                     *       "pageSize": 10,
+                     *       "totalCount": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["PageOfSessionResearchRow"];
                     "text/json": components["schemas"]["PageOfSessionResearchRow"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1178,8 +2937,8 @@ export interface operations {
                 /**
                  * @example {
                  *       "email": "researcher@example.invalid",
-                 *       "password": "example-passphrase-71!",
-                 *       "displayName": "Researcher"
+                 *       "password": "<example-password>",
+                 *       "displayName": "Research Reviewer"
                  *     }
                  */
                 "application/json": components["schemas"]["RegisterRequest"];
@@ -1197,67 +2956,95 @@ export interface operations {
                     "text/plain": components["schemas"]["Profile"];
                     /**
                      * @example {
-                     *       "id": "956e96cf-c6ce-4838-a3e2-bc758904dc1f",
+                     *       "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
                      *       "email": "researcher@example.invalid",
-                     *       "displayName": "Researcher",
-                     *       "createdAt": "2026-11-23T00:21:03.5090993+00:00"
+                     *       "displayName": "Research Reviewer",
+                     *       "createdAt": "2026-11-23T21:13:18.3711855+00:00"
                      *     }
                      */
                     "application/json": components["schemas"]["Profile"];
                     "text/json": components["schemas"]["Profile"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "An account with this email already exists.",
+                     *       "traceId": "77417385c4cf94de578eeadefc9de671"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1272,6 +3059,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "email": "researcher@example.invalid",
+                 *       "password": "<example-password>"
+                 *     }
+                 */
                 "application/json": components["schemas"]["LoginRequest"];
                 "text/json": components["schemas"]["LoginRequest"];
                 "application/*+json": components["schemas"]["LoginRequest"];
@@ -1297,16 +3090,23 @@ export interface operations {
                     "text/json": components["schemas"]["AccessTokenResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1318,36 +3118,57 @@ export interface operations {
                      *       "title": "Unauthorized",
                      *       "status": 401,
                      *       "detail": "The credentials are invalid or expired.",
-                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *       "traceId": "b117f4054e912d65d6a01dc6c4e79e29"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1362,6 +3183,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "refreshToken": "<refresh-token>"
+                 *     }
+                 */
                 "application/json": components["schemas"]["RefreshRequest"];
                 "text/json": components["schemas"]["RefreshRequest"];
                 "application/*+json": components["schemas"]["RefreshRequest"];
@@ -1375,52 +3201,97 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["AccessTokenResponse"];
+                    /**
+                     * @example {
+                     *       "tokenType": "Bearer",
+                     *       "accessToken": "<access-token>",
+                     *       "expiresIn": 900,
+                     *       "refreshToken": "<refresh-token>"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AccessTokenResponse"];
                     "text/json": components["schemas"]["AccessTokenResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "detail": "The credentials are invalid or expired.",
+                     *       "traceId": "42199981efb5e83ecf3df9e82398c403"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1429,6 +3300,7 @@ export interface operations {
     AuthLogout: {
         parameters: {
             query?: {
+                /** @description When true, withdraws account-wide camera consent before revoking the current login. Defaults to false. */
                 stopCamera?: boolean;
             };
             header?: never;
@@ -1444,39 +3316,83 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1498,34 +3414,96 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["Profile"];
+                    /**
+                     * @example {
+                     *       "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+                     *       "email": "researcher@example.invalid",
+                     *       "displayName": "Research Reviewer",
+                     *       "createdAt": "2026-11-23T21:13:18.371185+00:00"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Profile"];
                     "text/json": components["schemas"]["Profile"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "129ba9ed1b49ae07f8c663ed9f6a698a"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Wait for the Retry-After interval before resending. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1540,6 +3518,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "displayName": "Focus Reviewer"
+                 *     }
+                 */
                 "application/json": components["schemas"]["RenameRequest"];
                 "text/json": components["schemas"]["RenameRequest"];
                 "application/*+json": components["schemas"]["RenameRequest"];
@@ -1553,43 +3536,111 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["Profile"];
+                    /**
+                     * @example {
+                     *       "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+                     *       "email": "researcher@example.invalid",
+                     *       "displayName": "Focus Reviewer",
+                     *       "createdAt": "2026-11-23T21:13:18.371185+00:00"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Profile"];
                     "text/json": components["schemas"]["Profile"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Wait for the Retry-After interval before resending. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1604,6 +3655,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "currentPassword": "<example-password>",
+                 *       "newPassword": "<example-password>"
+                 *     }
+                 */
                 "application/json": components["schemas"]["ChangePasswordRequest"];
                 "text/json": components["schemas"]["ChangePasswordRequest"];
                 "application/*+json": components["schemas"]["ChangePasswordRequest"];
@@ -1617,48 +3674,83 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1680,43 +3772,80 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PrivacySettings"];
+                    /**
+                     * @example {
+                     *       "telemetryEnabled": false,
+                     *       "consentedAt": null,
+                     *       "cameraEnabled": false,
+                     *       "cameraConsentedAt": null,
+                     *       "visionExperimental": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["PrivacySettings"];
                     "text/json": components["schemas"]["PrivacySettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1733,7 +3862,9 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "telemetryEnabled": true
+                 *       "telemetryEnabled": true,
+                 *       "cameraEnabled": true,
+                 *       "visionExperimental": true
                  *     }
                  */
                 "application/json": components["schemas"]["PrivacyUpdate"];
@@ -1749,52 +3880,96 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PrivacySettings"];
+                    /**
+                     * @example {
+                     *       "telemetryEnabled": true,
+                     *       "consentedAt": "2026-11-23T21:13:19.642375+00:00",
+                     *       "cameraEnabled": true,
+                     *       "cameraConsentedAt": "2026-11-23T21:13:19.67116+00:00",
+                     *       "visionExperimental": true
+                     *     }
+                     */
                     "application/json": components["schemas"]["PrivacySettings"];
                     "text/json": components["schemas"]["PrivacySettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1816,43 +3991,101 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PrivateExport"];
+                    /**
+                     * @example {
+                     *       "profile": {
+                     *         "id": "f0b65e74-7417-41c1-bd17-f90a5a8aafed",
+                     *         "email": "researcher@example.invalid",
+                     *         "displayName": "Focus Reviewer",
+                     *         "createdAt": "2026-11-23T21:13:18.371185+00:00"
+                     *       },
+                     *       "privacy": {
+                     *         "telemetryEnabled": true,
+                     *         "consentedAt": "2026-11-23T21:13:19.642375+00:00",
+                     *         "cameraEnabled": true,
+                     *         "cameraConsentedAt": "2026-11-23T21:13:19.67116+00:00",
+                     *         "visionExperimental": true
+                     *       },
+                     *       "pomodoro": {
+                     *         "focusMinutes": 35,
+                     *         "shortBreakMinutes": 5,
+                     *         "longBreakMinutes": 15,
+                     *         "intervalsBeforeLongBreak": 4
+                     *       },
+                     *       "avatar": {
+                     *         "visibility": "OnlyWhenNeeded",
+                     *         "intensity": "Quiet",
+                     *         "avatarId": null
+                     *       },
+                     *       "workProfilesPath": "/api/v1/settings/work-profiles",
+                     *       "sessionsPath": "/api/v1/sessions"
+                     *     }
+                     */
                     "application/json": components["schemas"]["PrivateExport"];
                     "text/json": components["schemas"]["PrivateExport"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1867,6 +4100,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "password": "<example-password>"
+                 *     }
+                 */
                 "application/json": components["schemas"]["DeleteAccountRequest"];
                 "text/json": components["schemas"]["DeleteAccountRequest"];
                 "application/*+json": components["schemas"]["DeleteAccountRequest"];
@@ -1880,57 +4118,99 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description Wait for the Retry-After interval before resending. */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Too Many Requests",
+                     *       "status": 429,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -1941,6 +4221,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -1951,14 +4232,32 @@ export interface operations {
                  * @example {
                  *       "items": [
                  *         {
-                 *           "clientEventId": "55e2c579-7994-4b05-8bd8-47e4d96b0dbc",
-                 *           "startedAt": "2026-11-24T12:00:10Z",
-                 *           "endedAt": "2026-11-24T12:01:10Z",
+                 *           "clientEventId": "bbaf74f6-8987-49af-a501-4876c3aa390d",
+                 *           "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                 *           "endedAt": "2026-11-23T21:13:21.685207+00:00",
                  *           "activeProcessName": "editor",
-                 *           "keyboardEventCount": 22,
-                 *           "mouseClickCount": 4,
+                 *           "keyboardEventCount": 7,
+                 *           "mouseClickCount": 2,
                  *           "windowSwitchCount": 1,
-                 *           "idleSeconds": 6
+                 *           "idleSeconds": 0
+                 *         },
+                 *         {
+                 *           "clientEventId": "77654e8e-b6f9-442b-af75-85d4eb126373",
+                 *           "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                 *           "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                 *           "activeProcessName": null,
+                 *           "keyboardEventCount": 0,
+                 *           "mouseClickCount": 0,
+                 *           "windowSwitchCount": 0,
+                 *           "idleSeconds": 0,
+                 *           "vision": {
+                 *             "presentMs": 700,
+                 *             "notDetectedMs": 0,
+                 *             "unknownMs": 300,
+                 *             "facingMs": 500,
+                 *             "awayMs": 0,
+                 *             "validSamples": 5
+                 *           }
                  *         }
                  *       ]
                  *     }
@@ -1978,7 +4277,7 @@ export interface operations {
                     "text/plain": components["schemas"]["IngestionResult"];
                     /**
                      * @example {
-                     *       "created": 1,
+                     *       "created": 2,
                      *       "duplicates": 0
                      *     }
                      */
@@ -1986,84 +4285,151 @@ export interface operations {
                     "text/json": components["schemas"]["IngestionResult"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Forbidden */
+            /** @description Enable consent for the corresponding desktop or camera stream before retrying. */
             403: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Forbidden",
+                     *       "status": 403,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "A client event ID was reused with different data.",
+                     *       "traceId": "bcf044f9db3fbd0e665299ba68541c47"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Payload Too Large */
+            /** @description Reduce the batch payload before retrying. */
             413: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Content Too Large",
+                     *       "status": 413,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Correct the observation timestamps relative to the session, consent, pause and upload window. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc4918#section-11.2",
+                     *       "title": "Unprocessable Entity",
+                     *       "status": 422,
+                     *       "detail": "The telemetry window is outside the session or consent interval.",
+                     *       "traceId": "42fe3d0e002172e0f38ac4ffd9545cb1"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2072,11 +4438,14 @@ export interface operations {
     ResearchActivity: {
         parameters: {
             query?: {
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2090,43 +4459,91 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PageOfActivityResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+                     *           "clientEventId": "bbaf74f6-8987-49af-a501-4876c3aa390d",
+                     *           "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                     *           "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                     *           "activeProcessName": "editor",
+                     *           "keyboardEventCount": 7,
+                     *           "mouseClickCount": 2,
+                     *           "windowSwitchCount": 1,
+                     *           "idleSeconds": 0
+                     *         }
+                     *       ],
+                     *       "pageNumber": 1,
+                     *       "pageSize": 25,
+                     *       "totalCount": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["PageOfActivityResponse"];
                     "text/json": components["schemas"]["PageOfActivityResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2135,11 +4552,14 @@ export interface operations {
     ResearchEstimates: {
         parameters: {
             query?: {
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2153,43 +4573,90 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PageOfEstimateResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+                     *           "activityAggregateId": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+                     *           "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                     *           "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                     *           "estimatedState": "Neutral",
+                     *           "ruleVersion": "rules-1.0.0",
+                     *           "reason": "Available signals are insufficient for a stronger estimate.",
+                     *           "inputProcessCategory": "Allowed"
+                     *         }
+                     *       ],
+                     *       "pageNumber": 1,
+                     *       "pageSize": 25,
+                     *       "totalCount": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["PageOfEstimateResponse"];
                     "text/json": components["schemas"]["PageOfEstimateResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2200,6 +4667,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2213,43 +4681,93 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["CurrentStateResponse"];
+                    /**
+                     * @example {
+                     *       "sessionStatus": "Active",
+                     *       "latestEstimate": {
+                     *         "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+                     *         "activityAggregateId": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+                     *         "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                     *         "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                     *         "estimatedState": "Neutral",
+                     *         "ruleVersion": "rules-1.0.0",
+                     *         "reason": "Available signals are insufficient for a stronger estimate.",
+                     *         "inputProcessCategory": "Allowed"
+                     *       },
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Pending"
+                     *         }
+                     *       ]
+                     *     }
+                     */
                     "application/json": components["schemas"]["CurrentStateResponse"];
                     "text/json": components["schemas"]["CurrentStateResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2260,6 +4778,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2273,43 +4792,95 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["VisionReport"];
+                    /**
+                     * @example {
+                     *       "observedMs": 700,
+                     *       "presentMs": 700,
+                     *       "notDetectedMs": 0,
+                     *       "unknownMs": 300,
+                     *       "facingMs": 500,
+                     *       "awayMs": 0,
+                     *       "validSamples": 5,
+                     *       "experimentalEnabled": true,
+                     *       "comparison": {
+                     *         "baseline": {
+                     *           "state": "Neutral",
+                     *           "ruleVersion": "rules-1.0.0",
+                     *           "reason": "Available signals are insufficient for a stronger estimate."
+                     *         },
+                     *         "experimental": {
+                     *           "state": "Neutral",
+                     *           "ruleVersion": "rules-1.0.0",
+                     *           "reason": "Available signals are insufficient for a stronger estimate."
+                     *         }
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["VisionReport"];
                     "text/json": components["schemas"]["VisionReport"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2318,11 +4889,14 @@ export interface operations {
     ResearchTimeline: {
         parameters: {
             query?: {
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2336,43 +4910,119 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["TimelineResponse"];
+                    /**
+                     * @example {
+                     *       "status": "Completed",
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *       "endedAt": "2026-11-23T21:13:22.628017+00:00",
+                     *       "pauses": [
+                     *         {
+                     *           "startedAt": "2026-11-23T21:13:22.532321+00:00",
+                     *           "endedAt": "2026-11-23T21:13:22.598982+00:00"
+                     *         }
+                     *       ],
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Completed"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 1,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 100
+                     *       },
+                     *       "events": {
+                     *         "items": [
+                     *           {
+                     *             "id": "9eb056f2-25b4-4740-aa28-252ffbf32037",
+                     *             "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                     *             "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                     *             "kind": "estimatedState",
+                     *             "estimatedState": "Neutral"
+                     *           },
+                     *           {
+                     *             "id": "bbd5fbe4-ab59-45f3-bc42-4c099de13112",
+                     *             "startedAt": "2026-11-23T21:13:20.685207+00:00",
+                     *             "endedAt": "2026-11-23T21:13:21.685207+00:00",
+                     *             "kind": "observedActivity",
+                     *             "estimatedState": null
+                     *           }
+                     *         ],
+                     *         "pageNumber": 1,
+                     *         "pageSize": 25,
+                     *         "totalCount": 2
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["TimelineResponse"];
                     "text/json": components["schemas"]["TimelineResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2381,11 +5031,17 @@ export interface operations {
     SessionsList: {
         parameters: {
             query?: {
+                /** @description Inclusive ISO 8601 lower bound with UTC offset. Omit to use the endpoint default. */
                 From?: string;
+                /** @description Exclusive ISO 8601 upper bound with UTC offset. If supplied with From, To must be later. */
                 To?: string;
+                /** @description Optional exact session state. Planned, Active, Paused, Completed or Cancelled. */
                 Status?: components["schemas"]["SessionStatus"];
+                /** @description Chronological asc or desc order, with desc as the default. */
                 Sort?: string;
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
@@ -2401,20 +5057,64 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PageOfSessionResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *           "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *           "status": "Completed",
+                     *           "plannedDurationSeconds": 2100,
+                     *           "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *           "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *           "endedAt": "2026-11-23T21:13:22.628017+00:00",
+                     *           "elapsedSeconds": 2.04281,
+                     *           "pausedSeconds": 0.066661,
+                     *           "activeSeconds": 1.976149,
+                     *           "selfReportedConcentration": 4,
+                     *           "selfReportedProductivity": 3,
+                     *           "reflection": "One planned interruption.",
+                     *           "goals": [
+                     *             {
+                     *               "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *               "description": "Review research methods",
+                     *               "status": "Completed"
+                     *             }
+                     *           ],
+                     *           "goalStatistics": {
+                     *             "total": 1,
+                     *             "completed": 1,
+                     *             "partiallyCompleted": 0,
+                     *             "completionPercentage": 100
+                     *           }
+                     *         }
+                     *       ],
+                     *       "pageNumber": 1,
+                     *       "pageSize": 10,
+                     *       "totalCount": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["PageOfSessionResponse"];
                     "text/json": components["schemas"]["PageOfSessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2422,30 +5122,27 @@ export interface operations {
                 content: {
                     /**
                      * @example {
-                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
                      *       "title": "Unauthorized",
                      *       "status": 401,
-                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *       "traceId": "00000000000000000000000000000001"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2462,10 +5159,8 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "plannedDurationSeconds": 2400,
-                 *       "goals": [
-                 *         "Draft the research methods"
-                 *       ]
+                 *       "plannedDurationSeconds": 2100,
+                 *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe"
                  *     }
                  */
                 "application/json": components["schemas"]["CreateSessionRequest"];
@@ -2481,11 +5176,35 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "status": "Planned",
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.1819806+00:00",
+                     *       "startedAt": null,
+                     *       "endedAt": null,
+                     *       "elapsedSeconds": 0,
+                     *       "pausedSeconds": 0,
+                     *       "activeSeconds": 0,
+                     *       "selfReportedConcentration": null,
+                     *       "selfReportedProductivity": null,
+                     *       "reflection": null,
+                     *       "goals": [],
+                     *       "goalStatistics": {
+                     *         "total": 0,
+                     *         "completed": 0,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 0
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2496,45 +5215,74 @@ export interface operations {
                      *       "title": "Request validation failed",
                      *       "status": 400,
                      *       "detail": "Check the required fields, request format, and value limits in the API contract.",
-                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *       "traceId": "a167fed05e0a868b84209d14b66c611d"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.16",
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "48bc3c07277eb1a849c2d9d15171dc60"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2545,6 +5293,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2558,29 +5307,73 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "status": "Completed",
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *       "endedAt": "2026-11-23T21:13:22.628017+00:00",
+                     *       "elapsedSeconds": 2.04281,
+                     *       "pausedSeconds": 0.066661,
+                     *       "activeSeconds": 1.976149,
+                     *       "selfReportedConcentration": 4,
+                     *       "selfReportedProductivity": 3,
+                     *       "reflection": "One planned interruption.",
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Completed"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 1,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 100
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2592,18 +5385,25 @@ export interface operations {
                      *       "title": "Not Found",
                      *       "status": 404,
                      *       "detail": "Resource not found.",
-                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *       "traceId": "92e63c3cb9f43522e79c0770a109d672"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2614,6 +5414,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2627,52 +5428,119 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "status": "Active",
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.5852078+00:00",
+                     *       "endedAt": null,
+                     *       "elapsedSeconds": 0.0040461,
+                     *       "pausedSeconds": 0,
+                     *       "activeSeconds": 0.0040461,
+                     *       "selfReportedConcentration": null,
+                     *       "selfReportedProductivity": null,
+                     *       "reflection": null,
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Pending"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 0,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 0
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "Only a planned session can be started.",
+                     *       "traceId": "603521439e661a945cc069470d8d0245"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2683,6 +5551,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2696,52 +5565,117 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "status": "Paused",
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *       "endedAt": null,
+                     *       "elapsedSeconds": 1.9988759,
+                     *       "pausedSeconds": 0.051761,
+                     *       "activeSeconds": 1.9471149,
+                     *       "selfReportedConcentration": null,
+                     *       "selfReportedProductivity": null,
+                     *       "reflection": null,
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Pending"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 0,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 0
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2752,6 +5686,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2765,52 +5700,117 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "status": "Active",
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *       "endedAt": null,
+                     *       "elapsedSeconds": 2.0171179,
+                     *       "pausedSeconds": 0.0666612,
+                     *       "activeSeconds": 1.9504567,
+                     *       "selfReportedConcentration": null,
+                     *       "selfReportedProductivity": null,
+                     *       "reflection": null,
+                     *       "goals": [
+                     *         {
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
+                     *           "status": "Pending"
+                     *         }
+                     *       ],
+                     *       "goalStatistics": {
+                     *         "total": 1,
+                     *         "completed": 0,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 0
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2821,6 +5821,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2834,52 +5835,111 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["SessionResponse"];
+                    /**
+                     * @example {
+                     *       "id": "8a2233db-7925-4471-81cf-9b041124d5e4",
+                     *       "workProfileId": null,
+                     *       "status": "Cancelled",
+                     *       "plannedDurationSeconds": 600,
+                     *       "createdAt": "2026-11-23T21:13:22.982708+00:00",
+                     *       "startedAt": null,
+                     *       "endedAt": "2026-11-23T21:13:23.0021786+00:00",
+                     *       "elapsedSeconds": 0,
+                     *       "pausedSeconds": 0,
+                     *       "activeSeconds": 0,
+                     *       "selfReportedConcentration": null,
+                     *       "selfReportedProductivity": null,
+                     *       "reflection": null,
+                     *       "goals": [],
+                     *       "goalStatistics": {
+                     *         "total": 0,
+                     *         "completed": 0,
+                     *         "partiallyCompleted": 0,
+                     *         "completionPercentage": 0
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionResponse"];
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -2890,6 +5950,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -2900,7 +5961,13 @@ export interface operations {
                  * @example {
                  *       "selfReportedConcentration": 4,
                  *       "selfReportedProductivity": 3,
-                 *       "reflection": "One planned interruption."
+                 *       "reflection": "One planned interruption.",
+                 *       "goalOutcomes": [
+                 *         {
+                 *           "goalId": "631aa03f-312d-4269-8d04-e75f68969759",
+                 *           "status": "Completed"
+                 *         }
+                 *       ]
                  *     }
                  */
                 "application/json": components["schemas"]["CompleteSessionRequest"];
@@ -2918,23 +5985,23 @@ export interface operations {
                     "text/plain": components["schemas"]["SessionResponse"];
                     /**
                      * @example {
-                     *       "id": "967c4aba-bc0d-4e6b-8662-3b8ae134322c",
-                     *       "workProfileId": null,
+                     *       "id": "4df5b5c5-e518-422c-ab45-15177889d0a7",
+                     *       "workProfileId": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
                      *       "status": "Completed",
-                     *       "plannedDurationSeconds": 2400,
-                     *       "createdAt": "2026-11-23T00:21:04.398135+00:00",
-                     *       "startedAt": "2026-11-23T00:21:04.647146+00:00",
-                     *       "endedAt": "2026-11-23T00:21:06.7978787+00:00",
-                     *       "elapsedSeconds": 2.1507327,
-                     *       "pausedSeconds": 0,
-                     *       "activeSeconds": 2.1507327,
+                     *       "plannedDurationSeconds": 2100,
+                     *       "createdAt": "2026-11-23T21:13:20.18198+00:00",
+                     *       "startedAt": "2026-11-23T21:13:20.585207+00:00",
+                     *       "endedAt": "2026-11-23T21:13:22.6280175+00:00",
+                     *       "elapsedSeconds": 2.0428105,
+                     *       "pausedSeconds": 0.066661,
+                     *       "activeSeconds": 1.9761495,
                      *       "selfReportedConcentration": 4,
                      *       "selfReportedProductivity": 3,
                      *       "reflection": "One planned interruption.",
                      *       "goals": [
                      *         {
-                     *           "id": "8a15722c-a3bb-481f-bdf9-87eedd8f832d",
-                     *           "description": "Draft the research methods",
+                     *           "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *           "description": "Review research methods",
                      *           "status": "Completed"
                      *         }
                      *       ],
@@ -2950,34 +6017,55 @@ export interface operations {
                     "text/json": components["schemas"]["SessionResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2989,27 +6077,41 @@ export interface operations {
                      *       "title": "Conflict",
                      *       "status": 409,
                      *       "detail": "Goal outcomes can only be set during a started session.",
-                     *       "traceId": "4e676187de814ed7ba82c18332e1b86e"
+                     *       "traceId": "957fa73165971d69eba815d747580d1c"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3020,6 +6122,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
@@ -3033,43 +6136,80 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["GoalResponse"][];
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *         "description": "Review research methods",
+                     *         "status": "Pending"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["GoalResponse"][];
                     "text/json": components["schemas"]["GoalResponse"][];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3080,12 +6220,18 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "description": "Review methods"
+                 *     }
+                 */
                 "application/json": components["schemas"]["CreateGoalRequest"];
                 "text/json": components["schemas"]["CreateGoalRequest"];
                 "application/*+json": components["schemas"]["CreateGoalRequest"];
@@ -3099,61 +6245,110 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["GoalResponse"];
+                    /**
+                     * @example {
+                     *       "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *       "description": "Review methods",
+                     *       "status": "Pending"
+                     *     }
+                     */
                     "application/json": components["schemas"]["GoalResponse"];
                     "text/json": components["schemas"]["GoalResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3164,7 +6359,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
+                /** @description UUID of a goal under the addressed session. */
                 goalId: string;
             };
             cookie?: never;
@@ -3178,43 +6375,78 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["GoalResponse"];
+                    /**
+                     * @example {
+                     *       "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *       "description": "Review methods",
+                     *       "status": "Pending"
+                     *     }
+                     */
                     "application/json": components["schemas"]["GoalResponse"];
                     "text/json": components["schemas"]["GoalResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3225,7 +6457,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
+                /** @description UUID of a goal under the addressed session. */
                 goalId: string;
             };
             cookie?: never;
@@ -3239,48 +6473,83 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3291,13 +6560,20 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed session. The account must own it. */
                 id: string;
+                /** @description UUID of a goal under the addressed session. */
                 goalId: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "description": "Review research methods"
+                 *     }
+                 */
                 "application/json": components["schemas"]["UpdateGoalRequest"];
                 "text/json": components["schemas"]["UpdateGoalRequest"];
                 "application/*+json": components["schemas"]["UpdateGoalRequest"];
@@ -3311,61 +6587,110 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["GoalResponse"];
+                    /**
+                     * @example {
+                     *       "id": "631aa03f-312d-4269-8d04-e75f68969759",
+                     *       "description": "Review research methods",
+                     *       "status": "Pending"
+                     *     }
+                     */
                     "application/json": components["schemas"]["GoalResponse"];
                     "text/json": components["schemas"]["GoalResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3387,43 +6712,63 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PomodoroSettings"];
+                    /**
+                     * @example {
+                     *       "focusMinutes": 25,
+                     *       "shortBreakMinutes": 5,
+                     *       "longBreakMinutes": 15,
+                     *       "intervalsBeforeLongBreak": 4
+                     *     }
+                     */
                     "application/json": components["schemas"]["PomodoroSettings"];
                     "text/json": components["schemas"]["PomodoroSettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3438,6 +6783,14 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "focusMinutes": 35,
+                 *       "shortBreakMinutes": 5,
+                 *       "longBreakMinutes": 15,
+                 *       "intervalsBeforeLongBreak": 4
+                 *     }
+                 */
                 "application/json": components["schemas"]["PomodoroSettings"];
                 "text/json": components["schemas"]["PomodoroSettings"];
                 "application/*+json": components["schemas"]["PomodoroSettings"];
@@ -3451,52 +6804,95 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PomodoroSettings"];
+                    /**
+                     * @example {
+                     *       "focusMinutes": 35,
+                     *       "shortBreakMinutes": 5,
+                     *       "longBreakMinutes": 15,
+                     *       "intervalsBeforeLongBreak": 4
+                     *     }
+                     */
                     "application/json": components["schemas"]["PomodoroSettings"];
                     "text/json": components["schemas"]["PomodoroSettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3518,43 +6914,62 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["AvatarSettings"];
+                    /**
+                     * @example {
+                     *       "visibility": "OnlyWhenNeeded",
+                     *       "intensity": "Balanced",
+                     *       "avatarId": null
+                     *     }
+                     */
                     "application/json": components["schemas"]["AvatarSettings"];
                     "text/json": components["schemas"]["AvatarSettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3569,6 +6984,13 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "visibility": "OnlyWhenNeeded",
+                 *       "intensity": "Quiet",
+                 *       "avatarId": null
+                 *     }
+                 */
                 "application/json": components["schemas"]["AvatarSettings"];
                 "text/json": components["schemas"]["AvatarSettings"];
                 "application/*+json": components["schemas"]["AvatarSettings"];
@@ -3582,52 +7004,94 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["AvatarSettings"];
+                    /**
+                     * @example {
+                     *       "visibility": "OnlyWhenNeeded",
+                     *       "intensity": "Quiet",
+                     *       "avatarId": null
+                     *     }
+                     */
                     "application/json": components["schemas"]["AvatarSettings"];
                     "text/json": components["schemas"]["AvatarSettings"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3636,7 +7100,9 @@ export interface operations {
     SettingsGetProfiles: {
         parameters: {
             query?: {
+                /** @description One-based page number from 1 to 100,000. Default 1. */
                 Page?: number;
+                /** @description Requested page size. Default 25; the default server maximum is 100 and can be configured up to 500. */
                 PageSize?: number;
             };
             header?: never;
@@ -3652,43 +7118,77 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["PageOfWorkProfileResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *           "name": "Documentation review",
+                     *           "description": "Writing and editing focus",
+                     *           "focusMinutes": 35,
+                     *           "breakMinutes": 5,
+                     *           "rules": [
+                     *             {
+                     *               "processName": "editor",
+                     *               "category": "Allowed"
+                     *             }
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "pageNumber": 1,
+                     *       "pageSize": 25,
+                     *       "totalCount": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["PageOfWorkProfileResponse"];
                     "text/json": components["schemas"]["PageOfWorkProfileResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3703,6 +7203,20 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "Documentation review",
+                 *       "description": "Writing and editing focus",
+                 *       "focusMinutes": 35,
+                 *       "breakMinutes": 5,
+                 *       "rules": [
+                 *         {
+                 *           "processName": "editor",
+                 *           "category": "Allowed"
+                 *         }
+                 *       ]
+                 *     }
+                 */
                 "application/json": components["schemas"]["WorkProfileRequest"];
                 "text/json": components["schemas"]["WorkProfileRequest"];
                 "application/*+json": components["schemas"]["WorkProfileRequest"];
@@ -3716,52 +7230,102 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["WorkProfileResponse"];
+                    /**
+                     * @example {
+                     *       "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "name": "Documentation review",
+                     *       "description": "Writing and editing focus",
+                     *       "focusMinutes": 35,
+                     *       "breakMinutes": 5,
+                     *       "rules": [
+                     *         {
+                     *           "processName": "editor",
+                     *           "category": "Allowed"
+                     *         }
+                     *       ]
+                     *     }
+                     */
                     "application/json": components["schemas"]["WorkProfileResponse"];
                     "text/json": components["schemas"]["WorkProfileResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3772,6 +7336,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed work profile, owned by the authenticated account. */
                 id: string;
             };
             cookie?: never;
@@ -3785,43 +7350,86 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["WorkProfileResponse"];
+                    /**
+                     * @example {
+                     *       "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "name": "Documentation review",
+                     *       "description": "Writing and editing focus",
+                     *       "focusMinutes": 35,
+                     *       "breakMinutes": 5,
+                     *       "rules": [
+                     *         {
+                     *           "processName": "editor",
+                     *           "category": "Allowed"
+                     *         }
+                     *       ]
+                     *     }
+                     */
                     "application/json": components["schemas"]["WorkProfileResponse"];
                     "text/json": components["schemas"]["WorkProfileResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3832,12 +7440,27 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed work profile, owned by the authenticated account. */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "Documentation review",
+                 *       "description": "Writing and editing focus",
+                 *       "focusMinutes": 35,
+                 *       "breakMinutes": 6,
+                 *       "rules": [
+                 *         {
+                 *           "processName": "editor",
+                 *           "category": "Allowed"
+                 *         }
+                 *       ]
+                 *     }
+                 */
                 "application/json": components["schemas"]["WorkProfileRequest"];
                 "text/json": components["schemas"]["WorkProfileRequest"];
                 "application/*+json": components["schemas"]["WorkProfileRequest"];
@@ -3851,52 +7474,102 @@ export interface operations {
                 };
                 content: {
                     "text/plain": components["schemas"]["WorkProfileResponse"];
+                    /**
+                     * @example {
+                     *       "id": "550f8ca5-c38a-4333-bb05-4ffc8df72afe",
+                     *       "name": "Documentation review",
+                     *       "description": "Writing and editing focus",
+                     *       "focusMinutes": 35,
+                     *       "breakMinutes": 6,
+                     *       "rules": [
+                     *         {
+                     *           "processName": "editor",
+                     *           "category": "Allowed"
+                     *         }
+                     *       ]
+                     *     }
+                     */
                     "application/json": components["schemas"]["WorkProfileResponse"];
                     "text/json": components["schemas"]["WorkProfileResponse"];
                 };
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unsupported request content type. */
+            /** @description Send JSON with Content-Type: application/json. */
             415: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unsupported Media Type",
+                     *       "status": 415,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
@@ -3907,6 +7580,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description UUID of the addressed work profile, owned by the authenticated account. */
                 id: string;
             };
             cookie?: never;
@@ -3920,48 +7594,85 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Bad Request */
+            /** @description Correct malformed JSON, invalid field values or parameters. In production use HTTPS. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Log in again or use a current token. When changing credentials, verify the supplied password. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Unauthorized",
+                     *       "status": 401,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Not Found */
+            /** @description Check the addressed resource and account. Foreign resources are intentionally indistinguishable from missing ones. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Conflict */
+            /** @description Read the latest resource state, fix the conflicting transition or resend the identical event payload. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "A session references this work profile.",
+                     *       "traceId": "8fb5d5418d5e121d2a755edf2f192cd5"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Internal Server Error */
+            /** @description Retry later and give the request correlation ID to support if the failure persists. */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "title": "Internal Server Error",
+                     *       "status": 500,
+                     *       "traceId": "00000000000000000000000000000001"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
