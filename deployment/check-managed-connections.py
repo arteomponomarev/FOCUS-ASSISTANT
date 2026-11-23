@@ -7,7 +7,8 @@ import sys
 
 
 FIELD = re.compile(r'''\s*([^=;]+?)\s*=\s*("(?:[^"]|"")*"|'(?:[^']|'')*'|[^;"']*)\s*(?:;|$)''')
-KEYS = {"host", "port", "database", "username", "password", "ssl mode", "root certificate"}
+KEYS = {"host", "port", "database", "username", "password", "ssl mode", "root certificate", "maximum pool size"}
+POOL_LIMITS = {"runtime": 8, "migrate": 2}
 CA = "/etc/focus/postgres-ca.crt"
 
 
@@ -42,6 +43,7 @@ def verify(config, pg_services):
             raise ValueError
         if (dsn["host"] != pg["host"] or dsn["port"] != pg["port"]
                 or not 1 <= int(dsn["port"]) <= 65535
+                or not 1 <= int(dsn["maximum pool size"]) <= POOL_LIMITS[kind]
                 or dsn["database"] != "focus_production" or pg["dbname"] != dsn["database"]
                 or dsn["username"] != role or pg["user"] != role
                 or dsn["ssl mode"].lower() != "verifyfull" or pg["sslmode"] != "verify-full"
@@ -59,4 +61,4 @@ if __name__ == "__main__":
             services.read_file(source)
         verify(json.load(sys.stdin), services)
     except (IndexError, KeyError, OSError, TypeError, ValueError, configparser.Error):
-        sys.exit("Managed connection configuration failed the private endpoint, role or TLS policy.")
+        sys.exit("Managed connection configuration failed the private endpoint, role, TLS or connection budget policy.")
