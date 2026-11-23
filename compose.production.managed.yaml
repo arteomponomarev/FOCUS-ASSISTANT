@@ -1,0 +1,38 @@
+# Overlay for compose.production.yaml. Use the direct private managed PostgreSQL endpoint.
+x-managed-ca: &managed-ca
+  type: bind
+  source: "${FOCUS_PG_CA_FILE:-/etc/focus/postgres-ca.crt}"
+  target: /etc/focus/postgres-ca.crt
+  read_only: true
+  bind:
+    create_host_path: false
+x-service-logs: &service-logs
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+services:
+  api:
+    cap_drop: [ALL]
+    security_opt: !override ["no-new-privileges:true"]
+    stop_grace_period: 40s
+    logging: *service-logs
+    volumes:
+      - *managed-ca
+  migrate:
+    cap_drop: [ALL]
+    security_opt: !override ["no-new-privileges:true"]
+    logging: *service-logs
+    volumes:
+      - *managed-ca
+  proxy:
+    image: "${FOCUS_PROXY_IMAGE:?Set FOCUS_PROXY_IMAGE to a reviewed Caddy digest}"
+    logging: *service-logs
+    volumes:
+      - ./deployment/Caddyfile.managed:/etc/caddy/Caddyfile:ro
+      - type: bind
+        source: /srv/focus/web
+        target: /srv/focus/web
+        read_only: true
+        bind:
+          create_host_path: false

@@ -1,6 +1,7 @@
 name: Frontend CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'Focus.Web/**'
@@ -10,6 +11,7 @@ on:
       - 'Focus.Infrastructure/**'
       - 'Focus.Engine/**'
       - 'docs/api/openapi.json'
+      - 'deployment/**'
       - '.github/workflows/frontend-ci.yml'
       - 'global.json'
   pull_request:
@@ -21,6 +23,7 @@ on:
       - 'Focus.Infrastructure/**'
       - 'Focus.Engine/**'
       - 'docs/api/openapi.json'
+      - 'deployment/**'
       - '.github/workflows/frontend-ci.yml'
       - 'global.json'
 

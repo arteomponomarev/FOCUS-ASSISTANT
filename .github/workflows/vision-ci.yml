@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'Focus.Vision/**'
+      - 'deployment/**'
       - '.github/workflows/vision-ci.yml'
   pull_request:
     paths:
       - 'Focus.Vision/**'
+      - 'deployment/**'
       - '.github/workflows/vision-ci.yml'
 
 permissions:

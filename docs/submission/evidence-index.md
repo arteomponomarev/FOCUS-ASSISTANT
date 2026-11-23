@@ -4,6 +4,8 @@ Date: November 23, 2026. Application baseline: `1e7ddd9b6bfa9501bcdce053baef37c8
 
 For the desktop and Computer Vision release candidate, see the [release verification](../release/2026-11-23-verification.md), [independent eight-track audit](../audit/diploma-full-evaluation.md) and [Actions runs](https://github.com/arteomponarev/FOCUS-ASSISTANT/actions?query=branch%3Amain).
 
+For managed cloud delivery, see the [DigitalOcean release runbook](../deployment/managed-cloud.md) and [verification and requirements trace](../deployment/managed-verification.md).
+
 ## Start a review
 
 | Track | Start here | Reproduce |

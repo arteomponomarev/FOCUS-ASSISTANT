@@ -1,0 +1,18 @@
+# Supply the private endpoint and port from the provider. The host deployment script supplies PGPASSFILE.
+[focus-migrate]
+host=private-fixture.db.ondigitalocean.com
+port=25060
+dbname=focus_production
+user=focus_migrate
+sslmode=verify-full
+sslrootcert=/etc/focus/postgres-ca.crt
+connect_timeout=10
+
+[focus-runtime]
+host=private-fixture.db.ondigitalocean.com
+port=25060
+dbname=focus_production
+user=focus_runtime
+sslmode=verify-full
+sslrootcert=/etc/focus/postgres-ca.crt
+connect_timeout=10

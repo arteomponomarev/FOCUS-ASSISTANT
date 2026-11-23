@@ -47,6 +47,24 @@ jobs:
           python -m openapi_spec_validator docs/api/openapi.json
       - run: dotnet format "FOCUS ASSISTANT.slnx" --no-restore --verify-no-changes
       - run: docker build -t focus-assistant-api:local .
+      - name: Validate managed deployment inputs without deploying
+        shell: bash
+        env:
+          FOCUS_API_IMAGE: focus-assistant-api:local
+          FOCUS_PROXY_IMAGE: caddy:2
+          FOCUS_PUBLIC_HOSTNAME: focus.example.invalid
+          FOCUS_DB_CONNECTION: Host=private-fixture.db.ondigitalocean.com;Port=25060;Database=focus_production;Username=focus_runtime;Password=compose-fixture;SSL Mode=VerifyFull;Root Certificate=/etc/focus/postgres-ca.crt
+          FOCUS_DB_MIGRATION_CONNECTION: Host=private-fixture.db.ondigitalocean.com;Port=25060;Database=focus_production;Username=focus_migrate;Password=compose-fixture;SSL Mode=VerifyFull;Root Certificate=/etc/focus/postgres-ca.crt
+        run: |
+          bash -n deployment/deploy-managed.sh
+          bash -n deployment/check-release-ci.sh
+          docker compose -f compose.production.yaml -f compose.production.managed.yaml --profile migration config --quiet
+          docker compose -f compose.production.yaml -f compose.production.managed.yaml --profile migration config --format json \
+            | python -B deployment/check-managed-connections.py deployment/managed.pg_service.conf.example
+          docker run --rm --network none \
+            --env FOCUS_PUBLIC_HOSTNAME \
+            --volume "$PWD/deployment/Caddyfile.managed:/etc/caddy/Caddyfile:ro" \
+            caddy:2 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
       - name: Verify isolated Compose stack
         env:
           FOCUS_API_PORT: '18080'

@@ -1,0 +1,98 @@
+name: Deploy verified managed-cloud release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publication_run:
+        description: Successful GHCR publication run ID
+        required: true
+        type: string
+      deploy:
+        description: Roll out to the approved managed-cloud host
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: focus-production-managed
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: inputs.deploy && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production-managed
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify publication run and upstream checks
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLICATION_RUN: ${{ inputs.publication_run }}
+        run: |
+          [[ "$PUBLICATION_RUN" =~ ^[1-9][0-9]*$ ]]
+          publication=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PUBLICATION_RUN")
+          sha=$(jq -er --arg repo "$GITHUB_REPOSITORY" '
+            select(.path == ".github/workflows/publish-backend.yml" and .head_branch == "main"
+              and .head_repository.full_name == $repo and .status == "completed"
+              and .conclusion == "success" and .event == "workflow_dispatch") | .head_sha' <<< "$publication")
+          bash deployment/check-release-ci.sh "$sha"
+          gh run download "$PUBLICATION_RUN" -R "$GITHUB_REPOSITORY" -n backend-release -D "$RUNNER_TEMP/focus-release"
+          image=$(jq -er --arg sha "$sha" --arg run "$PUBLICATION_RUN" '
+            select(.source_sha == $sha and .publication_run == $run) | .image' "$RUNNER_TEMP/focus-release/release.json")
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}-api@sha256:"
+          digest="${image#"$prefix"}"
+          [[ "$image" == "$prefix"* && "$digest" =~ ^[0-9a-f]{64}$ ]]
+          printf 'sha=%s\nimage=%s\n' "$sha" "$image" >> "$GITHUB_OUTPUT"
+      - name: Roll out immutable image over restricted SSH
+        env:
+          SSH_KEY: ${{ secrets.FOCUS_DEPLOY_SSH_KEY }}
+          SSH_HOST_KEY: ${{ vars.FOCUS_DEPLOY_HOST_KEY }}
+          SSH_HOST: ${{ vars.FOCUS_DEPLOY_SSH_HOST }}
+          SSH_PORT: ${{ vars.FOCUS_DEPLOY_SSH_PORT }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+          IMAGE: ${{ steps.release.outputs.image }}
+        run: |
+          [[ "$SSH_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
+          [[ "$SSH_PORT" =~ ^[1-9][0-9]{0,4}$ ]]
+          (( SSH_PORT <= 65535 ))
+          [[ "$SSH_HOST_KEY" =~ ^ssh-ed25519\ [a-zA-Z0-9+/=]+$ ]]
+          test -n "$SSH_KEY"
+          umask 077
+          key=$(mktemp)
+          hosts=$(mktemp)
+          trap 'rm -f -- "$key" "$hosts"' EXIT
+          printf '%s\n' "$SSH_KEY" > "$key"
+          printf 'focus-managed %s\n' "$SSH_HOST_KEY" > "$hosts"
+          printf '%s\n%s\n' "$SOURCE_SHA" "$IMAGE" | ssh -F /dev/null -T \
+            -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes \
+            -o IdentitiesOnly=yes -o HostKeyAlias=focus-managed -o UserKnownHostsFile="$hosts" \
+            -p "$SSH_PORT" -i "$key" "focus-deploy@$SSH_HOST" | tee deployment-evidence.txt
+      - name: Verify public HTTPS and database readiness
+        env:
+          PUBLIC_HOST: ${{ vars.FOCUS_PUBLIC_HOSTNAME }}
+        run: |
+          [[ "$PUBLIC_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
+          for probe in live ready; do
+            status=$(curl --fail --silent --show-error --proto '=https' --max-time 15 \
+              --retry 6 --retry-all-errors --output /dev/null --write-out '%{http_code}' \
+              "https://$PUBLIC_HOST/health/$probe")
+            [[ "$status" == 200 ]]
+            printf 'https://%s/health/%s PASS\n' "$PUBLIC_HOST" "$probe" | tee -a deployment-evidence.txt
+          done
+          cat deployment-evidence.txt >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: managed-deployment-evidence
+          path: deployment-evidence.txt
+          if-no-files-found: error
