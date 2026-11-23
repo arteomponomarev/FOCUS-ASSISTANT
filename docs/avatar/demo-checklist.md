@@ -7,7 +7,7 @@ disposable session and data you are comfortable collecting.
 | --- | --- |
 | Create a planned session with a goal in React. Start Agent with `--watch` and run the Player for the same UUID. | Panel shows Planned and the first pending goal. No hooks are started in watch mode. |
 | Start the session from the avatar, then pause and resume. Refresh the detail page in React after each command. | API state matches the command. Pause shows a relaxed expression. |
-| Close the panel while the session is active. Click a harmless item behind the overlay. Press Ctrl+Alt+F9. | The click reaches the underlying application. The panel reopens and accepts clicks. |
+| Close the panel while the session is active. Click a harmless item behind the overlay. Press the recovery shortcut shown in the panel (Ctrl+Alt+F9, Ctrl+Alt+F10, or Ctrl+Alt+F8). | The click reaches the underlying application. The panel reopens and accepts clicks. If all shortcuts are occupied, the standard Windows frame provides a safe way to close the Player. |
 | Drag by the title, hide, then recover the window with the hotkey. Repeat on another monitor if available. | The overlay stays in the work area. Hide is reversible. |
 | Turn on consent. Restart Agent with `--collect --avatar` and confirm `START`. Use benign applications for at least one aggregate window. | React shows a saved aggregate and estimate. The avatar displays the same recent estimate and rule version. |
 | Select **Finish in browser**, enter both ratings and any goal outcomes, and confirm in React. | Browser saves the normal completion. The companion briefly celebrates while Agent is connected. |

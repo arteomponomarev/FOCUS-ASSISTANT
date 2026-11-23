@@ -64,10 +64,12 @@ or automation account is missing an entitlement.
 4. Use **Start**, **Pause** or **Resume** in the panel. **Finish in browser**
    opens the owned session detail in the web client for ratings, goal outcomes
    and confirmation. **Minimize** dismisses controls, **Hide** dismisses the
-   companion until **Ctrl + Alt + F9**, and **Exit** closes the Player. Drag
-   the panel by its title. The panel shows **Ctrl + Alt + F10** if F9 is already
-   registered by another application. **Settings** offers a local Reduce
-   motion switch and a link to the account's Assistant settings.
+   companion until the displayed recovery shortcut, and **Exit** closes the
+   Player. Drag the panel by its title. The Player tries **Ctrl + Alt + F9**,
+   then **Ctrl + Alt + F10**, then **Ctrl + Alt + F8**. If all three shortcuts
+   are unavailable, the window keeps the standard Windows frame and disables
+   hiding and click-through. **Settings** offers a local Reduce motion switch
+   and a link to the account's Assistant settings.
    Ctrl+C in the Agent terminal stops its local bridge
    and any authorized recording. Exit both and repeat pairing to use another
    session.

@@ -188,11 +188,13 @@ namespace Focus.Avatar
                 {
                     if (Volatile.Read(ref stopping) == 0)
                     {
-                        // MOD_NOREPEAT | CTRL | ALT. A second companion can fall back to F10.
+                        // MOD_NOREPEAT | CTRL | ALT. Keep a recovery shortcut when either preferred key is taken.
                         if (RegisterHotKey(window, KeyId, 0x4003, 0x78))
                             shortcut = "Ctrl + Alt + F9";
                         else if (RegisterHotKey(window, KeyId, 0x4003, 0x79))
                             shortcut = "Ctrl + Alt + F10";
+                        else if (RegisterHotKey(window, KeyId, 0x4003, 0x77))
+                            shortcut = "Ctrl + Alt + F8";
                         registered = shortcut.Length != 0;
                     }
                     initialized.Set();

@@ -2,6 +2,8 @@
 
 Date: November 23, 2026. Application baseline: `1e7ddd9b6bfa9501bcdce053baef37c8cb4ac4ad`. The checkpoint adds the reviewed design/evidence files and OpenAPI examples. See the [traceability matrix](compliance-matrix.md), [verification record](final-verification.md) and [test results JSON](evidence/verification-results.json).
 
+For the desktop and Computer Vision release candidate, see the [release verification](../release/2026-11-23-verification.md), [independent eight-track audit](../audit/diploma-full-evaluation.md) and [Actions runs](https://github.com/arteomponarev/FOCUS-ASSISTANT/actions?query=branch%3Amain).
+
 ## Start a review
 
 | Track | Start here | Reproduce |
