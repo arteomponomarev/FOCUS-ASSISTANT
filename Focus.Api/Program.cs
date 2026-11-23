@@ -58,6 +58,9 @@ app.UseStatusCodePages(async status =>
     await Results.Problem(statusCode: status.HttpContext.Response.StatusCode).ExecuteAsync(status.HttpContext));
 if (app.Environment.IsProduction())
     ProductionTransport.RequireHttps(app);
+if (app.Environment.IsDevelopment())
+    app.UseDevelopmentOpenApiUi();
+
 app.UseRouting();
 app.UseCors();
 app.UseRateLimiter();

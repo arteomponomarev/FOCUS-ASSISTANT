@@ -489,6 +489,11 @@
           "OpenTelemetry.Api.ProviderBuilderExtensions": "[1.21.0, 2.0.0)"
         }
       },
+      "Swashbuckle.AspNetCore.SwaggerUI": {
+        "type": "Transitive",
+        "resolved": "11.0.1",
+        "contentHash": "Mu0j015xm7W/Axz6J6bXrh+/qEiyUGQUIGrWWvivv732yO1LtnmyV3zRwWB1dOFvlrU/CWUZqIYe1+hIcsCacg=="
+      },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
         "resolved": "11.0.0",
@@ -559,7 +564,8 @@
           "Microsoft.AspNetCore.OpenApi": "[10.0.12, )",
           "OpenTelemetry.Exporter.OpenTelemetryProtocol": "[1.21.0, )",
           "OpenTelemetry.Extensions.Hosting": "[1.21.0, )",
-          "OpenTelemetry.Instrumentation.AspNetCore": "[1.21.0, )"
+          "OpenTelemetry.Instrumentation.AspNetCore": "[1.21.0, )",
+          "Swashbuckle.AspNetCore.SwaggerUI": "[11.0.1, )"
         }
       },
       "focus.application": {

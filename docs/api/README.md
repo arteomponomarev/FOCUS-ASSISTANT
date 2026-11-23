@@ -4,6 +4,7 @@ The API supports account authentication, focus sessions, goals, observed activit
 heuristic focus estimates, reports, work profiles, and account preferences.
 
 - [OpenAPI JSON](openapi.json)
+- [Local Swagger UI walkthrough](getting-started.md#try-the-api-in-swagger-ui)
 - [Operation coverage and examples](operation-coverage.md)
 - [Contract guide and maintenance](contract-guide.md)
 - [Computer Vision architecture and API](../vision/architecture.md)
@@ -20,6 +21,10 @@ Protected routes require an opaque bearer access token. All owner-scoped queries
 the account identity from that token. A resource owned by somebody else returns 404.
 OpenAPI is served at `/openapi/v1.json` in Development and Contract. Production clients
 use the versioned artifact above.
+
+In Development, `/api/docs` serves Swagger UI for the same 42-operation contract.
+Use Authorize to supply an account's access token, then Try it out to run a request
+against the API on the same origin. The UI and its assets are disabled in other environments.
 
 The OpenAPI artifact covers the versioned application routes. Operators can use the
 anonymous `GET /health/live` and `GET /health/ready` endpoints documented in the

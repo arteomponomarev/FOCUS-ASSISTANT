@@ -3,6 +3,7 @@
     "Focus.Api": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "api/docs",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

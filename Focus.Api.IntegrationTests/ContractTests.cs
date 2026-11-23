@@ -1,7 +1,12 @@
+using System.Net;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Focus.Api.IntegrationTests;
 
@@ -65,11 +70,76 @@ public sealed class ContractTests
         }
     }
 
-    private sealed class ContractApi : WebApplicationFactory<Program>
+    [Fact]
+    public async Task DevelopmentSwaggerUiLoadsTheExistingContractAndLocalAssets()
     {
+        using var api = new ContractApi("Development");
+        using var client = api.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using var entry = await client.GetAsync("/api/docs");
+        Assert.Equal(HttpStatusCode.MovedPermanently, entry.StatusCode);
+        var page = new Uri(entry.RequestMessage!.RequestUri!, entry.Headers.Location!);
+        Assert.Equal("/api/docs/index.html", page.AbsolutePath);
+
+        var html = await client.GetStringAsync(page);
+        Assert.Contains("Focus Assistant API | Swagger UI", html);
+        using var css = await client.GetAsync("/api/docs/swagger-ui.css");
+        Assert.Equal(HttpStatusCode.OK, css.StatusCode);
+        Assert.Equal("text/css", css.Content.Headers.ContentType?.MediaType);
+        var initializer = await client.GetStringAsync("/api/docs/index.js");
+        var document = new Uri(page, "../../openapi/v1.json");
+        Assert.Contains("../../openapi/v1.json", initializer);
+
+        var spec = JsonNode.Parse(await client.GetStringAsync(document))!;
+        Assert.Equal("3.1.1", spec["openapi"]!.GetValue<string>());
+        Assert.Equal(42, spec["paths"]!.AsObject().Sum(path => path.Value!.AsObject().Count));
+        Assert.Equal("bearer", spec["components"]!["securitySchemes"]!["Bearer"]!["scheme"]!.GetValue<string>());
+        using var protectedOperation = await client.GetAsync("/api/v1/auth/me");
+        Assert.Equal(HttpStatusCode.Unauthorized, protectedOperation.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("Contract", HttpStatusCode.OK)]
+    [InlineData("Production", HttpStatusCode.NotFound)]
+    public async Task SwaggerUiRoutesAreAbsentOutsideDevelopment(string environment, HttpStatusCode documentStatus)
+    {
+        using var api = new ContractApi(environment);
+        // Inspect route availability independently of the fallback authorization challenge.
+        using var app = api.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+            services.PostConfigure<AuthorizationOptions>(options => options.FallbackPolicy = null)));
+        using var client = app.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false
+        });
+
+        foreach (var path in new[] { "/api/docs", "/api/docs/index.html", "/api/docs/swagger-ui.css" })
+        {
+            using var response = await client.GetAsync(path);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        using var document = await client.GetAsync("/openapi/v1.json");
+        Assert.Equal(documentStatus, document.StatusCode);
+    }
+
+    private sealed class ContractApi(string environment = "Contract") : WebApplicationFactory<Program>
+    {
+        protected override IHost CreateHost(IHostBuilder builder)
+        {
+            if (environment == "Production")
+            {
+                builder.ConfigureHostConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Authentication:KeyDirectory"] = Path.Combine(Path.GetTempPath(), "focus-contract-keys", Guid.NewGuid().ToString("N"))
+                }));
+            }
+
+            return base.CreateHost(builder);
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Contract");
+            builder.UseEnvironment(environment);
             builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["ConnectionStrings:PostgreSQL"] = "Host=127.0.0.1;Database=focus_contract;Username=contract" }));
         }
