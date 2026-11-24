@@ -36,9 +36,12 @@ export default function Detail() {
   const [modal, setModal] = useState<'complete' | 'cancel'>()
   const query = sessionApi.endpoints.session.useQueryState(id, { skip: !valid })
   const session = query.currentData
+  const watchLifecycle =
+    session?.status === 'Planned' || session?.status === 'Active' || session?.status === 'Paused'
   const { refetch } = sessionApi.endpoints.session.useQuerySubscription(id, {
     skip: !valid,
-    pollingInterval: session?.status === 'Active' ? 20_000 : 0,
+    pollingInterval: watchLifecycle ? 4_000 : 0,
+    skipPollingIfUnfocused: true,
   })
   const elapsed = useElapsed(session?.status === 'Active', query.fulfilledTimeStamp ?? 0)
   const [transitionSession, transition] = useTransitionSessionMutation()

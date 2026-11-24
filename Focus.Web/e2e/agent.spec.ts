@@ -1,6 +1,45 @@
 import { expect, test } from '@playwright/test'
 import { registerByApi, signIn } from './support'
 
+test('tracks desktop lifecycle changes while the session detail remains open', async ({
+  page,
+  request,
+}) => {
+  const account = await registerByApi(request, 'Shared Session')
+  await page.goto('/login')
+  const login = await signIn(page, account)
+  const { accessToken }: { accessToken: string } = await login.json()
+  const headers = { Authorization: 'Bearer ' + accessToken }
+  const created = await request.post('/api/v1/sessions', {
+    headers,
+    data: { plannedDurationSeconds: 60, goals: ['Synchronize the desktop and browser'] },
+  })
+  expect(created.status()).toBe(201)
+  const { id }: { id: string } = await created.json()
+  const route = '/api/v1/sessions/' + id
+
+  await page.getByRole('link', { name: 'Sessions', exact: true }).click()
+  await page.getByRole('link', { name: 'Synchronize the desktop and browser' }).click()
+  await expect(page.getByRole('button', { name: 'Start session' })).toBeVisible()
+
+  async function transition(action: 'start' | 'pause' | 'resume') {
+    expect((await request.post(route + '/' + action, { headers })).status()).toBe(200)
+  }
+
+  await transition('start')
+  await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({
+    timeout: 8_000,
+  })
+  await transition('pause')
+  await expect(page.getByRole('button', { name: 'Resume', exact: true })).toBeVisible({
+    timeout: 8_000,
+  })
+  await transition('resume')
+  await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({
+    timeout: 8_000,
+  })
+})
+
 test('shows live aggregates and the final partial window after browser completion', async ({
   page,
   request,

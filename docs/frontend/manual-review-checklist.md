@@ -10,6 +10,10 @@ Allow 10–15 minutes for the walkthrough after the tooling and database are rea
 
 ## Terminal 1 — disposable database and backend
 
+For a single Windows command that prepares a disposable database and starts both
+the API and React, see the [local demo launcher](../release/2026-11-24-local-readiness.md#launch-on-windows).
+The manual startup steps below remain useful when starting each component separately.
+
 Run in the repository root. The unique database name protects existing development data. Enter credentials only at the prompts.
 
 ```powershell
