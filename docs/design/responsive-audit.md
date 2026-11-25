@@ -36,7 +36,17 @@ npm run design:pdf
 Remove-Item Env:FOCUS_CAPTURE_DESIGN
 ```
 
-The captures remain in ignored `artifacts/frontend-design/`. The PDF is the separate submission artifact. Physical-device behavior, mobile on-screen keyboard interaction, screen-reader behavior and exhaustive contrast coverage remain outside this sample.
+The original captures are generated under ignored `artifacts/frontend-design/`. Three Overview captures are linked below at their original sizes. The PDF is the separate submission artifact and contains the remaining shots. Physical-device behavior, mobile on-screen keyboard interaction, screen-reader behavior and exhaustive contrast coverage remain outside this sample.
+
+## Stage 3 screenshots
+
+| Device class | Overview capture | Viewport |
+| --- | --- | --- |
+| Phone | [Mobile screenshot](screenshots/stage3-overview-mobile.png) | 390 × 844 CSS px |
+| Tablet | [Tablet screenshot](screenshots/stage3-overview-tablet.png) | 768 × 1024 CSS px |
+| Desktop | [Desktop screenshot](screenshots/stage3-overview-desktop.png) | 1440 × 1000 CSS px |
+
+Open the links individually on GitHub to view the original images. The six-page [PDF](focus-assistant-adaptive-ui.pdf) also shows the session list, active session, analytics and settings at all three sizes. Images use synthetic test data. Browser viewports emulate the device classes.
 
 The [submission verification](../submission/final-verification.md#adaptive-ui-and-lighthouse) re-ran the viewport suite on the Redux version and inspected all six pages of the PDF. Set `FOCUS_CAPTURE_QA=1` before the responsive test to capture the nine major screens in both themes and additional viewport sizes.
 

@@ -32,7 +32,17 @@ npm run test:e2e:zoom
 
 Playwright starts ASP.NET Core and the built Vite preview. It verifies registration, sign-in, logout, protected routes, session lifecycle, goals, completion, persisted ratings, settings, telemetry presentation, export and account deletion. The QA suite covers cache freshness, history pagination, offline recovery, credential rotation and revocation, and profile/password changes. A Chromium-specific test adjusts native browser zoom through the Appearance settings of an isolated browser profile. Each suite starts its own API process and disposable database under the production authentication rate limit. The workflow and QA suites can use an installed Chrome executable via `FOCUS_BROWSER_PATH`. Machine-readable reports are `test-results/results.json`, `test-results/qa-results.json` and `test-results/zoom-results.json`.
 
-[Frontend CI](../../.github/workflows/frontend-ci.yml) runs these checks with a fresh PostgreSQL service. Its remote run has not been verified for these local changes.
+[Frontend CI](../../.github/workflows/frontend-ci.yml) runs these checks with a fresh PostgreSQL service. Find the exact commit's verification under [GitHub Actions](https://github.com/arteomponomarev/FOCUS-ASSISTANT/actions/workflows/frontend-ci.yml).
+
+## Stage 3 test map
+
+| Component | Source | Unit-test evidence |
+| --- | --- | --- |
+| Login | [Login.tsx](../../Focus.Web/src/features/auth/Login.tsx) | [Forms suite](../../Focus.Web/src/tests/forms.test.tsx) renders the page, checks invalid email feedback, and verifies password reveal. |
+| SessionActions | [SessionActions.tsx](../../Focus.Web/src/features/sessions/SessionActions.tsx) | [Forms suite](../../Focus.Web/src/tests/forms.test.tsx) verifies the allowed Resume command and the disappearance of actions after completion. |
+| Failure | [feedback.tsx](../../Focus.Web/src/ui/feedback.tsx) | [Forms suite](../../Focus.Web/src/tests/forms.test.tsx) verifies the announced error, request ID and retry callback. |
+
+The [Playwright workflows](../../Focus.Web/e2e/workflows.spec.ts) demonstrate two representative scenarios. **Account access** registers, signs in, signs out and verifies the protected-route redirect. **Session review** creates a session, adds goals, completes it with ratings and reflection, then reopens those persisted results. The [settings and offline recovery cases](../../Focus.Web/e2e/qa.spec.ts) and the [desktop sync cases](../../Focus.Web/e2e/agent.spec.ts) extend that coverage without needing desktop hardware.
 
 ## Redux migration verification
 

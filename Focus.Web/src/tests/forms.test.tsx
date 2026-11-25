@@ -2,10 +2,12 @@ import { screen, render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+import { ApiError } from '../api/errors'
 import Login from '../features/auth/Login'
 import { registrationForm } from '../features/auth/forms'
 import { createForm } from '../features/sessions/session-form'
 import { SessionActions } from '../features/sessions/SessionActions'
+import { Failure } from '../ui/feedback'
 
 describe('session and authentication forms', () => {
   it('announces invalid login values and lets the user reveal the password', async () => {
@@ -53,5 +55,23 @@ describe('session and authentication forms', () => {
     expect(action).toHaveBeenCalledWith('resume')
     rerender(<SessionActions status="Completed" onAction={action} />)
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+})
+
+describe('API failure feedback', () => {
+  it('announces a request failure and lets the user retry', async () => {
+    const retry = vi.fn()
+    render(
+      <Failure
+        error={new ApiError('The server is unavailable.', 503, 'test-request')}
+        retry={retry}
+      />,
+    )
+
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('The server is unavailable.')
+    expect(alert).toHaveTextContent('Request ID: test-request')
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Try again' }))
+    expect(retry).toHaveBeenCalledTimes(1)
   })
 })

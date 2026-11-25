@@ -1,538 +1,171 @@
-
 # Focus Assistant
 
-For diploma review, start with the [submission evidence index](docs/submission/evidence-index.md). It links the four review tracks, reproducible checks and Adaptive UI PDF.
+Focus Assistant is a research application for reviewing focus sessions. Create a
+session with goals, track its progress, add ratings and a reflection, then compare
+the session with its recorded activity and estimates. The web workflow runs on
+its own. Windows users can opt in to activity aggregates and use a Unity
+companion. The optional local vision worker derives coarse camera observations.
 
-**Backend v1** is implemented in the existing ASP.NET Core and PostgreSQL projects.
-See the [API guide](docs/api/README.md), [deployment runbook](docs/deployment/backend.md),
-[verification instructions](docs/testing/backend.md), and
-[implementation evidence](docs/implementation/backend-progress.md), and
-[independent release verification](docs/implementation/backend-verification.md).
+Keyboard and mouse counts, window switches and idle time are aggregated. Typed
+text and window titles are excluded. The camera requires separate opt-in, and
+raw frames stay on the device. Focus Engine estimates states using explainable rules.
+Treat these estimates, observed signals and self-reported ratings as separate measures.
 
-Focus Assistant is a research-oriented application designed to study the relationship between computer activity, user concentration, and self-reported productivity.
+## Diploma Stage 3 — Evaluation Guide
 
-The system collects aggregated Windows activity data, supports goal-oriented work sessions, and provides a foundation for evaluating concentration using explainable rules.
+| Criterion | Implementation | Documentation | Tests / Evidence |
+| --- | --- | --- | --- |
+| Front-end | [React routes](Focus.Web/src/app/App.tsx), [feature pages](Focus.Web/src/features/), [shared UI](Focus.Web/src/ui/), [typed API](Focus.Web/src/api/) | [Architecture diagram](docs/frontend/architecture.md), [user flows](docs/frontend/navigation-and-user-flows.md), [technology decisions](docs/frontend/technology-decisions.md) | [Component and Playwright evidence](#front-end-evidence), [test commands](docs/frontend/testing.md) |
+| API Documentation | [OpenAPI 3.1.1 JSON](docs/api/openapi.json), [development Swagger UI](Focus.Api/Hosting/DevelopmentOpenApiUi.cs) | [API guide](docs/api/README.md), [Getting Started](docs/api/getting-started.md), [integration tutorial](docs/api/integration-tutorial.md) | [All 42 operations](docs/api/operation-coverage.md), [runtime contract tests](Focus.Api.IntegrationTests/ContractTests.cs) |
+| Adaptive UI | [Responsive styles](Focus.Web/src/styles/), [reusable components](Focus.Web/src/ui/primitives.tsx) | [Six-page design PDF](docs/design/focus-assistant-adaptive-ui.pdf), [design system](docs/design/design-system.md) | [Phone, tablet and desktop screenshots](#adaptive-ui-evidence), [responsive audit](docs/design/responsive-audit.md), [accessibility](docs/frontend/accessibility.md) |
+| Back-end | [ASP.NET Core API](Focus.Api/), [application](Focus.Application/), [domain](Focus.Domain/), [EF Core persistence](Focus.Infrastructure/) | [Layered architecture](docs/architecture/backend.md), [PostgreSQL schema and constraints](docs/database/oltp-verification.md), [API guide](docs/api/README.md) | [Coverage evidence](#back-end-evidence), [integration tests](Focus.Api.IntegrationTests/). **Public production deployment remains outstanding.** |
 
-The project is developed as an individual diploma project.
+## Architecture and technology
 
-## 1. Project Objectives
+- **Focus.Web** uses React 19 for reusable feature components and lazy routes,
+  TypeScript for strict client and generated API contracts, and Vite for local
+  development and reproducible bundles. Redux Toolkit holds client state and
+  RTK Query manages server state, caching and invalidation. The
+  [export thunk](Focus.Web/src/features/settings/accountExport.ts) manages the
+  download lifecycle. The [signals saga](Focus.Web/src/features/sessions/signalsSaga.ts)
+  manages cancellable refreshes for live and recently completed sessions.
+- **Focus.Api** uses ASP.NET Core 10 for HTTP endpoints, validation, middleware and
+  authentication. **Focus.Application** coordinates use cases through interfaces.
+  **Focus.Domain** models entities and business rules. **Focus.Infrastructure**
+  implements EF Core mappings, repositories and migrations. PostgreSQL 17 provides
+  transactional storage, constraints and indexes. **Focus.Engine** applies
+  deterministic classification rules.
+- **Focus.Agent** collects opt-in Windows aggregates and sends them to the API
+  through a retryable queue. **Focus.Avatar** is a Windows x64 Unity Player that
+  exchanges session controls and snapshots with the Agent over local IPC.
+  **Focus.Vision** uses a local Python/OpenCV workflow and the YuNet detector
+  to derive optional observations. [System and request diagrams](docs/api/contract-guide.md#system-context)
 
-The main objectives are:
+## Quick start
 
-- Collect computer activity without recording typed text.
-- Allow users to create and manage focus sessions.
-- Track session goals and their completion.
-- Store aggregated activity and estimated focus states.
-- Collect user ratings of concentration and productivity.
-- Investigate correlations between behavioral signals and self-reported concentration.
-- Provide a foundation for an adaptive desktop assistant.
+### Prerequisites
 
-The system does not claim to measure human attention directly.
+Install the [.NET 10 SDK pinned in global.json](global.json), Node.js 22.13+ with
+npm, and PostgreSQL 17. Use a local PostgreSQL role that can create a disposable
+review database. The API and web client use cross-platform tooling. The unified
+launcher, Agent, Avatar and their hardware walkthroughs target Windows. Python
+and the vision model are required only for optional camera processing. Unity
+Editor is required only to build the optional Windows Player.
 
-## 2. Technologies
+### Windows launcher
 
-| Component | Technology |
-|---|---|
-| Desktop Agent | C# / .NET 10 |
-| Backend API | ASP.NET Core |
-| Web client | React, TypeScript, Vite |
-| Domain and Application Logic | C# |
-| Database | PostgreSQL 17 |
-| Object-Relational Mapping | Entity Framework Core 10 |
-| PostgreSQL Provider | Npgsql |
-| Database Migrations | EF Core Migrations |
-| Development Environment | Visual Studio / VS Code |
-| Version Control | Git / GitHub |
-
-Planned additional components:
-
-- Unity desktop avatar
-- Python-based statistical analysis
-- Optional computer vision using MediaPipe and OpenCV
-
-These additional components are not required to reproduce the current PostgreSQL database.
-
-## 3. Solution Structure
-
-The solution contains six C# product projects and two automated test projects. The React client resides in `Focus.Web/`.
-
-```text
-FOCUS ASSISTANT/
-|
-|-- Focus.Agent/
-|   |-- Collectors/
-|   |-- Controllers/
-|   |-- Hooks/
-|   |-- Interop/
-|   |-- Models/
-|   |-- Services/
-|   |-- Storage/
-|   `-- Program.cs
-|
-|-- Focus.Api/
-|   |-- Program.cs
-|   |-- appsettings.json
-|   `-- appsettings.Development.json
-|
-|-- Focus.Application/
-|
-|-- Focus.Domain/
-|   |-- Entities/
-|   `-- Enums/
-|
-|-- Focus.Engine/
-|
-|-- Focus.Infrastructure/
-|   |-- Persistence/
-|   |   |-- Configurations/
-|   |   |-- Migrations/
-|   |   `-- FocusDbContext.cs
-|   `-- DependencyInjection.cs
-|
-|-- docs/
-|   `-- database/
-|       |-- data-dictionary.md
-|       `-- schema.md
-|
-`-- README.md
-```
-
-### Project Responsibilities
-
-**Focus.Agent**
-
-Contains Windows activity collectors for active windows, idle time, keyboard/mouse activity, and window switching.
-
-**Focus.Api**
-
-ASP.NET Core application that registers application services and database infrastructure.
-
-**Focus.Application**
-
-Layer intended for application-level use cases and coordination.
-
-**Focus.Domain**
-
-Contains domain entities, enums, and business rules for users, focus sessions, and goals.
-
-**Focus.Engine**
-
-Project intended for rule-based estimation of user concentration.
-
-**Focus.Infrastructure**
-
-Contains EF Core database configuration, PostgreSQL integration, and migrations.
-
-## 4. Database Overview
-
-Focus Assistant uses PostgreSQL as its primary database.
-
-Entity Framework Core is responsible for mapping C# entities to database tables.
-
-The original schema contains five core application tables. Backend v1 adds
-account credentials, sessions' pause intervals, and preferences as described in the
-[schema addendum](docs/database/backend-v1.md).
-
-| Table | Purpose |
-|---|---|
-| Users | User account information |
-| FocusSessions | Work sessions and self-reported ratings |
-| SessionGoals | Goals associated with work sessions |
-| ActivityAggregates | Aggregated computer activity |
-| FocusStateRecords | Estimated concentration states |
-
-Entity relationships:
-
-- One User can have multiple FocusSessions.
-- One FocusSession can have multiple SessionGoals.
-- One FocusSession can have multiple ActivityAggregates.
-- One FocusSession can have multiple FocusStateRecords.
-
-The database also contains the automatically managed `__EFMigrationsHistory` table.
-
-### Database Documentation
-
-Detailed database documentation is available here:
-
-- [Data Dictionary](docs/database/data-dictionary.md)
-- [Logical Database Schema and ER Diagram](docs/database/schema.md)
-
-The data dictionary describes all tables, columns, PostgreSQL types, primary keys, foreign keys, indexes, and constraints.
-
-The database schema document describes entity relationships and design decisions.
-
-## 5. Database Setup
-
-### 5.1 Prerequisites
-
-Install the following:
-
-- .NET 10 SDK
-- PostgreSQL (tested locally with version 17)
-- Entity Framework Core CLI tools
-- Visual Studio or another compatible development environment
-
-Check the .NET SDK:
+From the repository root in PowerShell, with PostgreSQL running:
 
 ```powershell
-dotnet --version
+Get-Service postgresql-x64-17
+& .\scripts\start-local-demo.ps1 -DatabaseName focus_demo_stage3
 ```
 
-Check the EF Core CLI:
+Enter your local PostgreSQL credentials when prompted. The launcher creates or
+migrates the named `focus_demo_` database, builds the .NET solution, starts the API
+and Vite on loopback, and prints their readiness and logs. Reuse the same name to
+keep rehearsal data. Press Ctrl+C to stop the processes started by the launcher.
+
+| Open | Local URL |
+| --- | --- |
+| React application | [127.0.0.1:5173](http://127.0.0.1:5173) |
+| API readiness | [127.0.0.1:8080/health/ready](http://127.0.0.1:8080/health/ready) |
+| Swagger UI in Development | [127.0.0.1:8080/api/docs](http://127.0.0.1:8080/api/docs) |
+| OpenAPI JSON in Development | [127.0.0.1:8080/openapi/v1.json](http://127.0.0.1:8080/openapi/v1.json) |
+
+### Database setup
+
+For a manual start, create a dedicated local database and configure
+`ConnectionStrings__PostgreSQL` in the API process environment or
+`ConnectionStrings:PostgreSQL` in [ASP.NET Core User Secrets](docs/api/getting-started.md).
+Use local credentials and keep them out of Git. The
+[manual review checklist](docs/frontend/manual-review-checklist.md) provides a
+Windows example with credential prompts and a disposable database.
+
+From the root, in the API terminal:
 
 ```powershell
-dotnet ef --version
+dotnet restore 'FOCUS ASSISTANT.slnx' --locked-mode
+dotnet build 'FOCUS ASSISTANT.slnx' -c Release --no-restore
+$env:DOTNET_ENVIRONMENT = 'Development'
+dotnet run --project Focus.Api -c Release --no-build --no-launch-profile -- --migrate
+dotnet run --project Focus.Api -c Release --no-build --no-launch-profile -- --urls http://127.0.0.1:8080
 ```
 
-For compatibility, use EF Core CLI version 10 with the project's EF Core 10 dependencies.
-
-### 5.2 Restore Dependencies
-
-Open a terminal in the solution root directory:
-
-```powershell
-dotnet restore
-```
-
-Build the solution:
-
-```powershell
-dotnet build
-```
-
-The solution must build successfully before migrations can be applied.
-
-### 5.3 Configure PostgreSQL
-
-Start the PostgreSQL server.
-
-The application reads its database connection string from:
-
-`ConnectionStrings:PostgreSQL`
-
-For local development, the recommended configuration method is .NET User Secrets.
-
-In Visual Studio:
-
-1. Right-click the `Focus.Api` project.
-2. Select **Manage User Secrets**.
-3. Add the following configuration:
-
-```json
-{
-  "ConnectionStrings": {
-    "PostgreSQL": "Host=localhost;Port=5432;Database=focus_assistant;Username=postgres;Password=YOUR_PASSWORD"
-  }
-}
-```
-
-Replace `YOUR_PASSWORD` with your local PostgreSQL password.
-
-The database name and username may be changed to match your environment.
-
-User Secrets are stored outside the repository and must not be committed to Git.
-
-Alternatively, the connection string can be supplied using the environment variable:
-
-`ConnectionStrings__PostgreSQL`
-
-### 5.4 Apply Database Migrations
-
-The database schema is generated automatically using EF Core migrations.
-
-From the solution root, run:
-
-```powershell
-dotnet ef database update --project Focus.Infrastructure --startup-project Focus.Api --context FocusDbContext
-```
-
-This command applies all pending migrations to the configured PostgreSQL database.
-
-PostgreSQL must be running, and the configured user must have sufficient permissions to create the database schema.
-
-**Do not manually create the application tables in pgAdmin.**
-
-### 5.5 Available Migrations
-
-The historical database baseline starts with two migrations:
-
-1. `InitialCreate`
-   - Creates Users
-   - Creates FocusSessions
-   - Creates SessionGoals
-   - Configures keys, relationships, and indexes
-
-2. `AddTelemetryAndResearchData`
-   - Creates ActivityAggregates
-   - Creates FocusStateRecords
-   - Adds SelfReportedProductivity to FocusSessions
-   - Configures additional foreign keys and indexes
-
-Migration files are located in:
-
-`Focus.Infrastructure/Persistence/Migrations/`
-
-### 5.6 Verify Applied Migrations
-
-Run:
-
-```powershell
-dotnet ef migrations list --project Focus.Infrastructure --startup-project Focus.Api --context FocusDbContext
-```
-
-Expected migrations:
-
-```text
-20261018200509_InitialCreate
-AddTelemetryAndResearchData
-```
-
-The second migration's full name includes its generated timestamp.
-The v1 migrations appear after these entries.
-
-### 5.7 Verify Database Tables
-
-Connect to the configured PostgreSQL database using pgAdmin or another SQL client.
-
-Execute:
-
-```sql
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-ORDER BY table_name;
-```
-
-Expected result:
-
-```text
-ActivityAggregates
-FocusSessions
-FocusStateRecords
-SessionGoals
-Users
-__EFMigrationsHistory
-```
-
-The exact order depends on the SQL query.
-
-The `__EFMigrationsHistory` table is managed by Entity Framework Core.
-
-### 5.8 Verify the Database Connection
-
-From the solution root, run:
-
-```powershell
-dotnet ef dbcontext info --project Focus.Infrastructure --startup-project Focus.Api --context FocusDbContext
-```
-
-The output should show:
-
-- Context: FocusDbContext
-- Provider: Npgsql.EntityFrameworkCore.PostgreSQL
-- Database: focus_assistant, or your configured database name
-
-## 6. Running the API
-
-From the solution root:
-
-```powershell
-dotnet run --project Focus.Api
-```
-
-The API uses the connection string configured in the previous steps.
-
-The current API project registers ASP.NET Core controllers and database infrastructure.
-
-Database migrations are applied separately using the EF Core command shown above.
-
-Use the [v1 integration tutorial](docs/api/integration-tutorial.md) to exercise the
-implemented backend workflow.
-
-### Running the web client
-
-Use Node.js 22.13+ and npm. Follow the [API Getting Started guide](docs/api/getting-started.md)
-to configure PostgreSQL, migrate your development database, and start the API at
-`http://127.0.0.1:8080`. In a second terminal from the repository root:
+From the root, in the web terminal:
 
 ```powershell
 cd Focus.Web
 npm ci
-npm run dev
+$env:FOCUS_API_ORIGIN = 'http://127.0.0.1:8080'
+npm run dev -- --port 5173 --strictPort
 ```
 
-Open `http://127.0.0.1:5173`, register an account, and sign in. Vite proxies
-`/api` to the local API. Set `FOCUS_API_ORIGIN` in `Focus.Web/.env.local`
-if the API uses another local address.
+Register a disposable account and follow the [review walkthrough](docs/frontend/manual-review-checklist.md#walkthrough).
+For Swagger **Authorize**, use the opaque ASP.NET Core access token returned by
+login. See the [Try it out walkthrough](docs/api/getting-started.md#try-the-api-in-swagger-ui).
 
-### Recording Windows activity for a web session
+## Front-end evidence
 
-Enable telemetry in **Settings → Privacy**, create a planned session, and copy its
-UUID from **Connect Windows Agent**. Run from the repository root in Windows PowerShell:
+- [Architecture and navigation](docs/frontend/architecture.md) explain the layout,
+  routing and state boundaries. [User flows](docs/frontend/navigation-and-user-flows.md)
+  cover authentication and session lifecycle.
+- [Three component unit tests and representative end-to-end flows](docs/frontend/testing.md#stage-3-test-map)
+  link the exact source and assertions. The core browser cases demonstrate
+  signup/sign-out and completing then reopening a persisted session.
+- [Validated forms](Focus.Web/src/features/auth/forms.ts), [global error boundary](Focus.Web/src/app/App.tsx),
+  [HTTP errors](Focus.Web/src/api/errors.ts) and [shared loading and recovery UI](Focus.Web/src/ui/feedback.tsx)
+  show the implementation. Run `npm test`, `npm run lint`, `npm run typecheck` and
+  `npm run build` from `Focus.Web` after `npm ci`. Follow the
+  [Playwright setup](docs/frontend/testing.md#real-api-browser-tests)
+  for isolated API-backed browser tests.
 
-```powershell
-$session = Read-Host 'Session UUID'
-dotnet run --project Focus.Agent -c Release -- --api http://127.0.0.1:8080 --session $session --collect
-```
+## API Documentation evidence
 
-Confirm the run with `START` and use the same account as the web client. The Agent
-uploads to the existing API and PostgreSQL database. See the [Windows Agent guide](docs/agent/windows-setup.md)
-for the short-session walkthrough, encrypted queue, retries and consent behavior.
+[Stored OpenAPI 3.1.1](docs/api/openapi.json) contains 42 operations, 16 applicable
+request examples, 37 successful JSON response examples, and 194 Problem Details
+examples. Five `204` responses are bodyless. See the [coverage table](docs/api/operation-coverage.md),
+[Getting Started](docs/api/getting-started.md), [step-by-step tutorial](docs/api/integration-tutorial.md),
+and [schema and runtime parity tests](Focus.Api.IntegrationTests/ContractTests.cs).
+Swagger UI is available on the local Development API.
 
-### Windows desktop companion
+## Adaptive UI evidence
 
-Open [the Unity project and Windows launch guide](Focus.Avatar/README.md) to build
-and pair the desktop companion. It reads the selected session's processed
-estimate through the Agent and can start, pause or resume that session.
+The [design PDF](docs/design/focus-assistant-adaptive-ui.pdf) includes a design
+system and 15 captures across five screens and three device classes. Open the
+standalone Overview screenshots at full size on
+[phone](docs/design/screenshots/stage3-overview-mobile.png),
+[tablet](docs/design/screenshots/stage3-overview-tablet.png) and
+[desktop](docs/design/screenshots/stage3-overview-desktop.png).
+The [responsive audit](docs/design/responsive-audit.md) records portrait and landscape,
+125–200% browser zoom, sampled touch targets of 44 CSS px, navigation and overflow.
+The [design system](docs/design/design-system.md) identifies reusable controls, color
+and typography. Sampled normal text pairs exceed 4.5:1. [Accessibility evidence](docs/frontend/accessibility.md)
+covers browser automation and its limits.
 
-### Optional local Computer Vision
+## Back-end evidence
 
-Focus.Vision processes camera observations locally on Windows with a separate
-camera opt-in. The Agent submits only coarse session totals. Follow the
-[setup guide](docs/vision/setup.md) and [manual webcam procedure](docs/vision/manual-verification.md).
+- [Backend architecture](docs/architecture/backend.md) shows controllers and use-case
+  services with separate responsibilities and dependency inversion through persistence
+  interfaces. [Session service](Focus.Application/Sessions/SessionService.cs),
+  [EF mappings](Focus.Infrastructure/Persistence/Configurations/) and
+  [versioned migrations](Focus.Infrastructure/Persistence/Migrations/) show this in code.
+- [Global Problem Details error handler](Focus.Api/Hosting/ApiErrorHandler.cs),
+  [structured JSON request logging](Focus.Api/Program.cs), and
+  [authentication and resource ownership](docs/api/authentication.md)
+  show the API middleware and security boundaries.
+- [Business-logic tests](Focus.Backend.Tests/) measured **87.44% line coverage**
+  (724/828 lines) across Domain, Application and Engine using Coverlet. [Measured results and commands](docs/audit/task20-verification.md#commands-and-results)
+  and [reproduction and security scanning](docs/testing/backend.md) describe the scope
+  and quality gate. [GitHub Actions](https://github.com/arteomponomarev/FOCUS-ASSISTANT/actions)
+  includes build, test, coverage and secret-scanning jobs.
 
-See the [frontend architecture](docs/frontend/architecture.md), [test setup](docs/frontend/testing.md),
-[production hosting configuration](docs/frontend/api-integration.md), and
-[Adaptive UI design](docs/design/focus-assistant-adaptive-ui.pdf).
+## Limitations
 
-Use the [manual review checklist](docs/frontend/manual-review-checklist.md) for a short
-Windows walkthrough with a disposable PostgreSQL database and synthetic account.
-
-## 7. Research Data
-
-The database has been designed to support research into the relationship between computer activity and subjective concentration.
-
-### Activity Data
-
-ActivityAggregates stores:
-
-- Active application process name
-- Keyboard event count
-- Mouse click count
-- Window switching count
-- Idle duration
-- Start and end timestamps
-
-### User Feedback
-
-FocusSessions stores:
-
-- Self-reported concentration (1–5)
-- Self-reported productivity (1–5)
-- Optional reflection
-- Session status and timestamps
-
-### Estimated Focus States
-
-FocusStateRecords stores:
-
-- Estimated focus state
-- State interval
-- Rule version
-- Explanation of the result
-
-The planned states include:
-
-- Neutral
-- Focused
-- Distracted
-- Idle
-- Break
-- Absent
-
-The research will compare these behavioral signals and estimated states with user feedback.
-
-Correlation results have not yet been established.
-
-## 8. Privacy and Security
-
-Focus Assistant follows a privacy-oriented design.
-
-The database schema stores aggregated activity rather than actual keyboard input.
-
-The system is designed to avoid collecting:
-
-- Typed text
-- Passwords
-- Clipboard contents
-- Document contents
-- Raw webcam recordings
-
-Optional computer vision is planned as a separate feature requiring explicit user consent.
-
-The current PostgreSQL schema does not include dedicated computer vision tables.
-
-### Secrets Management
-
-Never commit the following to Git:
-
-- Database passwords
-- API keys
-- Access tokens
-- Private credentials
-- Files containing real secrets
-
-Use .NET User Secrets or environment variables for development credentials.
-
-### Database Integrity
-
-The database uses:
-
-- Primary keys
-- Foreign keys
-- Unique constraints
-- Indexes
-- Required fields
-- Maximum string lengths
-- Cascade deletion for dependent records
-
-Some business constraints are currently validated in C# rather than by PostgreSQL CHECK constraints.
-
-## 9. Database Baseline and Backend v1 Status
-
-Implemented or verified:
-
-- C# solution structure
-- Domain entities for users, sessions, and goals
-- PostgreSQL integration through EF Core
-- Five database tables
-- Two database migrations
-- Primary and foreign key relationships
-- Database indexes
-- Database documentation
-- Local database connection and migration verification
-
-Backend v1 supports authentication, owned sessions and goals, consent-gated telemetry,
-versioned heuristic estimates, analytics, and user preferences. The isolated PostgreSQL
-workflow and coverage results are recorded in the implementation evidence.
-
-Further integration work:
-
-- Unity desktop avatar
-- Computer vision
-- Statistical validation and research experiments
-
-The presence of database tables does not mean that every planned application feature is already implemented.
-
-## 10. Database Reproducibility
-
-The database schema is version-controlled.
-
-An evaluator can reproduce it by:
-
-1. Cloning the repository.
-2. Installing .NET and PostgreSQL.
-3. Configuring a PostgreSQL connection string.
-4. Restoring project dependencies.
-5. Applying the EF Core migrations.
-6. Verifying the resulting tables and relationships.
-
-No manual creation of application tables is required.
-
-## 11. Project Purpose
-
-Focus Assistant is developed as an academic diploma project.
-
-Its main research objective is to investigate whether computer activity patterns are associated with users' self-reported concentration and productivity.
-
-The project combines software engineering with empirical research while recognizing that behavioral activity is not a direct measurement of attention.
+Public production deployment is an outstanding Back-end requirement. The API and
+Swagger links above are local development addresses. Use the
+[local demo report](docs/release/2026-11-24-local-readiness.md) for the verified
+workflow, optional [Avatar setup](Focus.Avatar/README.md), and
+[manual camera test](docs/vision/manual-verification.md). The camera evidence
+covers synthetic input. Browser credentials are held in memory and sign-in
+is required after reloading the SPA.
